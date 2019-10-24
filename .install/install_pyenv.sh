@@ -17,6 +17,8 @@ sudo apt-get install -y libdb5.3-dev
 sudo apt-get install -y libbz2-dev
 sudo apt-get install -y libexpat1-dev
 sudo apt-get install -y liblzma-dev
+sudo apt-get install -y libffi-dev
+sudo apt-get install -y uuid-dev
 sudo apt-get install -y tk-dev
 
 # setting up pyenv to get python 3.6 on this box
@@ -40,9 +42,9 @@ else
     echo "pyenv FAILED TO INSTALL!!!" >> ~/install_progress_log.txt
 fi
 
-# install python 3.6
-pyenv install 3.6.0
-pyenv virtualenv 3.6.0 general
+# install python 3.8
+pyenv install 3.8.0
+pyenv virtualenv 3.8.0 general
 pyenv global general
 pyenv rehash
 
