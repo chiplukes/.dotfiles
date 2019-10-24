@@ -116,3 +116,6 @@ if ! shopt -oq posix; then
   fi
 fi
 alias dotfiles='/usr/bin/git --git-dir=/home/chipl/.dotfiles/ --work-tree=/home/chipl'
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
