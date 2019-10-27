@@ -7,4 +7,6 @@ sudo apt-get upgrade -y
 . ./apt_install_check.sh git
 . ./apt_install_check.sh curl
 
-
+# fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
