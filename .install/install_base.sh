@@ -10,3 +10,5 @@ sudo apt-get upgrade -y
 # fzf
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
+
+. ./apt_install_check.sh ripgrep
