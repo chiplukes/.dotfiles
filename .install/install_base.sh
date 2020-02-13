@@ -6,6 +6,7 @@ sudo apt-get upgrade -y
 
 . ./apt_install_check.sh git
 . ./apt_install_check.sh curl
+. ./apt_install_check.sh subversion
 
 # fzf
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
