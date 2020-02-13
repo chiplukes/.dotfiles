@@ -7,6 +7,7 @@ sudo apt-get install -y flex
 sudo apt-get install -y bison
 
 # setting up Icarus Verilog
+mkdir -p ~/tmp
 cd ~/tmp
 git clone https://github.com/steveicarus/iverilog.git
 cd iverilog
