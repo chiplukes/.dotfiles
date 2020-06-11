@@ -30,6 +30,7 @@ curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 ## so that pyenv available after script run
 #echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> $HOME/.bashrc
