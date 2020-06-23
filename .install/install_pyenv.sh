@@ -46,9 +46,9 @@ fi
 #git clone https://github.com/pyenv/pyenv-virtualenv.git $PYENV_ROOT/plugins/pyenv-virtualenv
 
 
-# install python 3.8
-pyenv install 3.8.0
-pyenv virtualenv 3.8.0 general
+# install python 3.8.3
+pyenv install 3.8.3
+pyenv virtualenv 3.8.3 general
 pyenv global general
 pyenv rehash
 
