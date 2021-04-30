@@ -23,9 +23,9 @@ unset VERILATOR_ROOT  # For bash
 cd verilator
 git pull        # Make sure git repository is up-to-date
 git tag         # See what versions exist
-git checkout master      # Use development branch (e.g. recent bug fixes)
+#git checkout master      # Use development branch (e.g. recent bug fixes)
 #git checkout stable      # Use most recent stable release
-#git checkout v{version}  # Switch to specified release version
+git checkout v4.106       # as of 4/30/2021 need this to fix a bug in the vpi for cocotb
 
 autoconf        # Create ./configure script
 ./configure     # Configure and create Makefile
