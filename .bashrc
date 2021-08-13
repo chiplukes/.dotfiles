@@ -131,6 +131,7 @@ alias vivadoshell="/tools/Xilinx/Vivado/2020.1/bin/vivado -mode tcl"
 
 vivadolaunch ()
 {
+  export XILINXD_LICENSE_FILE=2100@192.168.64.7
+  source /tools/Xilinx/Vivado/2020.1/settings64.sh
   /tools/Xilinx/Vivado/2020.1/bin/vivado "$1"
 }
-
