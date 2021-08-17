@@ -24,7 +24,7 @@ if type -p iverilog > /dev/null; then
 fi
 
 # Setting up MyHDL
-export PYTHON_EXE=$HOME/.pyenv/versions/3.8.3/bin/python
+export PYTHON_EXE=$HOME/.pyenv/versions/3.8.6/bin/python
 cd ~/tmp
 git clone https://github.com/jandecaluwe/myhdl.git
 cd ~/tmp/myhdl && $PYTHON_EXE setup.py install
