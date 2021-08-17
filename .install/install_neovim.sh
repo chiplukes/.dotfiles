@@ -15,7 +15,7 @@ cd cfg
 sh install.sh
 
 # Note: need to run :PlugInstall upon first opening of nvim
-pyenv virtualenv 3.8.3 py3neovim
+pyenv virtualenv 3.8.6 py3neovim
 pyenv activate py3neovim
 pip install neovim
 
