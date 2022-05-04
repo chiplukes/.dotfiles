@@ -144,6 +144,13 @@ vivadolaunch ()
   /tools/Xilinx/Vivado/$1/bin/vivado "$2"
 }
 
+vitisshell ()
+{
+  export XILINXD_LICENSE_FILE=2100@192.168.64.7
+  source /tools/Xilinx/Vitis/$1/settings64.sh
+  /tools/Xilinx/Vitis/$1/bin/xsct
+}
+
 vitislaunch ()
 {
   export XILINXD_LICENSE_FILE=2100@192.168.64.7
