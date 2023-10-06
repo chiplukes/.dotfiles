@@ -24,7 +24,15 @@ if type -p iverilog > /dev/null; then
 fi
 
 # Setting up MyHDL
-export PYTHON_EXE=$HOME/.pyenv/versions/3.8.6/bin/python
+PYTHON_VER=3.12
+if type -p python$PYTHON_VER > /dev/null; then
+    # now using local python install
+    export PYTHON_EXE=$HOME/bin/python$PYTHON_VER
+else
+    # legacy - when using pyenv
+    export PYTHON_EXE=$HOME/.pyenv/versions/3.8.6/bin/python
+fi
+
 cd ~/tmp
 git clone https://github.com/jandecaluwe/myhdl.git
 cd ~/tmp/myhdl && $PYTHON_EXE setup.py install

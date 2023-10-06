@@ -1,7 +1,8 @@
 # work pc setup
 
 . ./install_base.sh
-. ./install_pyenv.sh
+#. ./install_pyenv.sh
+. ./install_python.sh
 . ./install_neovim.sh
 . ./install_hdl_tools.sh
 
