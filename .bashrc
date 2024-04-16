@@ -129,6 +129,9 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 # add bin folder for python binaries
 export PATH="$HOME/bin:$PATH"
 
+# pyautoenv
+source ~/bash_scripts/pyautoenv.bash
+
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # Vivado Aliases
