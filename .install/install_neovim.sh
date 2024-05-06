@@ -15,9 +15,11 @@ cd cfg
 sh install.sh
 
 # Note: need to run :PlugInstall upon first opening of nvim
-pyenv virtualenv 3.8.6 py3neovim
-pyenv activate py3neovim
-pip install neovim
+cd $HOME/.config/nvim
+
+python3.12 -m venv .venv
+$HOME/.config/nvim/.venv/bin/python -m pip install --upgrade pip
+$HOME/.config/nvim/.venv/bin/python -m pip install neovim
 
 if type -p nvim > /dev/null; then
     echo "nvim Installed" >> ~/install_progress_log.txt
