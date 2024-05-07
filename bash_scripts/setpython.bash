@@ -1,0 +1,3 @@
+#!/bin/bash
+export PYTHON_DEFAULT_VER_FULL="3.12.3"
+export PYTHON_DEFAULT_VER="3.12"

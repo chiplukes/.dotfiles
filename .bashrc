@@ -129,6 +129,9 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 # add bin folder for python binaries
 export PATH="$HOME/bin:$PATH"
 
+# set default user python environment variables
+source ~/bash_scripts/setpython.bash
+
 # pyautoenv
 source ~/bash_scripts/pyautoenv.bash
 
