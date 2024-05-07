@@ -41,7 +41,7 @@ if [[ ${PYTHON_DEFAULT_VER_FULL} == "3.12.3" ]]; then
     sudo ./configure --prefix=/opt/python/"${PYTHON_VER_FULL}"/ --enable-optimizations --with-lto --with-computed-gotos --with-system-ffi
     sudo make -j "$(nproc)"
     sudo make altinstall
-    sudo rm $HOME/tmp/Python-"${PYTHON_VER_FULL}".tgz
+    sudo rm "${HOME}"/tmp/python/Python-"${PYTHON_VER_FULL}".tgz
 
     # add links into bin 
     mkdir -p $HOME/bin
