@@ -22,7 +22,7 @@ sh install.sh
 cd "${HOME}"/.config/nvim || exit
 
 echo "Creating python virtual environment for neovim"
-python"${PYTHON_DEFAULT_VER}" -m venv .venv
+python"${PYTHON_USER_VER}" -m venv .venv
 "${HOME}"/.config/nvim/.venv/bin/python -m pip install --upgrade pip
 "${HOME}"/.config/nvim/.venv/bin/python -m pip install neovim
 

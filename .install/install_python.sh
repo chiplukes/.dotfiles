@@ -1,18 +1,22 @@
 #!/bin/bash
 
+# this script allows alternate version passed as arg (if desired)
 if [[ $# == 0 ]]; then
-    source $HOME/bash_scripts/setpython.bash
-    PYTHON_VER_FULL=${PYTHON_DEFAULT_VER_FULL}
-    PYTHON_VER=${PYTHON_DEFAULT_VER}
+    # get user python version
+    source "${HOME}"/bash_scripts/setpython.bash
+    PYTHON_VER_FULL=${PYTHON_USER_VER_FULL}
+    PYTHON_VER=${PYTHON_USER_VER}
+    PYTHON_INSTALL_LOCATION=${PYTHON_USER_INSTALL_LOCATION}
 else
     PYTHON_VER_FULL=$1
     if [[ ${PYTHON_VER_FULL: -2:1} == "." ]]; then
         # subminor version is 1 character x.y.z
-        PYTHON_VER=${PYTHON_DEFAULT_VER::-2}
+        PYTHON_VER=${PYTHON_USER_VER::-2}
     else
         # subminor version is 2 characters x.y.zz
-        PYTHON_VER=${PYTHON_DEFAULT_VER::-3}
+        PYTHON_VER=${PYTHON_USER_VER::-3}
     fi
+    PYTHON_INSTALL_LOCATION="/opt/python/"
 fi
 
 # install python
@@ -38,15 +42,14 @@ if [[ ${PYTHON_VER_FULL} == "3.12.3" ]]; then
     tar xzf Python-"${PYTHON_VER_FULL}".tgz
     cd Python-"${PYTHON_VER_FULL}" || exit
 
-    sudo ./configure --prefix=/opt/python/"${PYTHON_VER_FULL}"/ --enable-optimizations --with-lto --with-computed-gotos --with-system-ffi
+    sudo ./configure --prefix="${PYTHON_INSTALL_LOCATION}${PYTHON_VER_FULL}"/ --enable-optimizations --with-lto --with-computed-gotos --with-system-ffi
     sudo make -j "$(nproc)"
     sudo make altinstall
     sudo rm "${HOME}"/tmp/python/Python-"${PYTHON_VER_FULL}".tgz
 
     # add links into bin 
-    mkdir -p $HOME/bin
-    ln -sf /opt/python/"$PYTHON_VER_FULL"/bin/python3.* ~/bin/
-    python"${PYTHON_VER}" -m pip install setuptools
+    mkdir -p "${HOME}"/bin
+    ln -sf "${PYTHON_INSTALL_LOCATION}${PYTHON_VER_FULL}"/bin/python3.* ~/bin/
 
 elif [[ ${PYTHON_VER_FULL} == "3.11.6" ]]; then
     # Python 3.11.6
@@ -61,15 +64,14 @@ elif [[ ${PYTHON_VER_FULL} == "3.11.6" ]]; then
     tar xzf Python-"${PYTHON_VER_FULL}".tgz
     cd Python-"${PYTHON_VER_FULL}" || exit
 
-    sudo ./configure --prefix=/opt/python/"${PYTHON_VER_FULL}"/ --enable-optimizations --with-lto --with-computed-gotos --with-system-ffi
+    sudo ./configure --prefix="${PYTHON_INSTALL_LOCATION}${PYTHON_VER_FULL}"/ --enable-optimizations --with-lto --with-computed-gotos --with-system-ffi
     sudo make -j "$(nproc)"
     sudo make altinstall
     sudo rm "${HOME}"/tmp/python/Python-"${PYTHON_VER_FULL}".tgz
 
     # add links into bin 
-    mkdir -p $HOME/bin
-    ln -sf /opt/python/"$PYTHON_VER_FULL"/bin/python3.* ~/bin/
-    python"${PYTHON_VER}" -m pip install setuptools
+    mkdir -p "${HOME}"/bin
+    ln -sf "${PYTHON_INSTALL_LOCATION}${PYTHON_VER_FULL}"/bin/python3.* ~/bin/
 
 else
     echo "Error: no build instructions for Python ${PYTHON_VER_FULL}"
