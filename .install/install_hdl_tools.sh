@@ -28,9 +28,17 @@ if type -p iverilog > /dev/null; then
 fi
 
 echo "Setting up MyHDL"
-cd ~/tmp || exit
+cd "${HOME}"/tmp || exit
 git clone https://github.com/jandecaluwe/myhdl.git
-cd ~/tmp/myhdl && python"${PYTHON_USER_VER}" setup.py install
-cd ~/tmp/myhdl/cosimulation/icarus && make && sudo install -m 0755 -D ./myhdl.vpi /usr/lib/ivl/myhdl.vpi
-sudo cp "{$HOME}"/tmp/myhdl/cosimulation/icarus/myhdl.vpi /usr/local/lib/ivl
+cd "${HOME}"/tmp/myhdl || exit
+
+# make a temporary virtual environment
+python"${PYTHON_USER_VER}" -m venv .venv
+"${HOME}"/tmp/myhdl/.venv/bin/python -m pip install setuptools
+# install myhdl
+"${HOME}"/tmp/myhdl/.venv/bin/python setup.py install
+
+# compile and install cosimulation vpi
+cd "${HOME}"/tmp/myhdl/cosimulation/icarus && make && sudo install -m 0755 -D ./myhdl.vpi /usr/lib/ivl/myhdl.vpi
+sudo cp "${HOME}"/tmp/myhdl/cosimulation/icarus/myhdl.vpi /usr/local/lib/ivl
 
