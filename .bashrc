@@ -142,27 +142,47 @@ source ~/bash_scripts/pyautoenv.bash
 vivadoshell ()
 {
   export XILINXD_LICENSE_FILE=2100@192.168.64.7
+  if [[ "$1" =~ ^2025\.1|^202[6-9] ]]; then
+    source /tools/Xilinx/$1/Vivado/settings64.sh
+    /tools/Xilinx/$1/Vivado/bin/vivado -mode tcl
+  else
   source /tools/Xilinx/Vivado/$1/settings64.sh
   /tools/Xilinx/Vivado/$1/bin/vivado -mode tcl
+  fi
 }
 
 vivadolaunch ()
 {
   export XILINXD_LICENSE_FILE=2100@192.168.64.7
+  if [[ "$1" =~ ^2025\.1|^202[6-9] ]]; then
+    source /tools/Xilinx/$1/Vivado/settings64.sh
+    /tools/Xilinx/$1/Vivado/bin/vivado "$2"
+  else
   source /tools/Xilinx/Vivado/$1/settings64.sh
   /tools/Xilinx/Vivado/$1/bin/vivado "$2"
+  fi
 }
 
 vitisshell ()
 {
   export XILINXD_LICENSE_FILE=2100@192.168.64.7
+  if [[ "$1" =~ ^2025\.1|^202[6-9] ]]; then
+    source /tools/Xilinx/$1/Vitis/settings64.sh
+    /tools/Xilinx/$1/Vitis/bin/xsct
+  else
   source /tools/Xilinx/Vitis/$1/settings64.sh
   /tools/Xilinx/Vitis/$1/bin/xsct
+  fi
 }
 
 vitislaunch ()
 {
   export XILINXD_LICENSE_FILE=2100@192.168.64.7
+  if [[ "$1" =~ ^2025\.1|^202[6-9] ]]; then
+    source /tools/Xilinx/$1/Vitis/settings64.sh
+    /tools/Xilinx/$1/Vitis/bin/vitis "$2"
+  else
   source /tools/Xilinx/Vitis/$1/settings64.sh
   /tools/Xilinx/Vitis/$1/bin/vitis "$2"
+  fi
 }
