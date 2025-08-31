@@ -58,15 +58,14 @@ git clone --bare -b "$BRANCH" "$DOTFILES_REPO" "$DOTFILES_DIR"
 # Checkout files, backing up any conflicts
 echo "Checking out dotfiles..."
 if ! dotfiles checkout 2>/dev/null; then
-    echo "Backing up pre-existing dot files to $DOTFILES_BACKUP"
+    echo "Backing up pre-existing files to $DOTFILES_BACKUP"
     mkdir -p "$DOTFILES_BACKUP"
 
-    # Get list of conflicting files and back them up
-    # Fix: Use array to avoid subshell issue
-    readarray -t conflicting_files < <(dotfiles checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}')
+    # Get list of ALL conflicting files and back them up (not just dotfiles)
+    readarray -t conflicting_files < <(dotfiles checkout 2>&1 | grep -E "^\s+" | awk '{print $1}' | grep -v "^Please\|^Aborting")
 
     for file in "${conflicting_files[@]}"; do
-        if [[ -n "$file" && -f "$HOME/$file" ]]; then
+        if [[ -n "$file" && -e "$HOME/$file" ]]; then
             echo "Backing up: $file"
             backup_path="$DOTFILES_BACKUP/$file"
             backup_dir=$(dirname "$backup_path")
@@ -79,7 +78,11 @@ if ! dotfiles checkout 2>/dev/null; then
     echo "Retrying checkout after backing up conflicts..."
     if ! dotfiles checkout; then
         echo "Error: Checkout still failed after backing up conflicts" >&2
-        exit 1
+        echo "Trying to force checkout..."
+        if ! dotfiles checkout -f; then
+            echo "Force checkout also failed!" >&2
+            exit 1
+        fi
     fi
 fi
 
