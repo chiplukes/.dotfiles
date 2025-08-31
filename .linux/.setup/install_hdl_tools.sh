@@ -27,26 +27,26 @@ for package in "${packages[@]}"; do
     fi
 done
 
-# Setup build directory
+# Setup build directory with proper permissions
 BUILD_DIR="$HOME/tmp"
 IVERILOG_DIR="$BUILD_DIR/iverilog"
 
+echo "Setting up build directory: $BUILD_DIR"
+rm -rf "$BUILD_DIR"  # Clean slate
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR" || exit 1
 
-# Clone or update Icarus Verilog
-if [[ -d "$IVERILOG_DIR" ]]; then
-    echo "Updating existing Icarus Verilog repository..."
-    cd "$IVERILOG_DIR" || exit 1
-    git pull
-else
-    echo "Cloning Icarus Verilog repository..."
-    if ! git clone https://github.com/steveicarus/iverilog.git; then
-        echo "Failed to clone Icarus Verilog repository" >&2
-        exit 1
-    fi
-    cd "$IVERILOG_DIR" || exit 1
+# Clone Icarus Verilog (fresh clone to avoid permission issues)
+echo "Cloning Icarus Verilog repository..."
+if ! git clone https://github.com/steveicarus/iverilog.git; then
+    echo "Failed to clone Icarus Verilog repository" >&2
+    exit 1
 fi
+
+cd "$IVERILOG_DIR" || exit 1
+
+# Ensure we have write permissions in the directory
+chmod -R u+w .
 
 # Build and install Icarus Verilog
 echo "Building Icarus Verilog..."
@@ -60,9 +60,16 @@ if ! ./configure; then
     exit 1
 fi
 
+# Clean any previous build artifacts that might have wrong permissions
+make clean 2>/dev/null || true
+
 if ! make -j"$(nproc)"; then
     echo "Failed to build Icarus Verilog" >&2
-    exit 1
+    echo "Trying single-threaded build..."
+    if ! make; then
+        echo "Single-threaded build also failed" >&2
+        exit 1
+    fi
 fi
 
 if ! sudo make install; then
@@ -74,6 +81,7 @@ fi
 if command -v iverilog >/dev/null; then
     echo "✓ Icarus Verilog installed successfully"
     echo "Icarus Verilog Installed" >> "$HOME/install_progress_log.txt"
+    iverilog -V | head -1
 else
     echo "✗ Icarus Verilog installation failed!"
     echo "Icarus Verilog FAILED TO INSTALL!!!" >> "$HOME/install_progress_log.txt"
@@ -82,22 +90,20 @@ fi
 
 echo -e "\n====== Installing MyHDL ======\n"
 
-# Setup MyHDL
+# Setup MyHDL (fresh clone)
 MYHDL_DIR="$BUILD_DIR/myhdl"
 cd "$BUILD_DIR" || exit 1
 
-if [[ -d "$MYHDL_DIR" ]]; then
-    echo "Updating existing MyHDL repository..."
-    cd "$MYHDL_DIR" || exit 1
-    git pull
-else
-    echo "Cloning MyHDL repository..."
-    if ! git clone https://github.com/jandecaluwe/myhdl.git; then
-        echo "Failed to clone MyHDL repository" >&2
-        exit 1
-    fi
-    cd "$MYHDL_DIR" || exit 1
+echo "Cloning MyHDL repository..."
+if ! git clone https://github.com/jandecaluwe/myhdl.git; then
+    echo "Failed to clone MyHDL repository" >&2
+    exit 1
 fi
+
+cd "$MYHDL_DIR" || exit 1
+
+# Ensure proper permissions
+chmod -R u+w .
 
 # Create and setup virtual environment
 echo "Setting up MyHDL virtual environment..."
@@ -106,7 +112,7 @@ if ! python"$PYTHON_USER_VER" -m venv .venv; then
     exit 1
 fi
 
-if ! .venv/bin/python -m pip install setuptools; then
+if ! .venv/bin/python -m pip install --upgrade pip setuptools wheel; then
     echo "Failed to install setuptools" >&2
     exit 1
 fi
@@ -122,10 +128,16 @@ fi
 echo "Installing MyHDL VPI module..."
 cd "$MYHDL_DIR/cosimulation/icarus" || exit 1
 
+# Ensure write permissions for VPI build
+chmod -R u+w .
+
 if ! make; then
     echo "Failed to build MyHDL VPI" >&2
     exit 1
 fi
+
+# Create VPI directories if they don't exist
+sudo mkdir -p /usr/lib/ivl /usr/local/lib/ivl
 
 # Install VPI module to both locations
 if ! sudo install -m 0755 -D ./myhdl.vpi /usr/lib/ivl/myhdl.vpi; then
@@ -138,4 +150,14 @@ fi
 
 echo "✓ HDL Tools installation complete!"
 echo "MyHDL Installed" >> "$HOME/install_progress_log.txt"
+
+# Clean up build directory to save space
+echo "Cleaning up build directory..."
+rm -rf "$BUILD_DIR"
+
+echo ""
+echo "Installation Summary:"
+echo "- Icarus Verilog: $(iverilog -V | head -1)"
+echo "- MyHDL VPI modules installed to /usr/lib/ivl/ and /usr/local/lib/ivl/"
+echo "- Virtual environment: $MYHDL_DIR/.venv (cleaned up)"
 
