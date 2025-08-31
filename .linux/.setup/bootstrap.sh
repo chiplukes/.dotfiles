@@ -62,16 +62,25 @@ if ! dotfiles checkout 2>/dev/null; then
     mkdir -p "$DOTFILES_BACKUP"
 
     # Get list of conflicting files and back them up
-    dotfiles checkout 2>&1 | egrep "\s+\." | awk '{print $1}' | while IFS= read -r file; do
-        if [[ -n "$file" ]]; then
+    # Fix: Use array to avoid subshell issue
+    readarray -t conflicting_files < <(dotfiles checkout 2>&1 | grep -E "^\s+\." | awk '{print $1}')
+
+    for file in "${conflicting_files[@]}"; do
+        if [[ -n "$file" && -f "$HOME/$file" ]]; then
             echo "Backing up: $file"
-            mkdir -p "$DOTFILES_BACKUP/$(dirname "$file")" 2>/dev/null || true
-            mv "$HOME/$file" "$DOTFILES_BACKUP/$file" 2>/dev/null || true
+            backup_path="$DOTFILES_BACKUP/$file"
+            backup_dir=$(dirname "$backup_path")
+            mkdir -p "$backup_dir"
+            mv "$HOME/$file" "$backup_path"
         fi
     done
 
     # Try checkout again
-    dotfiles checkout
+    echo "Retrying checkout after backing up conflicts..."
+    if ! dotfiles checkout; then
+        echo "Error: Checkout still failed after backing up conflicts" >&2
+        exit 1
+    fi
 fi
 
 # Configure the repository
@@ -109,9 +118,24 @@ echo "  dotfiles commit -m 'Update config'"
 echo "  dotfiles push"
 echo ""
 echo "Platform-specific setup scripts available in:"
-echo "  ~/.linux/setup/ (run as needed)"
+echo "  ~/.linux/.setup/ (run as needed)"
 echo ""
 echo "Restart your shell or run: source ~/.bashrc (or ~/.zshrc)"
 if [[ -d "$DOTFILES_BACKUP" ]]; then
     echo "Your original conflicting files are backed up in: $DOTFILES_BACKUP"
+fi
+
+# Verify checkout worked
+echo ""
+echo "Verifying checkout..."
+if dotfiles status >/dev/null 2>&1; then
+    echo "✓ Dotfiles checkout successful!"
+    echo "Files in your home directory:"
+    dotfiles ls-tree --name-only HEAD | head -10
+    if [[ $(dotfiles ls-tree --name-only HEAD | wc -l) -gt 10 ]]; then
+        echo "... and $(($(dotfiles ls-tree --name-only HEAD | wc -l) - 10)) more files"
+    fi
+else
+    echo "✗ Dotfiles checkout verification failed!"
+    exit 1
 fi
