@@ -4,7 +4,7 @@ set -euo pipefail
 echo -e "\n====== Setting up bare dotfiles repository ======\n"
 
 # Configuration
-DOTFILES_REPO="${1:-https://github.com/chiplukes/dotfiles.git}"
+DOTFILES_REPO="${1:-https://github.com/chiplukes/.dotfiles.git}"
 DOTFILES_DIR="$HOME/.cfg"
 DOTFILES_BACKUP="$HOME/.config-backup"
 

@@ -5,7 +5,7 @@ param(
 
 Write-Host "`n====== Setting up bare dotfiles repository (Windows) ======`n"
 
-$DotfilesRepo = "https://github.com/chiplukes/dotfiles.git"
+$DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
 $DotfilesDir = "$env:USERPROFILE\.cfg"
 $DotfilesBackup = "$env:USERPROFILE\.config-backup"
 
