@@ -1,0 +1,29 @@
+{
+  "winget_apps": [
+    {
+      "name": "Adobe.CreativeCloudDesktop",
+      "category": "creative"
+    },
+    {
+      "name": "Spotify.Spotify",
+      "category": "media"
+    },
+    {
+      "name": "Discord.Discord",
+      "category": "social"
+    }
+  ],
+  "choco_apps": [
+    {
+      "name": "ffmpeg",
+      "category": "media"
+    }
+  ],
+  "optional_apps": [
+    {
+      "name": "OBSProject.OBSStudio",
+      "manager": "winget",
+      "category": "media"
+    }
+  ]
+}

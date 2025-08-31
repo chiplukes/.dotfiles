@@ -1,0 +1,140 @@
+{
+  "winget_apps": [
+    {
+      "name": "Git.Git",
+      "category": "core"
+    },
+    {
+      "name": "GitHub.cli",
+      "category": "core"
+    },
+    {
+      "name": "GitHub.GitHubDesktop",
+      "category": "core"
+    },
+    {
+      "name": "Mozilla.Firefox",
+      "category": "core"
+    },
+    {
+      "name": "Adobe.Acrobat.Reader.64-bit",
+      "category": "core"
+    },
+    {
+      "name": "Joplin.Joplin",
+      "category": "core"
+    },
+    {
+      "name": "Microsoft.VisualStudioCode",
+      "category": "core"
+    },
+    {
+      "name": "Bitwarden.Bitwarden",
+      "category": "core"
+    },
+    {
+      "name": "7zip.7zip",
+      "category": "core"
+    },
+    {
+      "name": "Microsoft.WindowsTerminal",
+      "source": "msstore",
+      "category": "core"
+    },
+    {
+      "name": "Microsoft.PowerShell",
+      "category": "core"
+    },
+    {
+      "name": "Microsoft.PowerToys",
+      "category": "core"
+    },
+    {
+      "name": "Microsoft.Sysinternals.ProcessMonitor",
+      "category": "core"
+    },
+    {
+      "name": "Canonical.Ubuntu.2204",
+      "category": "core"
+    },
+    {
+      "name": "Nilesoft.Shell",
+      "category": "core"
+    },
+    {
+      "name": "GitExtensionsTeam.GitExtensions",
+      "category": "core"
+    },
+    {
+      "name": "KDE.Krita",
+      "category": "image"
+    },
+    {
+      "name": "Inkscape.Inkscape",
+      "category": "image"
+    },
+    {
+      "name": "PuTTY.PuTTY",
+      "category": "work"
+    },
+    {
+      "name": "WiresharkFoundation.Wireshark",
+      "category": "work"
+    },
+    {
+      "name": "Valve.Steam",
+      "category": "gaming"
+    },
+    {
+      "name": "Sandboxie.Plus",
+      "category": "misc"
+    },
+    {
+      "name": "SomePythonThings.WingetUIStore",
+      "category": "misc"
+    }
+  ],
+  "choco_apps": [
+    {
+      "name": "mingw",
+      "category": "dev"
+    },
+    {
+      "name": "make",
+      "category": "dev"
+    },
+    {
+      "name": "fd",
+      "category": "dev"
+    },
+    {
+      "name": "luarocks",
+      "category": "dev"
+    },
+    {
+      "name": "ripgrep",
+      "category": "dev"
+    },
+    {
+      "name": "llvm",
+      "category": "dev"
+    }
+  ],
+  "optional_apps": [
+    {
+      "name": "CPUID.CPU-Z",
+      "manager": "winget",
+      "category": "gaming"
+    },
+    {
+      "name": "TechPowerUp.GPU-Z",
+      "manager": "winget",
+      "category": "gaming"
+    },
+    {
+      "name": "REALiX.HWiNFO",
+      "manager": "winget",
+      "category": "gaming"
+    }
+  ]
+}

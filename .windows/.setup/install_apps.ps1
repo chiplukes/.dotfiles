@@ -1,21 +1,99 @@
-# powershell install command:
-#iex ((New-Object System.Net.WebClient).DownloadString('https://gist.githubusercontent.com/chiplukes/f276a30c78cc6cb162cdb55533f60b7d/raw/a888dea57de571a985297ea9c14f77bb65de920f/DevMachineSetup.ps1'))
+[CmdletBinding()]
+param(
+    [string]$ConfigFile = "$PSScriptRoot\apps.json",  # ADD THIS LINE
+    [string]$LocalConfigFile = "$PSScriptRoot\apps.local.json",
+    [string[]]$Categories = @(),  # Install specific categories only
+    [switch]$IncludeOptional = $false
+)
 
-# Pieces taken from:
-# https://chris-ayers.com/2021/08/01/scripting-winget/
-# https://github.com/ChrisTitusTech/winutilwinutil
-# https://gist.github.com/NateWeiler/f01aa5c6e8209263bc2daa328b1ae7e2
-# ...existing code...
-function refresh-path {
+function Refresh-Path {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") +
                 ";" +
                 [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
-# Assume winget & choco already installed by install_base.ps1
+function Install-WingetApp {
+    param($app)
 
-#Configure WinGet
-Write-Output "Configuring winget"
+    $listApp = winget list --exact -q $app.name --accept-source-agreements 2>$null
+    if (-not ([string]::Join("",$listApp).Contains($app.name))) {
+        Write-Host "Installing: $($app.name)" -ForegroundColor Green
+        if ($app.source) {
+            winget install --exact --silent $app.name --source $app.source --accept-package-agreements --accept-source-agreements
+        } else {
+            winget install --exact --silent $app.name --accept-package-agreements --accept-source-agreements
+        }
+    } else {
+        Write-Host "Already installed: $($app.name)" -ForegroundColor Yellow
+    }
+}
+
+function Install-ChocoApp {
+    param($app)
+
+    choco list --localonly --exact $app.name | Select-String -Quiet " $($app.name) " >$null 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Installing: $($app.name)" -ForegroundColor Green
+        choco install $app.name -y --no-progress
+    } else {
+        Write-Host "Already installed: $($app.name)" -ForegroundColor Yellow
+    }
+}
+
+function Merge-AppConfigs {
+    param($BaseConfig, $LocalConfig)
+
+    $merged = @{
+        winget_apps = @()
+        choco_apps = @()
+        optional_apps = @()
+    }
+
+    # Start with base config
+    if ($BaseConfig.winget_apps) { $merged.winget_apps += $BaseConfig.winget_apps }
+    if ($BaseConfig.choco_apps) { $merged.choco_apps += $BaseConfig.choco_apps }
+    if ($BaseConfig.optional_apps) { $merged.optional_apps += $BaseConfig.optional_apps }
+
+    # Add local config if present
+    if ($LocalConfig) {
+        if ($LocalConfig.winget_apps) { $merged.winget_apps += $LocalConfig.winget_apps }
+        if ($LocalConfig.choco_apps) { $merged.choco_apps += $LocalConfig.choco_apps }
+        if ($LocalConfig.optional_apps) { $merged.optional_apps += $LocalConfig.optional_apps }
+    }
+
+    return $merged
+}
+
+Write-Host "`n====== Installing Applications ======`n"
+
+# Load base configuration
+if (-not (Test-Path $ConfigFile)) {
+    Write-Error "Base configuration file not found: $ConfigFile"
+    exit 1
+}
+
+Write-Host "Loading base config: $ConfigFile" -ForegroundColor Cyan
+$baseConfig = Get-Content $ConfigFile | ConvertFrom-Json
+
+# Load local configuration if it exists
+$localConfig = $null
+if (Test-Path $LocalConfigFile) {
+    Write-Host "Loading local config: $LocalConfigFile" -ForegroundColor Cyan
+    $localConfig = Get-Content $LocalConfigFile | ConvertFrom-Json
+} else {
+    Write-Host "No local config found: $LocalConfigFile (this is normal)" -ForegroundColor Gray
+}
+
+# Merge configurations
+$config = Merge-AppConfigs -BaseConfig $baseConfig -LocalConfig $localConfig
+
+Write-Host "Total apps to consider:" -ForegroundColor Yellow
+Write-Host "  Winget: $($config.winget_apps.Count)"
+Write-Host "  Chocolatey: $($config.choco_apps.Count)"
+Write-Host "  Optional: $($config.optional_apps.Count)"
+
+# Configure WinGet
+Write-Host "`nConfiguring winget..." -ForegroundColor Cyan
 $settingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json"
 $settingsJson = @"
 {
@@ -24,83 +102,53 @@ $settingsJson = @"
   }
 }
 "@
-$settingsJson | Out-File $settingsPath -Encoding utf8
+New-Item -ItemType Directory -Force -Path (Split-Path $settingsPath) | Out-Null
+$settingsJson | Out-File $settingsPath -Encoding utf8 -Force
 
-Write-Output "Installing Winget Apps"
-$apps = @(
+# Install Winget apps
+Write-Host "`nInstalling Winget Apps..." -ForegroundColor Cyan
+$wingetApps = $config.winget_apps
+if ($Categories.Count -gt 0) {
+    $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }
+    Write-Host "Filtered to categories: $($Categories -join ', ')" -ForegroundColor Gray
+}
 
-    # core tools
-    @{name = "Git.Git" },
-    @{name = "GitHub.cli" },
-    @{name = "GitHub.GitHubDesktop" },
-    @{name = "Mozilla.Firefox" },
-    @{name = "Adobe.Acrobat.Reader.64-bit" },
-    @{name = "Joplin.Joplin" },
-    @{name = "Microsoft.VisualStudioCode" },
-    @{name = "Bitwarden.Bitwarden" },
-    @{name = "Zzip.7zip" },
-    @{name = "Microsoft.WindowsTerminal"; source = "msstore" },
-    @{name = "Microsoft.PowerShell" },
-    @{name = "Microsoft.PowerToys" },
-    @{name = "Microsoft.Sysinternals.ProcessMonitor" },
-    @{name = "Canonical.Ubuntu.2204" },
-    @{name = "Nilesoft.Shell" }, # add whatever you want to right-click context menu
-    @{name = "GitExtensionsTeam.GitExtensions" }, # add whatever you want to right-click context menu
+foreach ($app in $wingetApps) {
+    Install-WingetApp $app
+}
 
-    # image tools
-    @{name = "KDE.Krita" }, # image editor
-    @{name = "Inkscape.Inkscape" },
-
-    # work tools
-    @{name = "PuTTY.PuTTY" },
-    @{name = "WiresharkFoundation.Wireshark" },
-
-    # gaming
-    @{name = "Valve.Steam" },
-    #@{name = "CPUID.CPU-Z" },
-    #@{name = "TechPowerUp.GPU-Z" },
-    #@{name = "REALiX.HWiNFO" },
-
-    # misc
-    @{name = "Sandboxie.Plus" },
-    #@{name = "BurntSushi.ripgrep.GNU"},
-
-    # UI for winget
-    @{name = "SomePythonThings.WingetUIStore" }
-
-)
-foreach ($app in $apps) {
-  $listApp = winget list --exact -q $app.name --accept-source-agreements 2>$null
-  if (-not ([string]::Join("",$listApp).Contains($app.name))) {
-    Write-Host "Installing: $($app.name)"
-    if ($app.source) {
-      winget install --exact --silent $app.name --source $app.source --accept-package-agreements --accept-source-agreements
-    } else {
-      winget install --exact --silent $app.name --accept-package-agreements --accept-source-agreements
+# Install optional apps if requested
+if ($IncludeOptional) {
+    Write-Host "`nInstalling Optional Apps..." -ForegroundColor Cyan
+    $optionalWinget = $config.optional_apps | Where-Object { $_.manager -eq "winget" }
+    if ($Categories.Count -gt 0) {
+        $optionalWinget = $optionalWinget | Where-Object { $_.category -in $Categories }
     }
-  } else {
-    Write-Host "Skipping (already installed): $($app.name)"
-  }
+
+    foreach ($app in $optionalWinget) {
+        Install-WingetApp $app
+    }
 }
 
-refresh-path
+Refresh-Path
 
-Write-Output "Installing Chocolatey Apps"
-$chocoApps = @("mingw","make","fd","luarocks","ripgrep","llvm")
-foreach ($c in $chocoApps) {
-  choco list --localonly --exact $c | Select-String -Quiet " $c " >$null 2>&1
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "choco install $c"
-    choco install $c -y --no-progress
-  } else {
-    Write-Host "Already installed: $c"
-  }
+# Install Chocolatey apps
+Write-Host "`nInstalling Chocolatey Apps..." -ForegroundColor Cyan
+$chocoApps = $config.choco_apps
+if ($Categories.Count -gt 0) {
+    $chocoApps = $chocoApps | Where-Object { $_.category -in $Categories }
 }
 
-# Debloat section (unchanged)
-# ...existing code continues (removal list, tweaks, WSL, etc.)...
+foreach ($app in $chocoApps) {
+    Install-ChocoApp $app
+}
 
+# Setup WSL
+Write-Host "`nSetting up WSL..." -ForegroundColor Cyan
+try {
+    wsl --install
+} catch {
+    Write-Host "WSL setup completed or already configured." -ForegroundColor Yellow
+}
 
-
-
-# ...existing code continues (removal list, tweaks, WSL, etc.)...
+Write-Host "`n====== Installation Complete! ======`n" -ForegroundColor Green
