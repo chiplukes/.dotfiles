@@ -1,10 +1,25 @@
+#!/bin/bash
 # apt install then check if install worked
 # $1 app to install
 
-sudo apt-get install -y $1
-if type -p $1 > /dev/null; then
-    echo "$1 Installed" >> ~/install_progress_log.txt
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 <package_name>" >&2
+    exit 1
+fi
+
+package="$1"
+
+echo "Installing $package..."
+if sudo apt-get install -y "$package"; then
+    if command -v "$package" >/dev/null; then
+        echo "$package Installed" >> "$HOME/install_progress_log.txt"
+        echo "✓ $package installed successfully"
+    else
+        echo "$package FAILED TO INSTALL!!!" >> "$HOME/install_progress_log.txt"
+        echo "✗ $package installation verification failed"
+    fi
 else
-    echo "$1 FAILED TO INSTALL!!!" >> ~/install_progress_log.txt
+    echo "$package FAILED TO INSTALL!!!" >> "$HOME/install_progress_log.txt"
+    echo "✗ $package installation failed"
 fi
 

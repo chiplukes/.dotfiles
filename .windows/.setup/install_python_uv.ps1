@@ -2,7 +2,9 @@
 param()
 
 $UserPyVersion = "3.12"
-Write-Host "`n====== Installing user Python with uv ($UserPyVersion) ======`n"
+Write-Host ""
+Write-Host "====== Installing user Python with uv ($UserPyVersion) ======" 
+Write-Host ""
 $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
 function Ensure-Curl {

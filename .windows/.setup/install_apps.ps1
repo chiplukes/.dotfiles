@@ -151,4 +151,4 @@ try {
     Write-Host "WSL setup completed or already configured." -ForegroundColor Yellow
 }
 
-Write-Host "`n====== Installation Complete! ======`n" -ForegroundColor Green
+Write-Host "`n====== Installation Complete! ======`n"

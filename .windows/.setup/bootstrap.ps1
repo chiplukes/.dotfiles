@@ -3,7 +3,9 @@ param(
     [string]$Branch = "main"  # Add branch parameter
 )
 
-Write-Host "`n====== Setting up bare dotfiles repository (Windows) ======`n"
+Write-Host ""
+Write-Host "====== Setting up bare dotfiles repository (Windows) ======"
+Write-Host ""
 
 $DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
 $DotfilesDir = "$env:USERPROFILE\.cfg"
@@ -12,7 +14,9 @@ $DotfilesBackup = "$env:USERPROFILE\.config-backup"
 # Create dotfiles function for this session
 function dotfiles { git --git-dir="$DotfilesDir" --work-tree="$env:USERPROFILE" @args }
 
+Write-Host "Using branch: $Branch" -ForegroundColor Cyan
 Write-Host "Cloning dotfiles as bare repository to $DotfilesDir"
+
 if (Test-Path $DotfilesDir) {
     Write-Host "Warning: $DotfilesDir already exists. Removing..."
     Remove-Item -Recurse -Force $DotfilesDir
@@ -63,14 +67,16 @@ if (-not (Test-Path $ProfilePath)) {
 $FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.cfg" --work-tree="$env:USERPROFILE" @args }'
 if (-not (Get-Content $ProfilePath -ErrorAction SilentlyContinue | Select-String "function dotfiles")) {
     Write-Host "Adding dotfiles function to PowerShell profile"
-    Add-Content $ProfilePath "`n# Dotfiles management function"
+    Add-Content $ProfilePath ""
+    Add-Content $ProfilePath "# Dotfiles management function"
     Add-Content $ProfilePath $FunctionLine
 }
 
 # Create .config directory if it doesn't exist (for cross-platform config)
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\nvim" | Out-Null
 
-Write-Host "`n====== Dotfiles setup complete! ======`n"
+Write-Host ""
+Write-Host "====== Dotfiles setup complete! ======"
 Write-Host "Usage:"
 Write-Host "  dotfiles status"
 Write-Host "  dotfiles add .config\nvim\init.lua"

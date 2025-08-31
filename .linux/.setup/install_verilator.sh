@@ -1,35 +1,94 @@
-# Prerequisites:
-#sudo apt-get install -y git
-sudo apt-get install -y perl
-sudo apt-get install -y help2man
-#sudo apt-get install -y python3
-sudo apt-get install -y make
-sudo apt-get install -y autoconf
-sudo apt-get install -y g++
-sudo apt-get install -y flex bison ccache
-sudo apt-get install -y libgoogle-perftools-dev
-sudo apt-get install -y numactl perl-doc
-sudo apt-get install -y libfl2  # Ubuntu only (ignore if gives error)
-sudo apt-get install -y libfl-dev  # Ubuntu only (ignore if gives error)
-sudo apt-get install -y zlibc zlib1g zlib1g-dev  # Ubuntu only (ignore if gives error)
-sudo apt-get install -y mold
+#!/bin/bash
+set -euo pipefail
 
-mkdir -p ~/tmp
-cd ~/tmp
-git clone https://github.com/verilator/verilator   # Only first time
-## Note the URL above is not a page you can see with a browser, it's for git only
+echo -e "\n====== Installing Verilator ======\n"
 
-# Every time you need to build:
-unsetenv VERILATOR_ROOT  # For csh; ignore error if on bash
-unset VERILATOR_ROOT  # For bash
-cd verilator
-git pull        # Make sure git repository is up-to-date
-#git tag         # See what versions exist
-#git checkout master      # Use development branch (e.g. recent bug fixes)
-git checkout stable      # Use most recent stable release
-#git checkout v4.106       # as of 4/30/2021 need this to fix a bug in the vpi for cocotb
+# Install prerequisites
+echo "Installing Verilator prerequisites..."
+packages=(
+    perl help2man make autoconf g++ flex bison ccache
+    libgoogle-perftools-dev numactl perl-doc
+    libfl2 libfl-dev zlibc zlib1g zlib1g-dev mold
+)
 
-autoconf        # Create ./configure script
-./configure     # Configure and create Makefile
-make -j         # Build Verilator itself
-sudo make install
+if ! sudo apt-get update; then
+    echo "Failed to update package list" >&2
+    exit 1
+fi
+
+for package in "${packages[@]}"; do
+    if ! sudo apt-get install -y "$package"; then
+        echo "Warning: Failed to install $package (continuing)" >&2
+    fi
+done
+
+# Setup build directory
+BUILD_DIR="$HOME/tmp"
+VERILATOR_DIR="$BUILD_DIR/verilator"
+
+echo "Setting up build directory: $BUILD_DIR"
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR" || exit 1
+
+# Clone or update repository
+if [[ -d "$VERILATOR_DIR" ]]; then
+    echo "Updating existing Verilator repository..."
+    cd "$VERILATOR_DIR" || exit 1
+    if ! git pull; then
+        echo "Failed to update repository" >&2
+        exit 1
+    fi
+else
+    echo "Cloning Verilator repository..."
+    if ! git clone https://github.com/verilator/verilator; then
+        echo "Failed to clone repository" >&2
+        exit 1
+    fi
+    cd "$VERILATOR_DIR" || exit 1
+fi
+
+# Clean environment and checkout stable
+unset VERILATOR_ROOT 2>/dev/null || true
+
+echo "Checking out stable branch..."
+if ! git checkout stable; then
+    echo "Failed to checkout stable branch" >&2
+    exit 1
+fi
+
+# Build Verilator
+echo "Building Verilator..."
+if ! autoconf; then
+    echo "Failed to run autoconf" >&2
+    exit 1
+fi
+
+if ! ./configure; then
+    echo "Failed to configure" >&2
+    exit 1
+fi
+
+if ! make -j"$(nproc)"; then
+    echo "Failed to build Verilator" >&2
+    exit 1
+fi
+
+if ! sudo make install; then
+    echo "Failed to install Verilator" >&2
+    exit 1
+fi
+
+# Verify installation
+if command -v verilator >/dev/null; then
+    echo "✓ Verilator installed successfully"
+    echo "Verilator Installed" >> "$HOME/install_progress_log.txt"
+    verilator --version
+else
+    echo "✗ Verilator installation failed!"
+    echo "Verilator FAILED TO INSTALL!!!" >> "$HOME/install_progress_log.txt"
+    exit 1
+fi
+
+echo ""
+echo "Verilator installation complete!"
+echo "Build directory: $VERILATOR_DIR"

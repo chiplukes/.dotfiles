@@ -8,7 +8,7 @@ param(
 )
 
 function Update-WingetApp {
-    param($app, [switch]$WhatIf)
+    param($app, [switch]$WhatIf)  # ADD THIS LINE - was missing!
 
     if ($WhatIf) {
         Write-Host "Would update: $($app.name)" -ForegroundColor Cyan
@@ -88,7 +88,9 @@ function Merge-AppConfigs {
     return $merged
 }
 
-Write-Host "`n====== Updating Applications ======`n"
+Write-Host ""
+Write-Host "====== Updating Applications ======"
+Write-Host ""
 
 # Load configuration
 if (-not (Test-Path $ConfigFile)) {
@@ -96,13 +98,21 @@ if (-not (Test-Path $ConfigFile)) {
     exit 1
 }
 
-# Load and merge configurations (same logic as install_apps.ps1)
-$baseConfig = Get-Content $ConfigFile | ConvertFrom-Json
-$localConfig = if (Test-Path $LocalConfigFile) { Get-Content $LocalConfigFile | ConvertFrom-Json } else { $null }
-$config = Merge-AppConfigs -BaseConfig $baseConfig -LocalConfig $localConfig
+$config = Get-Content $ConfigFile | ConvertFrom-Json
+
+# Load local configuration if it exists
+$localConfig = $null
+if (Test-Path $LocalConfigFile) {
+    Write-Host "Loading local config: $LocalConfigFile" -ForegroundColor Cyan
+    $localConfig = Get-Content $LocalConfigFile | ConvertFrom-Json
+}
+
+# Merge configurations
+$config = Merge-AppConfigs -BaseConfig $config -LocalConfig $localConfig
 
 if ($WhatIf) {
-    Write-Host "DRY RUN - No changes will be made`n" -ForegroundColor Yellow
+    Write-Host "DRY RUN - No changes will be made" -ForegroundColor Yellow
+    Write-Host ""
 }
 
 # Update uv first (tool dependency)
@@ -110,13 +120,15 @@ Write-Host "Updating uv..." -ForegroundColor Cyan
 Update-UV -WhatIf:$WhatIf
 
 # Update all winget apps
-Write-Host "`nUpdating all Winget apps..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Updating all Winget apps..." -ForegroundColor Cyan
 if (-not $WhatIf) {
     winget upgrade --all --accept-package-agreements --accept-source-agreements
 }
 
-# Update specific apps from our config (redundant but ensures our list is covered)
-Write-Host "`nUpdating configured Winget apps..." -ForegroundColor Cyan
+# Update specific apps from our config
+Write-Host ""
+Write-Host "Updating configured Winget apps..." -ForegroundColor Cyan
 $wingetApps = $config.winget_apps
 if ($Categories.Count -gt 0) {
     $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }
@@ -128,7 +140,8 @@ foreach ($app in $wingetApps) {
 
 # Update optional apps if requested
 if ($IncludeOptional) {
-    Write-Host "`nUpdating Optional Apps..." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Updating Optional Apps..." -ForegroundColor Cyan
     $optionalWinget = $config.optional_apps | Where-Object { $_.manager -eq "winget" }
     if ($Categories.Count -gt 0) {
         $optionalWinget = $optionalWinget | Where-Object { $_.category -in $Categories }
@@ -140,7 +153,8 @@ if ($IncludeOptional) {
 }
 
 # Update Chocolatey apps
-Write-Host "`nUpdating Chocolatey apps..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Updating Chocolatey apps..." -ForegroundColor Cyan
 $chocoApps = $config.choco_apps
 if ($Categories.Count -gt 0) {
     $chocoApps = $chocoApps | Where-Object { $_.category -in $Categories }
@@ -149,10 +163,8 @@ if ($Categories.Count -gt 0) {
 if (-not $WhatIf) {
     Write-Host "Updating all Chocolatey packages..." -ForegroundColor Cyan
     choco upgrade all -y --no-progress
-} else {
-    foreach ($app in $chocoApps) {
-        Update-ChocoApp $app -WhatIf:$WhatIf
-    }
 }
 
-Write-Host "`n====== Update Complete! ======`n" -ForegroundColor Green
+Write-Host ""
+Write-Host "====== Update Complete! ======" -ForegroundColor Green
+Write-Host ""
