@@ -1,9 +1,11 @@
 [CmdletBinding()]
-param()
+param(
+    [string]$Branch = "main"  # Add branch parameter
+)
 
 Write-Host "`n====== Setting up bare dotfiles repository (Windows) ======`n"
 
-$DotfilesRepo = if ($args[0]) { $args[0] } else { "https://github.com/chiplukes/dotfiles.git" }
+$DotfilesRepo = "https://github.com/chiplukes/dotfiles.git"
 $DotfilesDir = "$env:USERPROFILE\.cfg"
 $DotfilesBackup = "$env:USERPROFILE\.config-backup"
 
@@ -16,8 +18,8 @@ if (Test-Path $DotfilesDir) {
     Remove-Item -Recurse -Force $DotfilesDir
 }
 
-# Clone the repository as bare
-git clone --bare $DotfilesRepo $DotfilesDir
+# Clone the repository as bare with specific branch
+git clone --bare -b $Branch $DotfilesRepo $DotfilesDir
 
 # Checkout files, backing up any conflicts
 Write-Host "Checking out dotfiles..."
@@ -26,7 +28,7 @@ try {
 } catch {
     Write-Host "Backing up pre-existing dot files to $DotfilesBackup"
     New-Item -ItemType Directory -Force -Path $DotfilesBackup | Out-Null
-    
+
     # Get conflicting files and back them up
     $conflicts = dotfiles checkout 2>&1 | Where-Object { $_ -match '^\s+\.' }
     foreach ($line in $conflicts) {
@@ -42,7 +44,7 @@ try {
             }
         }
     }
-    
+
     # Try checkout again
     dotfiles checkout
 }

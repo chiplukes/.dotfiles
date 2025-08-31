@@ -19,14 +19,22 @@ Cross-platform dotfiles management using bare git repository.
 ## Linux
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chiplukes/dotfiles/main/.linux/setup/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/chiplukes/dotfiles/main/.linux/.setup/bootstrap.sh | bash
 ```
 
 ## Windows
 
 ```powershell
-# In PowerShell
-Invoke-Expression (Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/chiplukes/dotfiles/main/.windows/setup/bootstrap.ps1").Content
+# In PowerShell - runs immediately with main branch
+Invoke-Expression (Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/chiplukes/dotfiles/main/.windows/.setup/bootstrap.ps1").Content
+```
+
+## Testing from Branch
+
+```powershell
+# For branch testing - download then run
+Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/chiplukes/dotfiles/linux_and_windows/.windows/.setup/bootstrap.ps1" -OutFile "bootstrap.ps1"
+.\bootstrap.ps1 -Branch linux_and_windows
 ```
 
 ## Usage
