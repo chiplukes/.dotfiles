@@ -9,7 +9,7 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 # Source installation scripts
 scripts=(
     "install_base.sh"
-    "install_python.sh"
+    "install_python_uv.sh"
     "install_neovim.sh"
     "install_hdl_tools.sh"
 )
