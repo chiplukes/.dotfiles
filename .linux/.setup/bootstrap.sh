@@ -61,8 +61,17 @@ if ! dotfiles checkout 2>/dev/null; then
     echo "Backing up pre-existing files to $DOTFILES_BACKUP"
     mkdir -p "$DOTFILES_BACKUP"
 
-    # Get list of ALL conflicting files and back them up (not just dotfiles)
-    readarray -t conflicting_files < <(dotfiles checkout 2>&1 | grep -E "^\s+" | awk '{print $1}' | grep -v "^Please\|^Aborting")
+    # Get ALL conflicting files from git's error output
+    # Git outputs different formats:
+    # "        .bashrc" (with leading whitespace)
+    # "README.md" (without leading whitespace)
+    readarray -t conflicting_files < <(
+        dotfiles checkout 2>&1 | \
+        sed -n '/would be overwritten by checkout:/,/Aborting/p' | \
+        grep -v -E "(would be overwritten|Please move|Aborting)" | \
+        sed 's/^[[:space:]]*//' | \
+        grep -v '^$'
+    )
 
     for file in "${conflicting_files[@]}"; do
         if [[ -n "$file" && -e "$HOME/$file" ]]; then
