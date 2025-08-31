@@ -36,7 +36,7 @@ echo -e "\n====== Setting up bare dotfiles repository ======\n"
 
 # Configuration
 DOTFILES_REPO="${REPO_URL}"
-DOTFILES_DIR="$HOME/.cfg"
+DOTFILES_DIR="$HOME/.dotfiles-bare"
 DOTFILES_BACKUP="$HOME/.config-backup"
 
 # Create alias function for this session
@@ -101,7 +101,7 @@ dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree "$HOME"
 
 # Add dotfiles alias to shell profiles
-ALIAS_LINE='alias dotfiles="git --git-dir=$HOME/.cfg --work-tree=$HOME"'
+ALIAS_LINE='alias dotfiles="git --git-dir=$HOME/.dotfiles-bare --work-tree=$HOME"'
 
 for profile in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.bash_profile"; do
     if [[ -f "$profile" ]] && ! grep -q "alias dotfiles=" "$profile"; then

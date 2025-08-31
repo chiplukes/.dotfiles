@@ -8,7 +8,7 @@ Write-Host "====== Setting up bare dotfiles repository (Windows) ======"
 Write-Host ""
 
 $DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
-$DotfilesDir = "$env:USERPROFILE\.cfg"
+$DotfilesDir = "$env:USERPROFILE\.dotfiles-bare"
 $DotfilesBackup = "$env:USERPROFILE\.config-backup"
 
 # Create dotfiles function for this session
@@ -64,7 +64,7 @@ if (-not (Test-Path $ProfilePath)) {
     New-Item -Path $ProfilePath -Force | Out-Null
 }
 
-$FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.cfg" --work-tree="$env:USERPROFILE" @args }'
+$FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }'
 if (-not (Get-Content $ProfilePath -ErrorAction SilentlyContinue | Select-String "function dotfiles")) {
     Write-Host "Adding dotfiles function to PowerShell profile"
     Add-Content $ProfilePath ""
