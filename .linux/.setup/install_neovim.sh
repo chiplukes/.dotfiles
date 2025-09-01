@@ -34,8 +34,24 @@ fi
 # Install latest stable Neovim following official instructions
 echo "Installing latest stable Neovim..."
 
+# Remove ALL existing Neovim installations first
+echo "Removing any existing Neovim installations..."
+
+# Remove apt version
+sudo apt remove --purge neovim -y 2>/dev/null || echo "No apt neovim to remove"
+
+# Remove snap version
+sudo snap remove nvim 2>/dev/null || echo "No snap nvim to remove"
+
+# Remove from common locations
+sudo rm -rf /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim*
+rm -rf ~/.local/bin/nvim* ~/.local/share/nvim*
+
+# Remove any nvim symlinks
+sudo find /usr/bin /usr/local/bin -name "nvim*" -type l -delete 2>/dev/null || true
+
 # Download Neovim
-echo "Downloading Neovim..."
+echo "Downloading latest Neovim..."
 if ! curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz; then
     echo "Failed to download Neovim" >&2
     exit 1
@@ -43,11 +59,6 @@ fi
 
 # Remove old installation and install new one
 echo "Installing Neovim to /opt..."
-if ! sudo rm -rf /opt/nvim; then
-    echo "Failed to remove old Neovim installation" >&2
-    exit 1
-fi
-
 if ! sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz; then
     echo "Failed to extract Neovim" >&2
     exit 1
@@ -59,8 +70,12 @@ rm nvim-linux-x86_64.tar.gz
 # Add to PATH for current session
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 
-# Add to .bashrc if not already there
-if [[ -f "$HOME/.bashrc" ]] && ! grep -q '/opt/nvim-linux-x86_64/bin' "$HOME/.bashrc"; then
+# Clean up old PATH entries in .bashrc and add new one
+if [[ -f "$HOME/.bashrc" ]]; then
+    # Remove old nvim PATH entries
+    sed -i '/nvim/d' "$HOME/.bashrc"
+
+    # Add new PATH entry
     echo '' >> "$HOME/.bashrc"
     echo '# Add Neovim to PATH' >> "$HOME/.bashrc"
     echo 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' >> "$HOME/.bashrc"
@@ -70,15 +85,26 @@ fi
 NVIM_VENV="${HOME}/.config/nvim/.venv"
 echo "Setting up Python virtual environment for Neovim..."
 
-if [[ ! -d "$NVIM_VENV" ]]; then
-    # Use the real Python path for venv creation to avoid symlink issues
-    if ! "$PYTHON_REAL_PATH" -m venv "$NVIM_VENV"; then
-        echo "Failed to create Python virtual environment" >&2
-        exit 1
-    fi
+# Clean up any existing virtual environment
+if [[ -d "$NVIM_VENV" ]]; then
+    echo "Removing existing Neovim virtual environment..."
+    rm -rf "$NVIM_VENV"
 fi
 
-# Use the venv's python executable for pip operations
+# Create fresh virtual environment
+echo "Creating new virtual environment..."
+if ! "$PYTHON_REAL_PATH" -m venv "$NVIM_VENV"; then
+    echo "Failed to create Python virtual environment" >&2
+    exit 1
+fi
+
+# Verify the new venv works
+if ! "$NVIM_VENV/bin/python" --version >/dev/null 2>&1; then
+    echo "Virtual environment Python is not working!" >&2
+    exit 1
+fi
+
+echo "Installing Python packages in virtual environment..."
 if ! "$NVIM_VENV/bin/python" -m pip install --upgrade pip pynvim; then
     echo "Failed to install Python packages" >&2
     exit 1
