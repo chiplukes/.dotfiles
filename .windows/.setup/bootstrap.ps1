@@ -25,6 +25,10 @@ if (Test-Path $DotfilesDir) {
 # Clone the repository as bare with specific branch
 git clone --bare -b $Branch $DotfilesRepo $DotfilesDir
 
+# Configure bare repository to fetch all branches properly
+dotfiles config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+dotfiles fetch origin
+
 # Checkout files, backing up any conflicts
 Write-Host "Checking out dotfiles..."
 try {

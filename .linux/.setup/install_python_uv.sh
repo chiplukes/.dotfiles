@@ -42,7 +42,7 @@ mkdir -p "$HOME/bin"
 # Symlinks (avoid overriding system 'python')
 ln -sf "$PY_PATH" "$HOME/bin/python${MAJ_MIN}"
 ln -sf "$PY_PATH" "$HOME/bin/python${PATCH_VER}"
-ln -sf "$PY_PATH" "$HOME/bin/python-user"           # generic alias
+ln -sf "$PY_PATH" "$HOME/bin/python-user"           # THIS IS ALL WE NEED
 ln -sf "$PY_PATH" "$HOME/bin/python${MAJ_MIN}-user" # versioned alias
 
 "$PY_PATH" -V
@@ -51,9 +51,6 @@ echo "Symlinks: python${MAJ_MIN} python${PATCH_VER} python-user"
 
 echo "python${PATCH_VER} Installed (uv)" >> "$LOGFILE"
 
-# Optional: write resolved info
-cat > "$HOME/.user_python_resolved" <<EOF
-USER_PYTHON_PATH=$PY_PATH
-USER_PYTHON_MAJOR_MINOR=$MAJ_MIN
-USER_PYTHON_PATCH=$PATCH_VER
-EOF
+echo ""
+echo "✓ Python $PATCH_VER installed successfully!"
+echo "✓ Use 'python-user' in all scripts for version-independent access"

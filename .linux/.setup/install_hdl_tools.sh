@@ -3,18 +3,24 @@ set -euo pipefail
 
 echo -e "\n====== Installing HDL Tools ======\n"
 
-# Check for Python setup script
-PYTHON_SETUP_SCRIPT="$HOME/bash_scripts/setpython.bash"
-if [[ -f "$PYTHON_SETUP_SCRIPT" ]]; then
-    echo "Sourcing Python setup..."
-    source "$PYTHON_SETUP_SCRIPT"
-else
-    echo "Warning: Python setup script not found at $PYTHON_SETUP_SCRIPT"
-    echo "Using default Python version detection..."
-    PYTHON_USER_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+# Simple - just use python-user directly
+PYTHON_CMD="python-user"
+
+echo "Using Python command: $PYTHON_CMD"
+
+# Verify Python executable exists and works
+if ! command -v "$PYTHON_CMD" >/dev/null; then
+    echo "Python executable $PYTHON_CMD not found!" >&2
+    echo "Make sure install_python_uv.sh was run first." >&2
+    exit 1
 fi
 
-echo "Using Python version: $PYTHON_USER_VER"
+if ! "$PYTHON_CMD" --version >/dev/null 2>&1; then
+    echo "Python command $PYTHON_CMD is not working!" >&2
+    exit 1
+fi
+
+echo "Python version: $("$PYTHON_CMD" --version)"
 
 echo -e "\n====== Installing Icarus Verilog ======\n"
 
@@ -32,7 +38,15 @@ BUILD_DIR="$HOME/tmp"
 IVERILOG_DIR="$BUILD_DIR/iverilog"
 
 echo "Setting up build directory: $BUILD_DIR"
-rm -rf "$BUILD_DIR"  # Clean slate
+
+# Force remove build directory with proper permissions cleanup
+if [[ -d "$BUILD_DIR" ]]; then
+    echo "Cleaning up previous build directory..."
+    # Fix permissions before removal
+    chmod -R u+w "$BUILD_DIR" 2>/dev/null || true
+    rm -rf "$BUILD_DIR"
+fi
+
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR" || exit 1
 
@@ -107,7 +121,7 @@ chmod -R u+w .
 
 # Create and setup virtual environment
 echo "Setting up MyHDL virtual environment..."
-if ! python"$PYTHON_USER_VER" -m venv .venv; then
+if ! "$PYTHON_CMD" -m venv .venv; then
     echo "Failed to create virtual environment" >&2
     exit 1
 fi
@@ -151,8 +165,9 @@ fi
 echo "✓ HDL Tools installation complete!"
 echo "MyHDL Installed" >> "$HOME/install_progress_log.txt"
 
-# Clean up build directory to save space
+# Clean up build directory to save space (with proper permissions)
 echo "Cleaning up build directory..."
+chmod -R u+w "$BUILD_DIR" 2>/dev/null || true
 rm -rf "$BUILD_DIR"
 
 echo ""

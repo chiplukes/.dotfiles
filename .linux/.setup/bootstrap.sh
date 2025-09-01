@@ -55,6 +55,10 @@ fi
 # Clone the repository as bare with specific branch
 git clone --bare -b "$BRANCH" "$DOTFILES_REPO" "$DOTFILES_DIR"
 
+# Configure bare repository to fetch all branches properly
+dotfiles config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+dotfiles fetch origin
+
 # Checkout files, backing up any conflicts
 echo "Checking out dotfiles..."
 if ! dotfiles checkout 2>/dev/null; then
@@ -99,6 +103,11 @@ fi
 echo "Configuring dotfiles repository..."
 dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree "$HOME"
+
+# Set up branch tracking properly
+echo "Setting up branch tracking..."
+dotfiles checkout "$BRANCH"
+dotfiles branch --set-upstream-to=origin/"$BRANCH" "$BRANCH"
 
 # Add dotfiles alias to shell profiles
 ALIAS_LINE='alias dotfiles="git --git-dir=$HOME/.dotfiles-bare --work-tree=$HOME"'

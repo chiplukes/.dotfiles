@@ -1,11 +1,21 @@
 #!/bin/bash
-
 set -euo pipefail
 
 echo -e "\n====== Install Neovim ======\n"
 
-# Optional: use stable PPA (uncomment if needed newer than repo)
-# sudo add-apt-repository -y ppa:neovim-ppa/stable
+# Simple - just use python-user directly
+PYTHON_CMD="python-user"
+
+echo "Using Python command: $PYTHON_CMD"
+
+# Verify Python executable exists
+if ! command -v "$PYTHON_CMD" >/dev/null; then
+    echo "Python executable $PYTHON_CMD not found!" >&2
+    echo "Make sure install_python_uv.sh was run first." >&2
+    exit 1
+fi
+
+echo "Python version: $("$PYTHON_CMD" --version)"
 
 echo "Installing Neovim and dependencies..."
 if ! sudo apt update; then
@@ -13,17 +23,17 @@ if ! sudo apt update; then
     exit 1
 fi
 
-if ! sudo apt install -y neovim python3 python3-venv python3-pip ripgrep gcc make unzip git xclip; then
+if ! sudo apt install -y neovim ripgrep gcc make unzip git xclip; then
     echo "Failed to install packages" >&2
     exit 1
 fi
 
-# Create Python venv for Neovim provider
+# Create Python venv for Neovim provider using python-user
 NVIM_VENV="${HOME}/.config/nvim/.venv"
 echo "Setting up Python virtual environment for Neovim..."
 
 if [[ ! -d "$NVIM_VENV" ]]; then
-    if ! python3 -m venv "$NVIM_VENV"; then
+    if ! "$PYTHON_CMD" -m venv "$NVIM_VENV"; then
         echo "Failed to create Python virtual environment" >&2
         exit 1
     fi
@@ -69,6 +79,7 @@ echo ""
 echo "Neovim setup complete!"
 echo "Virtual environment: $NVIM_VENV"
 echo "Configuration: $NVIM_INIT_LUA"
+echo "Python executable used: $PYTHON_CMD"
 
 echo -e "\n====== Installing HDL Tools ======\n"
 

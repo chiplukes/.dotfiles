@@ -28,17 +28,19 @@ function _bash_pyautoenv_activate() {
     if [ "${PYAUTOENV_DISABLE-0}" -ne 0 ]; then
         return
     fi
-    if [ -z "$(command -v python3.12)" ]; then
+    # Changed from python3.12 to python-user
+    if [ -z "$(command -v python-user)" ]; then
         return
     fi
     local pyautoenv_py="${_bash_pyautoenv_path}/pyautoenv.py"
     if [ -f "${pyautoenv_py}" ]; then
-        eval "$(python3.12 "${pyautoenv_py}")"
+        eval "$(python-user "${pyautoenv_py}")"
     fi
 }
 
 function _bash_pyautoenv_version() {
-    python3 "${_bash_pyautoenv_path}/pyautoenv.py" --version
+    # Changed from python3 to python-user
+    python-user "${_bash_pyautoenv_path}/pyautoenv.py" --version
 }
 
 function cd() {
