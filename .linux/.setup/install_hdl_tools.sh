@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo -e "\n====== Installing HDL Tools ======\n"
 
-# Simple - just use python-user directly
+# Use python-user but get the real path for venv creation
 PYTHON_CMD="python-user"
 
 echo "Using Python command: $PYTHON_CMD"
@@ -20,7 +20,10 @@ if ! "$PYTHON_CMD" --version >/dev/null 2>&1; then
     exit 1
 fi
 
+# Get the real Python path for venv creation
+PYTHON_REAL_PATH=$(readlink -f "$(which $PYTHON_CMD)")
 echo "Python version: $("$PYTHON_CMD" --version)"
+echo "Real Python path: $PYTHON_REAL_PATH"
 
 echo -e "\n====== Installing Icarus Verilog ======\n"
 
@@ -119,9 +122,9 @@ cd "$MYHDL_DIR" || exit 1
 # Ensure proper permissions
 chmod -R u+w .
 
-# Create and setup virtual environment
+# Create and setup virtual environment using the real Python path
 echo "Setting up MyHDL virtual environment..."
-if ! "$PYTHON_CMD" -m venv .venv; then
+if ! "$PYTHON_REAL_PATH" -m venv .venv; then
     echo "Failed to create virtual environment" >&2
     exit 1
 fi
@@ -174,5 +177,6 @@ echo ""
 echo "Installation Summary:"
 echo "- Icarus Verilog: $(iverilog -V | head -1)"
 echo "- MyHDL VPI modules installed to /usr/lib/ivl/ and /usr/local/lib/ivl/"
+echo "- Python executable used: $PYTHON_CMD ($PYTHON_REAL_PATH)"
 echo "- Virtual environment: $MYHDL_DIR/.venv (cleaned up)"
 
