@@ -3,7 +3,7 @@ param()
 
 $UserPyVersion = "3.12"
 Write-Host ""
-Write-Host "====== Installing user Python with uv ($UserPyVersion) ======" 
+Write-Host "====== Installing user Python with uv ($UserPyVersion) ======"
 Write-Host ""
 $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
@@ -12,7 +12,10 @@ function Ensure-Curl {
   Write-Host "curl not found; attempting install..."
   if (Get-Command winget -ErrorAction SilentlyContinue) {
     try {
-      winget install --id cURL.cURL -e --accept-package-agreements --accept-source-agreements -h || winget install cURL.cURL -e --accept-package-agreements --accept-source-agreements
+      winget install --id cURL.cURL -e --accept-package-agreements --accept-source-agreements -h
+      if ($LASTEXITCODE -ne 0) {
+        winget install cURL.cURL -e --accept-package-agreements --accept-source-agreements
+      }
     } catch { }
     if (Get-Command curl -ErrorAction SilentlyContinue) { return }
   }
@@ -57,8 +60,8 @@ if (-not $PyPath) {
 }
 
 $PyExe  = (Resolve-Path $PyPath).Path
-$MajMin = & $PyExe -c 'import sys;print(".".join(map(str,sys.version_info[:2])))'
-$Patch  = & $PyExe -c 'import sys;print(".".join(map(str,sys.version_info[:3])))'
+$MajMin = & $PyExe -c "import sys; print('.'.join(map(str, sys.version_info[:2])))"
+$Patch  = & $PyExe -c "import sys; print('.'.join(map(str, sys.version_info[:3])))"
 
 $BinDir = Join-Path $env:USERPROFILE "bin"
 New-Item -ItemType Directory -Force -Path $BinDir | Out-Null

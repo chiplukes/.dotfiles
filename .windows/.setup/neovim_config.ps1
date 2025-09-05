@@ -1,7 +1,9 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param()
 
-Write-Host "`n====== Neovim Configuration Setup ======`n"
+Write-Host ""
+Write-Host "====== Neovim Configuration Setup ======"
+Write-Host ""
 
 # Install NeoVim with WinGet, if not already present
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
@@ -67,4 +69,6 @@ if (Get-Command python -ErrorAction SilentlyContinue) {
     Write-Host "Python not found - skipping Python provider setup" -ForegroundColor Yellow
 }
 
-Write-Host "`n====== Neovim setup complete ======`n" -ForegroundColor Green
+Write-Host ""
+Write-Host "====== Neovim setup complete ======" -ForegroundColor Green
+Write-Host ""
