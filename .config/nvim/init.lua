@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -252,17 +252,17 @@ require('lazy').setup({
   -- Firenvim (nvim in browser textboxes)
   {
     'glacambre/firenvim',
-    build = ":call firenvim#install(0)",
+    build = ':call firenvim#install(0)',
     config = function()
-        vim.g.firenvim_config = {
+      vim.g.firenvim_config = {
         -- config values, like in my case:
         localSettings = {
-            [".*"] = {
-            takeover = "never",
-            },
+          ['.*'] = {
+            takeover = 'never',
+          },
         },
-        }
-    end
+      }
+    end,
   },
 
   {
