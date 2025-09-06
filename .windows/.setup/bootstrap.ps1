@@ -28,8 +28,8 @@ Remove-Item Alias:\dotfiles -ErrorAction SilentlyContinue
 $ProfilePath = $PROFILE.CurrentUserCurrentHost
 if (Test-Path $ProfilePath) {
     Write-Host "Cleaning up PowerShell profile..."
-    $ProfileContent = Get-Content $ProfilePath | Where-Object { 
-        $_ -notmatch "function dotfiles" -and 
+    $ProfileContent = Get-Content $ProfilePath | Where-Object {
+        $_ -notmatch "function dotfiles" -and
         $_ -notmatch "# Dotfiles management function"
     }
     $ProfileContent | Set-Content $ProfilePath
@@ -48,31 +48,59 @@ git clone --bare -b $Branch $DotfilesRepo $DotfilesDir
 dotfiles config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 dotfiles fetch origin
 
-# Checkout files, backing up any conflicts
-Write-Host "Checking out dotfiles..."
-try {
-    dotfiles checkout 2>$null
-} catch {
-    Write-Host "Backing up pre-existing dot files to $DotfilesBackup"
-    New-Item -ItemType Directory -Force -Path $DotfilesBackup | Out-Null
+# Detect and back up conflicting files after all git operations
 
-    # Get conflicting files and back them up
-    $conflicts = dotfiles checkout 2>&1 | Where-Object { $_ -match '^\s+\.' }
-    foreach ($line in $conflicts) {
-        $file = ($line -split '\s+')[1]
-        if ($file) {
-            Write-Host "Backing up: $file"
-            $backupPath = Join-Path $DotfilesBackup $file
-            $backupDir = Split-Path $backupPath -Parent
-            New-Item -ItemType Directory -Force -Path $backupDir -ErrorAction SilentlyContinue | Out-Null
-            $sourcePath = Join-Path $env:USERPROFILE $file
-            if (Test-Path $sourcePath) {
-                Move-Item $sourcePath $backupPath -ErrorAction SilentlyContinue
+Write-Host "Checking out dotfiles..."
+# Try checkout, capture error output
+$checkoutOutput = dotfiles checkout 2>&1
+Write-Host "[DEBUG] Checkout output:"
+$checkoutOutput | ForEach-Object { Write-Host $_ }
+$conflictFiles = @()
+$collect = $false
+foreach ($line in $checkoutOutput) {
+    $strLine = $line.ToString()
+    if ($strLine -match 'The following untracked working tree files would be overwritten by checkout:') {
+        $collect = $true
+        continue
+    }
+    if ($collect) {
+        if ($strLine -match '^\s*$') { break }
+        if ($strLine -match '^\s+(.+)$') {
+            $file = $strLine.Trim()
+            if ($file -and $file -ne '.') {
+                $conflictFiles += $file
             }
         }
     }
+}
+Write-Host "[DEBUG] Conflicting files detected:"
+$conflictFiles | ForEach-Object { Write-Host $_ }
 
+if ($conflictFiles.Count -gt 0) {
+    Write-Host "Backing up pre-existing dot files to $DotfilesBackup"
+    New-Item -ItemType Directory -Force -Path $DotfilesBackup | Out-Null
+    foreach ($file in $conflictFiles) {
+        $sourcePath = Join-Path $env:USERPROFILE $file
+        $backupPath = Join-Path $DotfilesBackup $file
+        $backupDir = Split-Path $backupPath -Parent
+        New-Item -ItemType Directory -Force -Path $backupDir -ErrorAction SilentlyContinue | Out-Null
+        if (Test-Path $sourcePath) {
+            Write-Host "Backing up: $sourcePath -> $backupPath"
+            Copy-Item $sourcePath $backupPath -Force -ErrorAction SilentlyContinue
+        } else {
+            Write-Host "[Warning] Source file does not exist: $sourcePath"
+        }
+    }
+    # Remove originals after backup
+    foreach ($file in $conflictFiles) {
+        $sourcePath = Join-Path $env:USERPROFILE $file
+        if (Test-Path $sourcePath) {
+            Write-Host "Removing original: $sourcePath"
+            Remove-Item $sourcePath -Force -ErrorAction SilentlyContinue
+        }
+    }
     # Try checkout again
+    Write-Host "Performing actual checkout after backup..."
     dotfiles checkout
 }
 
