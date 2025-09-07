@@ -24,7 +24,7 @@ if (Test-Path $DotfilesDir) {
 Remove-Item Function:\dotfiles -ErrorAction SilentlyContinue
 Remove-Item Alias:\dotfiles -ErrorAction SilentlyContinue
 
-# Clean up all PowerShell profiles - remove any existing dotfiles-related lines
+# Clean up all PowerShell profiles - back up and remove existing files (including symlinks)
 $AllProfiles = @(
     $PROFILE.AllUsersAllHosts,
     $PROFILE.AllUsersCurrentHost,
@@ -32,14 +32,27 @@ $AllProfiles = @(
     $PROFILE.CurrentUserCurrentHost
 )
 
+$ProfilesBackedUp = @()
 foreach ($ProfilePath in $AllProfiles) {
     if ($ProfilePath -and (Test-Path $ProfilePath)) {
-        Write-Host "Cleaning up PowerShell profile: $ProfilePath"
-        $ProfileContent = Get-Content $ProfilePath | Where-Object {
-            $_ -notlike "*dotfiles*"
-        }
-        $ProfileContent | Set-Content $ProfilePath
+        # Create backup
+        $RelativePath = $ProfilePath.Replace("$env:USERPROFILE\", "").Replace("C:\Program Files\", "ProgramFiles\")
+        $BackupPath = Join-Path $DotfilesBackup "powershell-profiles\$RelativePath"
+        $BackupDir = Split-Path $BackupPath -Parent
+
+        Write-Host "Backing up PowerShell profile: $ProfilePath -> $BackupPath"
+        New-Item -ItemType Directory -Force -Path $BackupDir -ErrorAction SilentlyContinue | Out-Null
+        Copy-Item $ProfilePath $BackupPath -Force -ErrorAction SilentlyContinue
+        $ProfilesBackedUp += $ProfilePath
+
+        # Remove the original
+        Write-Host "Removing existing PowerShell profile: $ProfilePath"
+        Remove-Item $ProfilePath -Force -ErrorAction SilentlyContinue
     }
+}
+
+if ($ProfilesBackedUp.Count -gt 0) {
+    Write-Host "Backed up $($ProfilesBackedUp.Count) PowerShell profile(s) to $DotfilesBackup\powershell-profiles\"
 }
 
 # Create dotfiles function for this session
@@ -116,7 +129,8 @@ Write-Host "Configuring dotfiles repository..."
 dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree $env:USERPROFILE
 
-# Add dotfiles function to all PowerShell profiles
+# Create symlinks from all PowerShell profile locations to the versioned profile.ps1
+$MasterProfile = "$env:USERPROFILE\profile.ps1"
 $AllProfiles = @(
     @{ Path = $PROFILE.CurrentUserCurrentHost; Description = "Current User, Current Host" },
     @{ Path = $PROFILE.CurrentUserAllHosts; Description = "Current User, All Hosts" },
@@ -124,7 +138,8 @@ $AllProfiles = @(
     @{ Path = $PROFILE.AllUsersAllHosts; Description = "All Users, All Hosts" }
 )
 
-$FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }'
+Write-Host "Setting up PowerShell profile symlinks..."
+Write-Host "Master profile location: $MasterProfile"
 
 foreach ($Profile in $AllProfiles) {
     $ProfilePath = $Profile.Path
@@ -139,25 +154,23 @@ foreach ($Profile in $AllProfiles) {
                 New-Item -Path $ProfileDir -ItemType Directory -Force | Out-Null
             }
 
-            # Create profile file if it doesn't exist
-            if (-not (Test-Path $ProfilePath)) {
-                Write-Host "Creating profile file: $ProfilePath"
-                New-Item -Path $ProfilePath -ItemType File -Force | Out-Null
+            # Remove existing profile file if it exists
+            if (Test-Path $ProfilePath) {
+                Write-Host "Removing existing profile: $ProfilePath"
+                Remove-Item $ProfilePath -Force
             }
 
-            # Check if dotfiles function already exists in this profile
-            $ExistingContent = Get-Content $ProfilePath -ErrorAction SilentlyContinue
-            if ($ExistingContent -and ($ExistingContent -like "*function dotfiles*")) {
-                Write-Host "Dotfiles function already exists in profile ($ProfileDesc): $ProfilePath"
+            # Create symlink to master profile
+            if (Test-Path $MasterProfile) {
+                Write-Host "Creating symlink for profile ($ProfileDesc): $ProfilePath -> $MasterProfile"
+                New-Item -ItemType SymbolicLink -Path $ProfilePath -Target $MasterProfile -Force | Out-Null
             } else {
-                Write-Host "Adding dotfiles function to PowerShell profile ($ProfileDesc): $ProfilePath"
-                Add-Content $ProfilePath ""
-                Add-Content $ProfilePath "# Dotfiles management function"
-                Add-Content $ProfilePath $FunctionLine
+                Write-Warning "Master profile not found at $MasterProfile - skipping symlink creation for $ProfileDesc"
             }
         }
         catch {
-            Write-Warning "Failed to update profile ($ProfileDesc): $ProfilePath - $($_.Exception.Message)"
+            Write-Warning "Failed to create symlink for profile ($ProfileDesc): $ProfilePath - $($_.Exception.Message)"
+            Write-Warning "You may need to run as Administrator to create symbolic links"
         }
     }
 }
@@ -173,14 +186,20 @@ Write-Host "  dotfiles add .config\nvim\init.lua"
 Write-Host "  dotfiles commit -m 'Update config'"
 Write-Host "  dotfiles push"
 Write-Host ""
+Write-Host "PowerShell profile setup:"
+Write-Host "  - Master profile: ~/profile.ps1 (version controlled)"
+Write-Host "  - All PowerShell profiles are symlinked to the master profile"
+Write-Host "  - Edit ~/profile.ps1 to customize your PowerShell environment"
+Write-Host ""
 Write-Host "Platform-specific setup scripts available in:"
 Write-Host "  ~/.windows/setup/ (run as needed)"
 Write-Host ""
 Write-Host "To use the dotfiles function immediately:"
 Write-Host "  1. Restart PowerShell, OR"
-Write-Host "  2. Run: . `$PROFILE"
+Write-Host "  2. Run: . `$env:USERPROFILE\profile.ps1"
 Write-Host ""
-Write-Host "If 'dotfiles' command is not found, manually reload with:"
-Write-Host "  . `$PROFILE"
+Write-Host "Note: If symlink creation failed, you may need to:"
+Write-Host "  - Run PowerShell as Administrator, OR"
+Write-Host "  - Enable Developer Mode in Windows Settings"
 Write-Host ""
 Write-Host "Your original conflicting files (if any) are backed up in: $DotfilesBackup"
