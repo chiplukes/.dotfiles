@@ -102,36 +102,62 @@ Foreach ($app in $apps)
 
 
 
-# Other stuff
+# Windows Registry Tweaks
+Write-Output "Applying Windows registry tweaks..."
 
-# restore windows 10 context menu
-New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Value "" -Force
+try {
+    # Restore Windows 10 context menu (disable Windows 11 context menu)
+    Write-Output "Restoring Windows 10 context menu..."
+    $ContextMenuPath = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+    if (-not (Test-Path $ContextMenuPath)) {
+        New-Item -Path $ContextMenuPath -Force | Out-Null
+    }
+    Set-ItemProperty -Path $ContextMenuPath -Name "(Default)" -Value "" -Force
 
-# Run oo shutup
-curl.exe -s \"https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/ooshutup10_winutil_settings.cfg\" -o $ENV:temp\\ooshutup10.cfg
-curl.exe -s \"https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe\" -o $ENV:temp\\OOSU10.exe
-Start-Process $ENV:temp\\OOSU10.exe -ArgumentList \"$ENV:temp\\ooshutup10.cfg /quiet\"
-
-# show file extensions
-$RegistryPath = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
-$Name         = 'HideFileExt'
-$Type         = 'Dword'
-$Value        = '0'
-# Create the key if it does not exist
-If (-NOT (Test-Path $RegistryPath)) {
-  New-Item -Path $RegistryPath -Force | Out-Null
+    Write-Output "Windows 10 context menu restored"
 }
-# Now set the value
-New-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -PropertyType $Type -Force
-
-# use UTC time (need this when dual booting with Linux)
-$RegistryPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation'
-$Name         = 'RealTimeIsUniversal'
-$Type         = 'Dword'
-$Value        = '1'
-# Create the key if it does not exist
-If (-NOT (Test-Path $RegistryPath)) {
-  New-Item -Path $RegistryPath -Force | Out-Null
+catch {
+    Write-Warning "Failed to restore Windows 10 context menu: $($_.Exception.Message)"
 }
-# Now set the value
-New-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -PropertyType $Type -Force
+
+try {
+    # Show file extensions
+    Write-Output "Enabling file extensions in Explorer..."
+    $RegistryPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
+    $Name = 'HideFileExt'
+    $Value = 0
+
+    # Create the key if it does not exist
+    if (-not (Test-Path $RegistryPath)) {
+        New-Item -Path $RegistryPath -Force | Out-Null
+    }
+
+    # Set the value
+    Set-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -Type DWord -Force
+    Write-Output "File extensions enabled in Explorer"
+}
+catch {
+    Write-Warning "Failed to enable file extensions: $($_.Exception.Message)"
+}
+
+try {
+    # Use UTC time (needed for dual booting with Linux)
+    Write-Output "Setting hardware clock to use UTC time..."
+    $RegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation'
+    $Name = 'RealTimeIsUniversal'
+    $Value = 1
+
+    # Create the key if it does not exist
+    if (-not (Test-Path $RegistryPath)) {
+        New-Item -Path $RegistryPath -Force | Out-Null
+    }
+
+    # Set the value
+    Set-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -Type DWord -Force
+    Write-Output "Hardware clock set to UTC time"
+}
+catch {
+    Write-Warning "Failed to set UTC time: $($_.Exception.Message)"
+}
+
+Write-Output "Registry tweaks completed"
