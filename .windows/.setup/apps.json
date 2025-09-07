@@ -128,8 +128,8 @@
     {
       "name": "verible",
       "url": "https://github.com/chipsalliance/verible/releases/download/v0.0-4023-gc1271a00/verible-v0.0-4023-gc1271a00-win64.zip",
-      "install_path": "$env:USERPROFILE\\bin\\verible",
-      "executable_paths": ["bin"],
+      "install_path": "$env:USERPROFILE\\tools\\verible",
+      "executable_paths": ["*"],
       "category": "dev",
       "description": "SystemVerilog developer tools"
     }

@@ -83,6 +83,14 @@ function Install-UrlApp {
             } else {
                 Expand-Archive -Path $downloadPath -DestinationPath $installPath -Force
             }
+
+            # Debug: Show directory structure after extraction
+            Write-Host "  Directory structure after extraction:" -ForegroundColor Gray
+            Get-ChildItem -Path $installPath -Recurse | Where-Object { $_.PSIsContainer -or $_.Name -like "*.exe" } | ForEach-Object {
+                $indent = "    " * (($_.FullName.Substring($installPath.Length) -split '\\').Count - 1)
+                $marker = if ($_.PSIsContainer) { "[DIR]" } else { "[EXE]" }
+                Write-Host "  $indent$marker $($_.Name)" -ForegroundColor Gray
+            }
         } else {
             Write-Host "  Copying executable..." -ForegroundColor Gray
             Copy-Item $downloadPath -Destination $installPath -Force
@@ -91,25 +99,126 @@ function Install-UrlApp {
         # Add executable paths to user PATH if specified
         if ($app.executable_paths) {
             $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+            $pathsToAdd = @()
+
             foreach ($exePath in $app.executable_paths) {
-                $fullExePath = Join-Path $installPath $exePath
-                if (Test-Path $fullExePath) {
-                    $escapedPath = [Regex]::Escape($fullExePath)
-                    if ($userPath -notmatch $escapedPath) {
-                        Write-Host "  Adding to PATH: $fullExePath" -ForegroundColor Gray
-                        [Environment]::SetEnvironmentVariable("Path", "$fullExePath;$userPath", "User")
-                        $userPath = "$fullExePath;$userPath"
+                $resolvedPaths = @()
+
+                # Handle wildcard patterns like "*/bin", "*", or "**/bin"
+                if ($exePath -like "*`*") {
+                    Write-Host "  Resolving wildcard pattern: $exePath" -ForegroundColor Gray
+
+                    # For * pattern, find all subdirectories that contain executable files
+                    if ($exePath -eq "*") {
+                        $foundPaths = Get-ChildItem -Path $installPath -Directory | ForEach-Object {
+                            $dirPath = $_.FullName
+                            $executables = Get-ChildItem -Path $dirPath -File -ErrorAction SilentlyContinue | Where-Object {
+                                $_.Extension -in @('.exe', '.bat', '.cmd') -or $_.Extension -eq ''
+                            }
+                            if ($executables.Count -gt 0) {
+                                $dirPath
+                            }
+                        }
+                        $resolvedPaths = $foundPaths | Where-Object { $_ -ne $null }
+                    }
+                    # For */bin pattern, find all subdirectories that contain a bin folder
+                    elseif ($exePath -eq "*/bin") {
+                        $foundPaths = Get-ChildItem -Path $installPath -Directory | ForEach-Object {
+                            $binPath = Join-Path $_.FullName "bin"
+                            if (Test-Path $binPath -PathType Container) {
+                                $binPath
+                            }
+                        }
+                        $resolvedPaths = $foundPaths | Where-Object { $_ -ne $null }
+                    }
+                    # For other wildcard patterns, use recursive search
+                    else {
+                        $searchPattern = $exePath -replace '\*', '*'
+                        $resolvedPaths = Get-ChildItem -Path $installPath -Recurse -Directory | Where-Object {
+                            $relativePath = $_.FullName.Substring($installPath.Length + 1)
+                            $relativePath -like $searchPattern
+                        } | Select-Object -ExpandProperty FullName
+                    }
+
+                    if ($resolvedPaths.Count -eq 0) {
+                        Write-Host "  No paths found matching pattern: $exePath" -ForegroundColor Yellow
+                    } else {
+                        Write-Host "  Found $($resolvedPaths.Count) path(s) matching pattern" -ForegroundColor Gray
+                    }
+                } else {
+                    # Handle explicit paths
+                    $fullExePath = Join-Path $installPath $exePath
+                    if (Test-Path $fullExePath) {
+                        $resolvedPaths = @($fullExePath)
+                    }
+                }
+
+                # Add all resolved paths
+                foreach ($resolvedPath in $resolvedPaths) {
+                    if (Test-Path $resolvedPath) {
+                        $pathsToAdd += $resolvedPath
                     }
                 }
             }
+
+            # If no explicit paths were found, try auto-detection
+            if ($pathsToAdd.Count -eq 0 -and $app.executable_paths) {
+                Write-Host "  Auto-detecting executable directories..." -ForegroundColor Gray
+
+                # First, look for bin directories recursively
+                $binDirs = Get-ChildItem -Path $installPath -Recurse -Directory | Where-Object { $_.Name -eq "bin" }
+
+                foreach ($binDir in $binDirs) {
+                    $executables = Get-ChildItem -Path $binDir.FullName -File -ErrorAction SilentlyContinue | Where-Object {
+                        $_.Extension -in @('.exe', '.bat', '.cmd') -or $_.Extension -eq ''
+                    }
+
+                    if ($executables.Count -gt 0) {
+                        Write-Host "  Found executable directory: $($binDir.FullName)" -ForegroundColor Gray
+                        $pathsToAdd += $binDir.FullName
+                    }
+                }
+
+                # If no bin directories found, look for any directories with executables
+                if ($pathsToAdd.Count -eq 0) {
+                    $allDirs = Get-ChildItem -Path $installPath -Recurse -Directory
+
+                    foreach ($dir in $allDirs) {
+                        $executables = Get-ChildItem -Path $dir.FullName -File -ErrorAction SilentlyContinue | Where-Object {
+                            $_.Extension -in @('.exe', '.bat', '.cmd') -or $_.Extension -eq ''
+                        }
+
+                        if ($executables.Count -gt 0) {
+                            Write-Host "  Found executable directory: $($dir.FullName)" -ForegroundColor Gray
+                            $pathsToAdd += $dir.FullName
+                        }
+                    }
+                }
+            }
+
+            # Add unique paths to user PATH
+            foreach ($pathToAdd in ($pathsToAdd | Select-Object -Unique)) {
+                $escapedPath = [Regex]::Escape($pathToAdd)
+                if ($userPath -notmatch $escapedPath) {
+                    Write-Host "  Adding to PATH: $pathToAdd" -ForegroundColor Gray
+                    [Environment]::SetEnvironmentVariable("Path", "$pathToAdd;$userPath", "User")
+                    $userPath = "$pathToAdd;$userPath"
+                } else {
+                    Write-Host "  Already in PATH: $pathToAdd" -ForegroundColor Gray
+                }
+            }
+
+            if ($pathsToAdd.Count -eq 0) {
+                Write-Host "  No executable paths found to add to PATH" -ForegroundColor Yellow
+            }
         }
 
-        Write-Host "  ✓ Successfully installed $appName" -ForegroundColor Green
+        Write-Host "  [OK] Successfully installed $appName" -ForegroundColor Green
 
         # Clean up
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-
-    } catch {
+    }
+    catch {
         Write-Error "Failed to install $appName`: $($_.Exception.Message)"
         # Clean up on failure
         if (Test-Path $tempDir) {
