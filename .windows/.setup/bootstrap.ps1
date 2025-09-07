@@ -35,15 +35,35 @@ $AllProfiles = @(
 $ProfilesBackedUp = @()
 foreach ($ProfilePath in $AllProfiles) {
     if ($ProfilePath -and (Test-Path $ProfilePath)) {
-        # Create backup
-        $RelativePath = $ProfilePath.Replace("$env:USERPROFILE\", "").Replace("C:\Program Files\", "ProgramFiles\")
-        $BackupPath = Join-Path $DotfilesBackup "powershell-profiles\$RelativePath"
+        # Create a safe backup path by sanitizing the original path
+        $SafePath = $ProfilePath
+
+        # Replace common drive patterns and invalid path characters
+        $SafePath = $SafePath -replace "^C:\\", "C_Drive\"
+        $SafePath = $SafePath -replace "^[A-Z]:\\", { "$($_.Value[0])_Drive\" }
+        $SafePath = $SafePath -replace ":", "_"
+        $SafePath = $SafePath -replace "\\", "\"
+
+        # Remove user profile path if it exists to make it relative
+        if ($ProfilePath.StartsWith($env:USERPROFILE)) {
+            $SafePath = $ProfilePath.Substring($env:USERPROFILE.Length + 1)
+            $SafePath = "UserProfile\$SafePath"
+        }
+
+        $BackupPath = Join-Path $DotfilesBackup "powershell-profiles\$SafePath"
         $BackupDir = Split-Path $BackupPath -Parent
 
-        Write-Host "Backing up PowerShell profile: $ProfilePath -> $BackupPath"
-        New-Item -ItemType Directory -Force -Path $BackupDir -ErrorAction SilentlyContinue | Out-Null
-        Copy-Item $ProfilePath $BackupPath -Force -ErrorAction SilentlyContinue
-        $ProfilesBackedUp += $ProfilePath
+        Write-Host "Backing up PowerShell profile: $ProfilePath"
+        Write-Host "  -> $BackupPath"
+
+        try {
+            New-Item -ItemType Directory -Force -Path $BackupDir -ErrorAction SilentlyContinue | Out-Null
+            Copy-Item $ProfilePath $BackupPath -Force -ErrorAction SilentlyContinue
+            $ProfilesBackedUp += $ProfilePath
+        }
+        catch {
+            Write-Warning "Failed to backup profile $ProfilePath`: $($_.Exception.Message)"
+        }
 
         # Remove the original
         Write-Host "Removing existing PowerShell profile: $ProfilePath"
