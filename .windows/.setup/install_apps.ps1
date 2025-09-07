@@ -1,9 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$ConfigFile = "$PSScriptRoot\apps.json",  # ADD THIS LINE
+    [string]$ConfigFile = "$PSScriptRoot\apps.json",
     [string]$LocalConfigFile = "$PSScriptRoot\apps.local.json",
-    [string[]]$Categories = @(),  # Install specific categories only
-    [switch]$IncludeOptional = $false
+    [string[]]$Categories = @()  # Install specific categories only
 )
 
 function Refresh-Path {
@@ -40,25 +39,107 @@ function Install-ChocoApp {
     }
 }
 
+function Install-UrlApp {
+    param($app)
+
+    $installPath = $ExecutionContext.InvokeCommand.ExpandString($app.install_path)
+    $appName = $app.name
+
+    # Check if already installed
+    if (Test-Path $installPath) {
+        Write-Host "Already installed: $appName" -ForegroundColor Yellow
+        return
+    }
+
+    Write-Host "Installing: $appName from URL" -ForegroundColor Green
+
+    try {
+        # Create temporary download directory
+        $tempDir = Join-Path $env:TEMP "url_app_install_$appName"
+        New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+
+        # Determine file extension and download path
+        $uri = [System.Uri]$app.url
+        $fileName = [System.IO.Path]::GetFileName($uri.LocalPath)
+        $downloadPath = Join-Path $tempDir $fileName
+
+        Write-Host "  Downloading $fileName..." -ForegroundColor Gray
+
+        # Download file
+        if (Get-Command curl -ErrorAction SilentlyContinue) {
+            curl -L -o $downloadPath $app.url
+        } else {
+            Invoke-WebRequest -Uri $app.url -OutFile $downloadPath -UseBasicParsing
+        }
+
+        # Create install directory
+        New-Item -ItemType Directory -Force -Path $installPath | Out-Null
+
+        # Extract if it's a zip file, otherwise copy directly
+        if ($fileName -like "*.zip") {
+            Write-Host "  Extracting archive..." -ForegroundColor Gray
+            if (Get-Command 7z -ErrorAction SilentlyContinue) {
+                7z x $downloadPath -o"$installPath" -y | Out-Null
+            } else {
+                Expand-Archive -Path $downloadPath -DestinationPath $installPath -Force
+            }
+        } else {
+            Write-Host "  Copying executable..." -ForegroundColor Gray
+            Copy-Item $downloadPath -Destination $installPath -Force
+        }
+
+        # Add executable paths to user PATH if specified
+        if ($app.executable_paths) {
+            $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+            foreach ($exePath in $app.executable_paths) {
+                $fullExePath = Join-Path $installPath $exePath
+                if (Test-Path $fullExePath) {
+                    $escapedPath = [Regex]::Escape($fullExePath)
+                    if ($userPath -notmatch $escapedPath) {
+                        Write-Host "  Adding to PATH: $fullExePath" -ForegroundColor Gray
+                        [Environment]::SetEnvironmentVariable("Path", "$fullExePath;$userPath", "User")
+                        $userPath = "$fullExePath;$userPath"
+                    }
+                }
+            }
+        }
+
+        Write-Host "  ✓ Successfully installed $appName" -ForegroundColor Green
+
+        # Clean up
+        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+
+    } catch {
+        Write-Error "Failed to install $appName`: $($_.Exception.Message)"
+        # Clean up on failure
+        if (Test-Path $tempDir) {
+            Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        if (Test-Path $installPath) {
+            Remove-Item $installPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 function Merge-AppConfigs {
     param($BaseConfig, $LocalConfig)
 
     $merged = @{
         winget_apps = @()
         choco_apps = @()
-        optional_apps = @()
+        url_apps = @()
     }
 
     # Start with base config
     if ($BaseConfig.winget_apps) { $merged.winget_apps += $BaseConfig.winget_apps }
     if ($BaseConfig.choco_apps) { $merged.choco_apps += $BaseConfig.choco_apps }
-    if ($BaseConfig.optional_apps) { $merged.optional_apps += $BaseConfig.optional_apps }
+    if ($BaseConfig.url_apps) { $merged.url_apps += $BaseConfig.url_apps }
 
     # Add local config if present
     if ($LocalConfig) {
         if ($LocalConfig.winget_apps) { $merged.winget_apps += $LocalConfig.winget_apps }
         if ($LocalConfig.choco_apps) { $merged.choco_apps += $LocalConfig.choco_apps }
-        if ($LocalConfig.optional_apps) { $merged.optional_apps += $LocalConfig.optional_apps }
+        if ($LocalConfig.url_apps) { $merged.url_apps += $LocalConfig.url_apps }
     }
 
     return $merged
@@ -90,7 +171,7 @@ $config = Merge-AppConfigs -BaseConfig $baseConfig -LocalConfig $localConfig
 Write-Host "Total apps to consider:" -ForegroundColor Yellow
 Write-Host "  Winget: $($config.winget_apps.Count)"
 Write-Host "  Chocolatey: $($config.choco_apps.Count)"
-Write-Host "  Optional: $($config.optional_apps.Count)"
+Write-Host "  URL-based: $($config.url_apps.Count)"
 
 # Configure WinGet
 Write-Host "`nConfiguring winget..." -ForegroundColor Cyan
@@ -117,17 +198,17 @@ foreach ($app in $wingetApps) {
     Install-WingetApp $app
 }
 
-# Install optional apps if requested
-if ($IncludeOptional) {
-    Write-Host "`nInstalling Optional Apps..." -ForegroundColor Cyan
-    $optionalWinget = $config.optional_apps | Where-Object { $_.manager -eq "winget" }
+Refresh-Path
+
+# Install URL-based apps
+Write-Host "`nInstalling URL-based Apps..." -ForegroundColor Cyan
+$urlApps = $config.url_apps
     if ($Categories.Count -gt 0) {
-        $optionalWinget = $optionalWinget | Where-Object { $_.category -in $Categories }
+    $urlApps = $urlApps | Where-Object { $_.category -in $Categories }
     }
 
-    foreach ($app in $optionalWinget) {
-        Install-WingetApp $app
-    }
+foreach ($app in $urlApps) {
+    Install-UrlApp $app
 }
 
 Refresh-Path

@@ -11,6 +11,22 @@
     {
       "name": "Discord.Discord",
       "category": "social"
+    },
+    {
+      "name": "CPUID.CPU-Z",
+      "category": "gaming"
+    },
+    {
+      "name": "TechPowerUp.GPU-Z",
+      "category": "gaming"
+    },
+    {
+      "name": "REALiX.HWiNFO",
+      "category": "gaming"
+    },
+    {
+      "name": "OBSProject.OBSStudio",
+      "category": "media"
     }
   ],
   "choco_apps": [
@@ -19,11 +35,14 @@
       "category": "media"
     }
   ],
-  "optional_apps": [
+  "url_apps": [
     {
-      "name": "OBSProject.OBSStudio",
-      "manager": "winget",
-      "category": "media"
+      "name": "custom-tool",
+      "url": "https://example.com/releases/tool-v1.0.zip",
+      "install_path": "$env:USERPROFILE\\bin\\custom-tool",
+      "executable_paths": ["bin"],
+      "category": "dev",
+      "description": "Example custom tool"
     }
   ]
 }

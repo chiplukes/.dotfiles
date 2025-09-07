@@ -124,21 +124,14 @@
       "category": "dev"
     }
   ],
-  "optional_apps": [
+  "url_apps": [
     {
-      "name": "CPUID.CPU-Z",
-      "manager": "winget",
-      "category": "gaming"
-    },
-    {
-      "name": "TechPowerUp.GPU-Z",
-      "manager": "winget",
-      "category": "gaming"
-    },
-    {
-      "name": "REALiX.HWiNFO",
-      "manager": "winget",
-      "category": "gaming"
+      "name": "verible",
+      "url": "https://github.com/chipsalliance/verible/releases/download/v0.0-4023-gc1271a00/verible-v0.0-4023-gc1271a00-win64.zip",
+      "install_path": "$env:USERPROFILE\\bin\\verible",
+      "executable_paths": ["bin"],
+      "category": "dev",
+      "description": "SystemVerilog developer tools"
     }
   ]
 }
