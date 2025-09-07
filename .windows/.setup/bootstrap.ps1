@@ -24,15 +24,22 @@ if (Test-Path $DotfilesDir) {
 Remove-Item Function:\dotfiles -ErrorAction SilentlyContinue
 Remove-Item Alias:\dotfiles -ErrorAction SilentlyContinue
 
-# Clean up PowerShell profile - remove any existing dotfiles function
-$ProfilePath = $PROFILE.CurrentUserCurrentHost
-if (Test-Path $ProfilePath) {
-    Write-Host "Cleaning up PowerShell profile..."
-    $ProfileContent = Get-Content $ProfilePath | Where-Object {
-        $_ -notmatch "function dotfiles" -and
-        $_ -notmatch "# Dotfiles management function"
+# Clean up all PowerShell profiles - remove any existing dotfiles-related lines
+$AllProfiles = @(
+    $PROFILE.AllUsersAllHosts,
+    $PROFILE.AllUsersCurrentHost,
+    $PROFILE.CurrentUserAllHosts,
+    $PROFILE.CurrentUserCurrentHost
+)
+
+foreach ($ProfilePath in $AllProfiles) {
+    if ($ProfilePath -and (Test-Path $ProfilePath)) {
+        Write-Host "Cleaning up PowerShell profile: $ProfilePath"
+        $ProfileContent = Get-Content $ProfilePath | Where-Object {
+            $_ -notlike "*dotfiles*"
+        }
+        $ProfileContent | Set-Content $ProfilePath
     }
-    $ProfileContent | Set-Content $ProfilePath
 }
 
 # Create dotfiles function for this session
@@ -109,16 +116,51 @@ Write-Host "Configuring dotfiles repository..."
 dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree $env:USERPROFILE
 
-# Add dotfiles function to PowerShell profile
-if (-not (Test-Path $ProfilePath)) {
-    New-Item -Path $ProfilePath -Force | Out-Null
-}
+# Add dotfiles function to all PowerShell profiles
+$AllProfiles = @(
+    @{ Path = $PROFILE.CurrentUserCurrentHost; Description = "Current User, Current Host" },
+    @{ Path = $PROFILE.CurrentUserAllHosts; Description = "Current User, All Hosts" },
+    @{ Path = $PROFILE.AllUsersCurrentHost; Description = "All Users, Current Host" },
+    @{ Path = $PROFILE.AllUsersAllHosts; Description = "All Users, All Hosts" }
+)
 
 $FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }'
-Write-Host "Adding dotfiles function to PowerShell profile"
-Add-Content $ProfilePath ""
-Add-Content $ProfilePath "# Dotfiles management function"
-Add-Content $ProfilePath $FunctionLine
+
+foreach ($Profile in $AllProfiles) {
+    $ProfilePath = $Profile.Path
+    $ProfileDesc = $Profile.Description
+
+    if ($ProfilePath) {
+        try {
+            # Create profile directory if it doesn't exist
+            $ProfileDir = Split-Path $ProfilePath -Parent
+            if (-not (Test-Path $ProfileDir)) {
+                Write-Host "Creating profile directory: $ProfileDir"
+                New-Item -Path $ProfileDir -ItemType Directory -Force | Out-Null
+            }
+
+            # Create profile file if it doesn't exist
+            if (-not (Test-Path $ProfilePath)) {
+                Write-Host "Creating profile file: $ProfilePath"
+                New-Item -Path $ProfilePath -ItemType File -Force | Out-Null
+            }
+
+            # Check if dotfiles function already exists in this profile
+            $ExistingContent = Get-Content $ProfilePath -ErrorAction SilentlyContinue
+            if ($ExistingContent -and ($ExistingContent -like "*function dotfiles*")) {
+                Write-Host "Dotfiles function already exists in profile ($ProfileDesc): $ProfilePath"
+            } else {
+                Write-Host "Adding dotfiles function to PowerShell profile ($ProfileDesc): $ProfilePath"
+                Add-Content $ProfilePath ""
+                Add-Content $ProfilePath "# Dotfiles management function"
+                Add-Content $ProfilePath $FunctionLine
+            }
+        }
+        catch {
+            Write-Warning "Failed to update profile ($ProfileDesc): $ProfilePath - $($_.Exception.Message)"
+        }
+    }
+}
 
 # Create .config directory if it doesn't exist (for cross-platform config)
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\nvim" | Out-Null
@@ -134,5 +176,11 @@ Write-Host ""
 Write-Host "Platform-specific setup scripts available in:"
 Write-Host "  ~/.windows/setup/ (run as needed)"
 Write-Host ""
-Write-Host "Restart PowerShell to pick up the dotfiles function."
+Write-Host "To use the dotfiles function immediately:"
+Write-Host "  1. Restart PowerShell, OR"
+Write-Host "  2. Run: . `$PROFILE"
+Write-Host ""
+Write-Host "If 'dotfiles' command is not found, manually reload with:"
+Write-Host "  . `$PROFILE"
+Write-Host ""
 Write-Host "Your original conflicting files (if any) are backed up in: $DotfilesBackup"
