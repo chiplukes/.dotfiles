@@ -28,7 +28,7 @@ if (Test-Path $localConfiguration -PathType Container) {
         Remove-Item $localConfiguration -Recurse -Force
     } else {
         Write-Host "Neovim config symlink already exists" -ForegroundColor Yellow
-        return
+        # continue on to Python venv setup even if the symlink is present
     }
 }
 
@@ -55,15 +55,35 @@ if (Test-Path $dotfilesConfiguration) {
 }
 
 # Create Python venv for Neovim if Python is available
-if (Get-Command python -ErrorAction SilentlyContinue) {
-    $nvimVenv = "$env:LOCALAPPDATA\nvim\.venv"
-    if (-not (Test-Path $nvimVenv)) {
-        Write-Host "Creating Python venv for Neovim..." -ForegroundColor Green
-        python -m venv $nvimVenv
-        & "$nvimVenv\Scripts\pip.exe" install --upgrade pip pynvim
-        Write-Host "✓ Python provider configured" -ForegroundColor Green
+# Detect python executable: prefer `python`, fallback to `py -3` launcher
+$pythonCmdInfo = Get-Command python -ErrorAction SilentlyContinue
+$pyLauncherInfo = Get-Command py -ErrorAction SilentlyContinue
+
+if ($pythonCmdInfo -or $pyLauncherInfo) {
+    if ($pythonCmdInfo) {
+        $pythonExe = $pythonCmdInfo.Source
+        $pythonArgs = @()
     } else {
-        Write-Host "Python venv already exists" -ForegroundColor Yellow
+        # Use the py launcher with -3 to prefer Python 3
+        $pythonExe = $pyLauncherInfo.Source
+        $pythonArgs = @('-3')
+    }
+
+    $nvimVenv = Join-Path $env:LOCALAPPDATA 'nvim\.venv'
+    if (-not (Test-Path $nvimVenv)) {
+        Write-Host "Creating Python venv for Neovim at $nvimVenv..." -ForegroundColor Green
+        & $pythonExe @pythonArgs -m venv $nvimVenv
+
+        # Use the venv python to run pip (more reliable than calling pip.exe directly)
+        $venvPy = Join-Path $nvimVenv 'Scripts\python.exe'
+        if (Test-Path $venvPy) {
+            & $venvPy -m pip install --upgrade pip pynvim neovim
+            Write-Host "✓ Python provider configured (pynvim installed)" -ForegroundColor Green
+        } else {
+            Write-Error "Failed to create venv python at: $venvPy"
+        }
+    } else {
+        Write-Host "Python venv already exists at $nvimVenv" -ForegroundColor Yellow
     }
 } else {
     Write-Host "Python not found - skipping Python provider setup" -ForegroundColor Yellow

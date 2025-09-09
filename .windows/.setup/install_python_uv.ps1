@@ -81,6 +81,32 @@ New-PythonWrapper -Name "python$Patch" -TargetExe $PyExe
 New-PythonWrapper -Name "python-user" -TargetExe $PyExe
 New-PythonWrapper -Name "python$MajMin-user" -TargetExe $PyExe
 
+function Test-RealPythonCommand {
+  param([string]$CmdName)
+  $c = Get-Command $CmdName -ErrorAction SilentlyContinue
+  if (-not $c) { return $false }
+  # If the command path points into WindowsApps, it's the Microsoft Store stub — treat as not real
+  $path = $null
+  try { $path = $c.Path } catch { $path = $null }
+  if (-not $path) { return $false }
+  if ($path -match '\\WindowsApps\\') { return $false }
+  return Test-Path $path
+}
+
+# Create plain 'python' and 'python3' wrappers only if a usable system python isn't present
+if (-not (Test-RealPythonCommand 'python')) {
+  Write-Host "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
+  New-PythonWrapper -Name "python" -TargetExe $PyExe
+} else {
+  Write-Host "Usable 'python' command already exists in PATH; not creating wrapper."
+}
+if (-not (Test-RealPythonCommand 'python3')) {
+  Write-Host "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
+  New-PythonWrapper -Name "python3" -TargetExe $PyExe
+} else {
+  Write-Host "Usable 'python3' command already exists in PATH; not creating wrapper."
+}
+
 $UserPath = [Environment]::GetEnvironmentVariable("Path","User")
 if ($UserPath -notmatch [Regex]::Escape($BinDir)) {
   [Environment]::SetEnvironmentVariable("Path","$BinDir;$UserPath","User")
