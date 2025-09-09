@@ -2,8 +2,23 @@
 param(
     [string]$ConfigFile = "$PSScriptRoot\apps.json",
     [string]$LocalConfigFile = "$PSScriptRoot\apps.local.json",
-    [string[]]$Categories = @()  # Install specific categories only
+    [string[]]$Categories = @(),  # Install specific categories only
+    [switch]$DryRun
 )
+
+# Dot-source shared helpers (resolve via script path)
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$helpers = Join-Path $ScriptRoot 'helpers.ps1'
+if (Test-Path $helpers) { . $helpers } else { Write-Warning "helpers.ps1 not found at $helpers" }
+
+# Resolve config paths relative to script root when needed
+$ConfigFilePath = $ConfigFile
+if (-not (Test-Path $ConfigFilePath)) { $ConfigFilePath = Join-Path $ScriptRoot (Split-Path $ConfigFile -Leaf) }
+$ConfigFile = $ConfigFilePath
+
+$LocalConfigFilePath = $LocalConfigFile
+if (-not (Test-Path $LocalConfigFilePath)) { $LocalConfigFilePath = Join-Path $ScriptRoot (Split-Path $LocalConfigFile -Leaf) }
+$LocalConfigFile = $LocalConfigFilePath
 
 function Refresh-Path {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") +
@@ -14,28 +29,36 @@ function Refresh-Path {
 function Install-WingetApp {
     param($app)
 
-    $listApp = winget list --exact -q $app.name --accept-source-agreements 2>$null
-    if (-not ([string]::Join("",$listApp).Contains($app.name))) {
-        Write-Host "Installing: $($app.name)" -ForegroundColor Green
-        if ($app.source) {
-            winget install --exact --silent $app.name --source $app.source --accept-package-agreements --accept-source-agreements
+    try {
+        $listApp = winget list --exact -q $app.name --accept-source-agreements 2>$null
+        if (-not ([string]::Join('', $listApp).Contains($app.name))) {
+            Write-Output "Installing: $($app.name)"
+            if ($app.source) {
+                winget install --exact --silent $app.name --source $app.source --accept-package-agreements --accept-source-agreements
+            } else {
+                winget install --exact --silent $app.name --accept-package-agreements --accept-source-agreements
+            }
         } else {
-            winget install --exact --silent $app.name --accept-package-agreements --accept-source-agreements
+            Write-Verbose "Already installed: $($app.name)"
         }
-    } else {
-        Write-Host "Already installed: $($app.name)" -ForegroundColor Yellow
+    } catch {
+        Write-Warning "winget failed for $($app.name): $($_.Exception.Message)"
     }
 }
 
 function Install-ChocoApp {
     param($app)
 
-    choco list --localonly --exact $app.name | Select-String -Quiet " $($app.name) " >$null 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Installing: $($app.name)" -ForegroundColor Green
-        choco install $app.name -y --no-progress
-    } else {
-        Write-Host "Already installed: $($app.name)" -ForegroundColor Yellow
+    try {
+        choco list --localonly --exact $app.name | Select-String -Quiet " $($app.name) " >$null 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Output "Installing: $($app.name)"
+            choco install $app.name -y --no-progress
+        } else {
+            Write-Verbose "Already installed: $($app.name)"
+        }
+    } catch {
+        Write-Warning "choco failed for $($app.name): $($_.Exception.Message)"
     }
 }
 
@@ -47,298 +70,86 @@ function Install-UrlApp {
 
     # Check if already installed
     if (Test-Path $installPath) {
-        Write-Host "Already installed: $appName" -ForegroundColor Yellow
+        Write-Verbose "Already installed: $appName"
         return
     }
 
-    Write-Host "Installing: $appName from URL" -ForegroundColor Green
-
+    Write-Output "Installing: $appName from URL"
+    $tempDir = Join-Path $env:TEMP "url_app_install_$appName"
     try {
-        # Create temporary download directory
-        $tempDir = Join-Path $env:TEMP "url_app_install_$appName"
         New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-
-        # Determine file extension and download path
         $uri = [System.Uri]$app.url
         $fileName = [System.IO.Path]::GetFileName($uri.LocalPath)
         $downloadPath = Join-Path $tempDir $fileName
-
-        Write-Host "  Downloading $fileName..." -ForegroundColor Gray
-
-        # Download file
-        if (Get-Command curl -ErrorAction SilentlyContinue) {
-            curl -L -o $downloadPath $app.url
-        } else {
-            Invoke-WebRequest -Uri $app.url -OutFile $downloadPath -UseBasicParsing
-        }
-
-        # Create install directory
+        if (Get-Command curl -ErrorAction SilentlyContinue) { curl -L -o $downloadPath $app.url } else { Invoke-WebRequest -Uri $app.url -OutFile $downloadPath -UseBasicParsing }
         New-Item -ItemType Directory -Force -Path $installPath | Out-Null
-
-        # Extract if it's a zip file, otherwise copy directly
-        if ($fileName -like "*.zip") {
-            Write-Host "  Extracting archive..." -ForegroundColor Gray
-            if (Get-Command 7z -ErrorAction SilentlyContinue) {
-                7z x $downloadPath -o"$installPath" -y | Out-Null
-            } else {
-                Expand-Archive -Path $downloadPath -DestinationPath $installPath -Force
-            }
-
-            # Debug: Show directory structure after extraction
-            Write-Host "  Directory structure after extraction:" -ForegroundColor Gray
-            Get-ChildItem -Path $installPath -Recurse | Where-Object { $_.PSIsContainer -or $_.Name -like "*.exe" } | ForEach-Object {
-                $indent = "    " * (($_.FullName.Substring($installPath.Length) -split '\\').Count - 1)
-                $marker = if ($_.PSIsContainer) { "[DIR]" } else { "[EXE]" }
-                Write-Host "  $indent$marker $($_.Name)" -ForegroundColor Gray
-            }
+        if ($fileName -like '*.zip') {
+            if (Get-Command 7z -ErrorAction SilentlyContinue) { 7z x $downloadPath -o"$installPath" -y | Out-Null } else { Expand-Archive -Path $downloadPath -DestinationPath $installPath -Force }
         } else {
-            Write-Host "  Copying executable..." -ForegroundColor Gray
             Copy-Item $downloadPath -Destination $installPath -Force
         }
 
-        # Add executable paths to user PATH if specified
         if ($app.executable_paths) {
-            $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-            $pathsToAdd = @()
-
-            foreach ($exePath in $app.executable_paths) {
-                $resolvedPaths = @()
-
-                # Handle wildcard patterns like "*/bin", "*", or "**/bin"
-                if ($exePath -like "*`*") {
-                    Write-Host "  Resolving wildcard pattern: $exePath" -ForegroundColor Gray
-
-                    # For * pattern, find all subdirectories that contain executable files
-                    if ($exePath -eq "*") {
-                        $foundPaths = Get-ChildItem -Path $installPath -Directory | ForEach-Object {
-                            $dirPath = $_.FullName
-                            $executables = Get-ChildItem -Path $dirPath -File -ErrorAction SilentlyContinue | Where-Object {
-                                $_.Extension -in @('.exe', '.bat', '.cmd') -or $_.Extension -eq ''
-                            }
-                            if ($executables.Count -gt 0) {
-                                $dirPath
-                            }
-                        }
-                        $resolvedPaths = $foundPaths | Where-Object { $_ -ne $null }
-                    }
-                    # For */bin pattern, find all subdirectories that contain a bin folder
-                    elseif ($exePath -eq "*/bin") {
-                        $foundPaths = Get-ChildItem -Path $installPath -Directory | ForEach-Object {
-                            $binPath = Join-Path $_.FullName "bin"
-                            if (Test-Path $binPath -PathType Container) {
-                                $binPath
-                            }
-                        }
-                        $resolvedPaths = $foundPaths | Where-Object { $_ -ne $null }
-                    }
-                    # For other wildcard patterns, use recursive search
-                    else {
-                        $searchPattern = $exePath -replace '\*', '*'
-                        $resolvedPaths = Get-ChildItem -Path $installPath -Recurse -Directory | Where-Object {
-                            $relativePath = $_.FullName.Substring($installPath.Length + 1)
-                            $relativePath -like $searchPattern
-                        } | Select-Object -ExpandProperty FullName
-                    }
-
-                    if ($resolvedPaths.Count -eq 0) {
-                        Write-Host "  No paths found matching pattern: $exePath" -ForegroundColor Yellow
-                    } else {
-                        Write-Host "  Found $($resolvedPaths.Count) path(s) matching pattern" -ForegroundColor Gray
-                    }
-                } else {
-                    # Handle explicit paths
-                    $fullExePath = Join-Path $installPath $exePath
-                    if (Test-Path $fullExePath) {
-                        $resolvedPaths = @($fullExePath)
-                    }
+            $userPath = [Environment]::GetEnvironmentVariable('Path','User')
+            foreach ($p in $app.executable_paths) {
+                $candidate = Join-Path $installPath $p
+                if (Test-Path $candidate) {
+                    if ($userPath -notlike "*$candidate*") { [Environment]::SetEnvironmentVariable('Path', "$candidate;$userPath", 'User'); $userPath = "$candidate;$userPath"; Write-Verbose "Added $candidate to user PATH" }
                 }
-
-                # Add all resolved paths
-                foreach ($resolvedPath in $resolvedPaths) {
-                    if (Test-Path $resolvedPath) {
-                        $pathsToAdd += $resolvedPath
-                    }
-                }
-            }
-
-            # If no explicit paths were found, try auto-detection
-            if ($pathsToAdd.Count -eq 0 -and $app.executable_paths) {
-                Write-Host "  Auto-detecting executable directories..." -ForegroundColor Gray
-
-                # First, look for bin directories recursively
-                $binDirs = Get-ChildItem -Path $installPath -Recurse -Directory | Where-Object { $_.Name -eq "bin" }
-
-                foreach ($binDir in $binDirs) {
-                    $executables = Get-ChildItem -Path $binDir.FullName -File -ErrorAction SilentlyContinue | Where-Object {
-                        $_.Extension -in @('.exe', '.bat', '.cmd') -or $_.Extension -eq ''
-                    }
-
-                    if ($executables.Count -gt 0) {
-                        Write-Host "  Found executable directory: $($binDir.FullName)" -ForegroundColor Gray
-                        $pathsToAdd += $binDir.FullName
-                    }
-                }
-
-                # If no bin directories found, look for any directories with executables
-                if ($pathsToAdd.Count -eq 0) {
-                    $allDirs = Get-ChildItem -Path $installPath -Recurse -Directory
-
-                    foreach ($dir in $allDirs) {
-                        $executables = Get-ChildItem -Path $dir.FullName -File -ErrorAction SilentlyContinue | Where-Object {
-                            $_.Extension -in @('.exe', '.bat', '.cmd') -or $_.Extension -eq ''
-                        }
-
-                        if ($executables.Count -gt 0) {
-                            Write-Host "  Found executable directory: $($dir.FullName)" -ForegroundColor Gray
-                            $pathsToAdd += $dir.FullName
-                        }
-                    }
-                }
-            }
-
-            # Add unique paths to user PATH
-            foreach ($pathToAdd in ($pathsToAdd | Select-Object -Unique)) {
-                $escapedPath = [Regex]::Escape($pathToAdd)
-                if ($userPath -notmatch $escapedPath) {
-                    Write-Host "  Adding to PATH: $pathToAdd" -ForegroundColor Gray
-                    [Environment]::SetEnvironmentVariable("Path", "$pathToAdd;$userPath", "User")
-                    $userPath = "$pathToAdd;$userPath"
-                } else {
-                    Write-Host "  Already in PATH: $pathToAdd" -ForegroundColor Gray
-                }
-            }
-
-            if ($pathsToAdd.Count -eq 0) {
-                Write-Host "  No executable paths found to add to PATH" -ForegroundColor Yellow
             }
         }
 
-        Write-Host "  [OK] Successfully installed $appName" -ForegroundColor Green
-
-        # Clean up
-        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-    }
-    catch {
+        Write-Output "  [OK] Successfully installed $appName"
+    } catch {
         Write-Error "Failed to install $appName`: $($_.Exception.Message)"
-        # Clean up on failure
-        if (Test-Path $tempDir) {
-            Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-        }
-        if (Test-Path $installPath) {
-            Remove-Item $installPath -Recurse -Force -ErrorAction SilentlyContinue
-        }
+    } finally {
+        if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue }
     }
 }
 
-function Merge-AppConfigs {
-    param($BaseConfig, $LocalConfig)
-
-    $merged = @{
-        winget_apps = @()
-        choco_apps = @()
-        url_apps = @()
-    }
-
-    # Start with base config
-    if ($BaseConfig.winget_apps) { $merged.winget_apps += $BaseConfig.winget_apps }
-    if ($BaseConfig.choco_apps) { $merged.choco_apps += $BaseConfig.choco_apps }
-    if ($BaseConfig.url_apps) { $merged.url_apps += $BaseConfig.url_apps }
-
-    # Add local config if present
-    if ($LocalConfig) {
-        if ($LocalConfig.winget_apps) { $merged.winget_apps += $LocalConfig.winget_apps }
-        if ($LocalConfig.choco_apps) { $merged.choco_apps += $LocalConfig.choco_apps }
-        if ($LocalConfig.url_apps) { $merged.url_apps += $LocalConfig.url_apps }
-    }
-
-    return $merged
-}
-
-Write-Host "`n====== Installing Applications ======`n"
-
-# Load base configuration
-if (-not (Test-Path $ConfigFile)) {
-    Write-Error "Base configuration file not found: $ConfigFile"
-    exit 1
-}
-
-Write-Host "Loading base config: $ConfigFile" -ForegroundColor Cyan
-$baseConfig = Get-Content $ConfigFile | ConvertFrom-Json
-
-# Load local configuration if it exists
+# Load configs
+Write-Output "`n====== Installing Applications ======`n"
+try { $baseConfig = Import-JsonConfig -Path $ConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Error $_.Exception.Message; exit 1 }
 $localConfig = $null
-if (Test-Path $LocalConfigFile) {
-    Write-Host "Loading local config: $LocalConfigFile" -ForegroundColor Cyan
-    $localConfig = Get-Content $LocalConfigFile | ConvertFrom-Json
-} else {
-    Write-Host "No local config found: $LocalConfigFile (this is normal)" -ForegroundColor Gray
-}
+if (Test-Path $LocalConfigFile) { try { $localConfig = Import-JsonConfig -Path $LocalConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Warning "Failed to parse local config: $LocalConfigFile" } }
 
-# Merge configurations
-$config = Merge-AppConfigs -BaseConfig $baseConfig -LocalConfig $localConfig
+$config = Merge-AppConfigsGeneric -Base $baseConfig -Local $localConfig
 
-Write-Host "Total apps to consider:" -ForegroundColor Yellow
-Write-Host "  Winget: $($config.winget_apps.Count)"
-Write-Host "  Chocolatey: $($config.choco_apps.Count)"
-Write-Host "  URL-based: $($config.url_apps.Count)"
+Write-Output "Total apps to consider:"
+Write-Output "  Winget: $($config.winget_apps.Count)"
+Write-Output "  Chocolatey: $($config.choco_apps.Count)"
+Write-Output "  URL-based: $($config.url_apps.Count)"
 
-# Configure WinGet
-Write-Host "`nConfiguring winget..." -ForegroundColor Cyan
+Write-Output "`nConfiguring winget..."
 $settingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json"
 $settingsJson = @"
 {
-  "experimentalFeatures": {
-    "experimentalMSStore": true
-  }
+  "experimentalFeatures": { "experimentalMSStore": true }
 }
 "@
 New-Item -ItemType Directory -Force -Path (Split-Path $settingsPath) | Out-Null
 $settingsJson | Out-File $settingsPath -Encoding utf8 -Force
 
-# Install Winget apps
-Write-Host "`nInstalling Winget Apps..." -ForegroundColor Cyan
+Write-Output "`nInstalling Winget Apps..."
 $wingetApps = $config.winget_apps
-if ($Categories.Count -gt 0) {
-    $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }
-    Write-Host "Filtered to categories: $($Categories -join ', ')" -ForegroundColor Gray
-}
-
-foreach ($app in $wingetApps) {
-    Install-WingetApp $app
-}
+if ($Categories.Count -gt 0) { $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }; Write-Verbose "Filtered to categories: $($Categories -join ', ')" }
+foreach ($app in $wingetApps) { if ($DryRun) { Write-Output "[DRY RUN] Would install winget: $($app.name) (category: $($app.category))" } else { Install-WingetApp $app } }
 
 Refresh-Path
 
-# Install URL-based apps
-Write-Host "`nInstalling URL-based Apps..." -ForegroundColor Cyan
+Write-Output "`nInstalling URL-based Apps..."
 $urlApps = $config.url_apps
-    if ($Categories.Count -gt 0) {
-    $urlApps = $urlApps | Where-Object { $_.category -in $Categories }
-    }
-
-foreach ($app in $urlApps) {
-    Install-UrlApp $app
-}
+if ($Categories.Count -gt 0) { $urlApps = $urlApps | Where-Object { $_.category -in $Categories } }
+foreach ($app in $urlApps) { if ($DryRun) { Write-Output "[DRY RUN] Would install url-app: $($app.name) -> $($app.url) (category: $($app.category))" } else { Install-UrlApp $app } }
 
 Refresh-Path
 
-# Install Chocolatey apps
-Write-Host "`nInstalling Chocolatey Apps..." -ForegroundColor Cyan
+Write-Output "`nInstalling Chocolatey Apps..."
 $chocoApps = $config.choco_apps
-if ($Categories.Count -gt 0) {
-    $chocoApps = $chocoApps | Where-Object { $_.category -in $Categories }
-}
-
-foreach ($app in $chocoApps) {
-    Install-ChocoApp $app
-}
+if ($Categories.Count -gt 0) { $chocoApps = $chocoApps | Where-Object { $_.category -in $Categories } }
+foreach ($app in $chocoApps) { if ($DryRun) { Write-Output "[DRY RUN] Would install choco: $($app.name) (category: $($app.category))" } else { Install-ChocoApp $app } }
 
 # Setup WSL
-Write-Host "`nSetting up WSL..." -ForegroundColor Cyan
-try {
-    wsl --install
-} catch {
-    Write-Host "WSL setup completed or already configured." -ForegroundColor Yellow
-}
+if ($DryRun) { Write-Output "`n[DRY RUN] Would run: wsl --install" } else { Write-Output "`nSetting up WSL..."; try { wsl --install } catch { Write-Verbose "WSL setup completed or already configured." } }
 
-Write-Host "`n====== Installation Complete! ======`n"
+Write-Output "`n====== Installation Complete! ======`n"

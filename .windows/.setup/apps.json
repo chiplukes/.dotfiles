@@ -111,10 +111,10 @@
       "name": "fd",
       "category": "dev"
     },
-    {
-      "name": "luarocks",
-      "category": "dev"
-    },
+//    {
+//      "name": "luarocks",
+//      "category": "dev"
+//    },
     {
       "name": "ripgrep",
       "category": "dev"
@@ -132,6 +132,22 @@
       "executable_paths": ["*"],
       "category": "dev",
       "description": "SystemVerilog developer tools"
+    },
+    {
+      "name": "lua",
+      "url": "https://sourceforge.net/projects/luabinaries/files/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip/download",
+      "install_path": "$env:USERPROFILE\\tools\\lua",
+      "executable_paths": ["*"],
+      "category": "dev",
+      "description": "Lua 5.1.5"
+    },
+    {
+      "name": "luarocks",
+      "url": "https://luarocks.github.io/luarocks/releases/luarocks-3.12.2-windows-64.zip",
+      "install_path": "$env:USERPROFILE\\tools\\luarocks",
+      "executable_paths": ["*"],
+      "category": "dev",
+      "description": "LuaRocks package manager"
     }
-  ]
+]
 }

@@ -1,16 +1,21 @@
 [CmdletBinding()]
 param()
 
+# Dot-source helpers
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$helpers = Join-Path $ScriptRoot 'helpers.ps1'
 $UserPyVersion = "3.12"
-Write-Host ""
-Write-Host "====== Installing user Python with uv ($UserPyVersion) ======"
-Write-Host ""
+if (Test-Path $helpers) { . $helpers } else { Write-Warning "helpers.ps1 not found at $helpers" }
+
+Write-Output ""
+Write-Output "====== Installing user Python with uv ($UserPyVersion) ======"
+Write-Output ""
 $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
 function Ensure-Curl {
-  if (Get-Command curl -ErrorAction SilentlyContinue) { return }
-  Write-Host "curl not found; attempting install..."
-  if (Get-Command winget -ErrorAction SilentlyContinue) {
+  if (Test-CommandExists -CmdName 'curl') { return }
+  Write-Verbose "curl not found; attempting install..."
+  if (Test-CommandExists -CmdName 'winget') {
     try {
       winget install --id cURL.cURL -e --accept-package-agreements --accept-source-agreements -h
       if ($LASTEXITCODE -ne 0) {
@@ -19,11 +24,11 @@ function Ensure-Curl {
     } catch { }
     if (Get-Command curl -ErrorAction SilentlyContinue) { return }
   }
-  if (Get-Command choco -ErrorAction SilentlyContinue) {
+  if (Test-CommandExists -CmdName 'choco') {
     try { choco install curl -y --no-progress } catch { }
     if (Get-Command curl -ErrorAction SilentlyContinue) { return }
   }
-  Write-Host "Could not install curl automatically (continuing with Invoke-WebRequest)."
+  Write-Warning "Could not install curl automatically (continuing with Invoke-WebRequest)."
 }
 
 # Ensure uv
@@ -41,7 +46,7 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     "uv install failed: $($_.Exception.Message)" | Tee-Object -FilePath $LogFile -Append
     exit 1
   }
-  $env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
+  Add-ToUserPath -Path "$env:USERPROFILE\.local\bin"
 }
 
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
@@ -95,23 +100,20 @@ function Test-RealPythonCommand {
 
 # Create plain 'python' and 'python3' wrappers only if a usable system python isn't present
 if (-not (Test-RealPythonCommand 'python')) {
-  Write-Host "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
+  Write-Output "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
   New-PythonWrapper -Name "python" -TargetExe $PyExe
 } else {
-  Write-Host "Usable 'python' command already exists in PATH; not creating wrapper."
+  Write-Verbose "Usable 'python' command already exists in PATH; not creating wrapper."
 }
 if (-not (Test-RealPythonCommand 'python3')) {
-  Write-Host "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
+  Write-Output "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
   New-PythonWrapper -Name "python3" -TargetExe $PyExe
 } else {
-  Write-Host "Usable 'python3' command already exists in PATH; not creating wrapper."
+  Write-Verbose "Usable 'python3' command already exists in PATH; not creating wrapper."
 }
 
 $UserPath = [Environment]::GetEnvironmentVariable("Path","User")
-if ($UserPath -notmatch [Regex]::Escape($BinDir)) {
-  [Environment]::SetEnvironmentVariable("Path","$BinDir;$UserPath","User")
-  Write-Host "Added $BinDir to user PATH (restart shells)."
-}
+Add-ToUserPath -Path $BinDir
 
 & $PyExe -V
 "Interpreter path: $PyExe"

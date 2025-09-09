@@ -1,16 +1,21 @@
 ﻿[CmdletBinding()]
 param()
 
-Write-Host ""
-Write-Host "====== Neovim Configuration Setup ======"
-Write-Host ""
+Write-Output ""
+Write-Output "====== Neovim Configuration Setup ======"
+Write-Output ""
+
+# Dot-source helpers
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$helpers = Join-Path $ScriptRoot 'helpers.ps1'
+if (Test-Path $helpers) { . $helpers } else { Write-Warning "helpers.ps1 not found at $helpers" }
 
 # Install NeoVim with WinGet, if not already present
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
-    Write-Host "Installing Neovim..." -ForegroundColor Green
+    Write-Output "Installing Neovim..."
     winget install Neovim.Neovim --accept-package-agreements --accept-source-agreements
 } else {
-    Write-Host "Neovim already installed" -ForegroundColor Yellow
+    Write-Verbose "Neovim already installed"
 }
 
 # Refresh PATH
@@ -24,30 +29,22 @@ $dotfilesConfiguration = "$env:USERPROFILE\.config\nvim"
 if (Test-Path $localConfiguration -PathType Container) {
     $item = Get-Item $localConfiguration
     if ($item.LinkType -ne "SymbolicLink") {
-        Write-Host "Removing existing Neovim config (not a symlink)..." -ForegroundColor Yellow
+    Write-Warning "Removing existing Neovim config (not a symlink)..."
         Remove-Item $localConfiguration -Recurse -Force
     } else {
-        Write-Host "Neovim config symlink already exists" -ForegroundColor Yellow
+    Write-Verbose "Neovim config symlink already exists"
         # continue on to Python venv setup even if the symlink is present
     }
 }
 
 # Create the symbolic link (requires elevation)
 if (Test-Path $dotfilesConfiguration) {
-    Write-Host "Creating symbolic link for Neovim config..." -ForegroundColor Green
-    try {
-        # Try without elevation first
-        New-Item -Path $localConfiguration -ItemType SymbolicLink -Value $dotfilesConfiguration -Force
-        Write-Host "✓ Neovim config linked successfully" -ForegroundColor Green
-    } catch {
-        Write-Host "Elevation required for symbolic link creation..." -ForegroundColor Yellow
-        try {
-            Start-Process -FilePath "powershell" -ArgumentList "-Command", "New-Item -Path '$localConfiguration' -ItemType SymbolicLink -Value '$dotfilesConfiguration' -Force" -Verb RunAs -Wait
-            Write-Host "✓ Neovim config linked successfully (elevated)" -ForegroundColor Green
-        } catch {
-            Write-Error "Failed to create symbolic link: $($_.Exception.Message)"
-            Write-Host "Manual step required: Create symlink from $localConfiguration to $dotfilesConfiguration"
-        }
+    Write-Output "Creating symbolic link for Neovim config..."
+    if (New-Symlink-Elevated -Link $localConfiguration -Target $dotfilesConfiguration) {
+        Write-Output "✓ Neovim config linked successfully"
+    } else {
+        Write-Error "Failed to create symbolic link: $localConfiguration -> $dotfilesConfiguration"
+        Write-Warning "Manual step required: Create symlink from $localConfiguration to $dotfilesConfiguration"
     }
 } else {
     Write-Warning "Dotfiles Neovim config not found at: $dotfilesConfiguration"
@@ -71,24 +68,25 @@ if ($pythonCmdInfo -or $pyLauncherInfo) {
 
     $nvimVenv = Join-Path $env:LOCALAPPDATA 'nvim\.venv'
     if (-not (Test-Path $nvimVenv)) {
-        Write-Host "Creating Python venv for Neovim at $nvimVenv..." -ForegroundColor Green
+        Write-Output "Creating Python venv for Neovim at $nvimVenv..."
+        New-DirectoryIfMissing -Path $nvimVenv | Out-Null
         & $pythonExe @pythonArgs -m venv $nvimVenv
 
         # Use the venv python to run pip (more reliable than calling pip.exe directly)
         $venvPy = Join-Path $nvimVenv 'Scripts\python.exe'
         if (Test-Path $venvPy) {
             & $venvPy -m pip install --upgrade pip pynvim neovim
-            Write-Host "✓ Python provider configured (pynvim installed)" -ForegroundColor Green
+            Write-Output "✓ Python provider configured (pynvim installed)"
         } else {
             Write-Error "Failed to create venv python at: $venvPy"
         }
     } else {
-        Write-Host "Python venv already exists at $nvimVenv" -ForegroundColor Yellow
+    Write-Verbose "Python venv already exists at $nvimVenv"
     }
 } else {
-    Write-Host "Python not found - skipping Python provider setup" -ForegroundColor Yellow
+    Write-Warning "Python not found - skipping Python provider setup"
 }
 
-Write-Host ""
-Write-Host "====== Neovim setup complete ======" -ForegroundColor Green
-Write-Host ""
+Write-Output ""
+Write-Output "====== Neovim setup complete ======"
+Write-Output ""
