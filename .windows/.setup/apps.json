@@ -135,7 +135,7 @@
     },
     {
       "name": "lua",
-      "url": "https://sourceforge.net/projects/luabinaries/files/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip/download",
+      "url": "https://downloads.sourceforge.net/project/luabinaries/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip?ts=gAAAAABowQL-dbffAUMUHvEQYA42qMptfFQpPjfZYaRSAUOG0xY-Q1l_MYjfjUVk2CnddyngCh1xWECl0ZBLjy3-88ljrejYpg%3D%3D&r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fluabinaries%2Ffiles%2F5.1.5%2FTools%2520Executables%2Flua-5.1.5_Win64_bin.zip%2Fdownload",
       "install_path": "$env:USERPROFILE\\tools\\lua",
       "executable_paths": ["*"],
       "category": "dev",

@@ -1,5 +1,5 @@
 #debloate/remove apps
-Write-Output "Removing Unwanted Apps"
+Write-Log "Removing Unwanted Apps"
 $apps = @(
       @{name = "Microsoft.Microsoft3DViewer"},
       @{name = "Microsoft.AppConnector"},
@@ -80,22 +80,22 @@ Foreach ($app in $apps)
   #Get-AppxPackage -allusers $app | Remove-AppxPackage
 
     Try{
-        Write-Output "Removing :" $app.name
+        Write-Log "Removing :" $app.name
         Get-AppxPackage "*$app.name*" | Remove-AppxPackage -ErrorAction SilentlyContinue
         Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "*$app.name*" | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
     }
     Catch [System.Exception] {
         if($psitem.Exception.Message -like "*The requested operation requires elevation*"){
-            Write-Warning "Unable to uninstall $app.name due to a Security Exception"
+            Write-Log "Unable to uninstall $app.name due to a Security Exception" -Level 'WARN'
         }
         Else{
-            Write-Warning "Unable to uninstall $app.name due to unhandled exception"
-            Write-Warning $psitem.Exception.StackTrace
+            Write-Log "Unable to uninstall $app.name due to unhandled exception" -Level 'WARN'
+            Write-Log $psitem.Exception.StackTrace -Level 'WARN'
         }
     }
     Catch{
-        Write-Warning "Unable to uninstall $app.name due to unhandled exception"
-        Write-Warning $psitem.Exception.StackTrace
+        Write-Log "Unable to uninstall $app.name due to unhandled exception" -Level 'WARN'
+        Write-Log $psitem.Exception.StackTrace -Level 'WARN'
     }
 }
 
@@ -103,26 +103,26 @@ Foreach ($app in $apps)
 
 
 # Windows Registry Tweaks
-Write-Output "Applying Windows registry tweaks..."
+Write-Log "Applying Windows registry tweaks..."
 
 try {
     # Restore Windows 10 context menu (disable Windows 11 context menu)
-    Write-Output "Restoring Windows 10 context menu..."
+    Write-Log "Restoring Windows 10 context menu..."
     $ContextMenuPath = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
     if (-not (Test-Path $ContextMenuPath)) {
         New-Item -Path $ContextMenuPath -Force | Out-Null
     }
     Set-ItemProperty -Path $ContextMenuPath -Name "(Default)" -Value "" -Force
 
-    Write-Output "Windows 10 context menu restored"
+    Write-Log "Windows 10 context menu restored"
 }
 catch {
-    Write-Warning "Failed to restore Windows 10 context menu: $($_.Exception.Message)"
+    Write-Log "Failed to restore Windows 10 context menu: $($_.Exception.Message)" -Level 'WARN'
 }
 
 try {
     # Show file extensions
-    Write-Output "Enabling file extensions in Explorer..."
+    Write-Log "Enabling file extensions in Explorer..."
     $RegistryPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
     $Name = 'HideFileExt'
     $Value = 0
@@ -134,15 +134,15 @@ try {
 
     # Set the value
     Set-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -Type DWord -Force
-    Write-Output "File extensions enabled in Explorer"
+    Write-Log "File extensions enabled in Explorer"
 }
 catch {
-    Write-Warning "Failed to enable file extensions: $($_.Exception.Message)"
+    Write-Log "Failed to enable file extensions: $($_.Exception.Message)" -Level 'WARN'
 }
 
 try {
     # Use UTC time (needed for dual booting with Linux)
-    Write-Output "Setting hardware clock to use UTC time..."
+    Write-Log "Setting hardware clock to use UTC time..."
     $RegistryPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation'
     $Name = 'RealTimeIsUniversal'
     $Value = 1
@@ -154,10 +154,10 @@ try {
 
     # Set the value
     Set-ItemProperty -Path $RegistryPath -Name $Name -Value $Value -Type DWord -Force
-    Write-Output "Hardware clock set to UTC time"
+    Write-Log "Hardware clock set to UTC time"
 }
 catch {
-    Write-Warning "Failed to set UTC time: $($_.Exception.Message)"
+    Write-Log "Failed to set UTC time: $($_.Exception.Message)" -Level 'WARN'
 }
 
-Write-Output "Registry tweaks completed"
+Write-Log "Registry tweaks completed"

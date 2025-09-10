@@ -5,11 +5,11 @@ param()
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $helpers = Join-Path $ScriptRoot 'helpers.ps1'
 $UserPyVersion = "3.12"
-if (Test-Path $helpers) { . $helpers } else { Write-Warning "helpers.ps1 not found at $helpers" }
+if (Test-Path $helpers) { . $helpers } else { Write-Log "helpers.ps1 not found at $helpers" -Level 'WARN' }
 
-Write-Output ""
-Write-Output "====== Installing user Python with uv ($UserPyVersion) ======"
-Write-Output ""
+Write-Log ""
+Write-Log "====== Installing user Python with uv ($UserPyVersion) ======"
+Write-Log ""
 $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
 function Ensure-Curl {
@@ -28,7 +28,7 @@ function Ensure-Curl {
     try { choco install curl -y --no-progress } catch { }
     if (Get-Command curl -ErrorAction SilentlyContinue) { return }
   }
-  Write-Warning "Could not install curl automatically (continuing with Invoke-WebRequest)."
+  Write-Log "Could not install curl automatically (continuing with Invoke-WebRequest)." -Level 'WARN'
 }
 
 # Ensure uv
@@ -100,13 +100,13 @@ function Test-RealPythonCommand {
 
 # Create plain 'python' and 'python3' wrappers only if a usable system python isn't present
 if (-not (Test-RealPythonCommand 'python')) {
-  Write-Output "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
+  Write-Log "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
   New-PythonWrapper -Name "python" -TargetExe $PyExe
 } else {
   Write-Verbose "Usable 'python' command already exists in PATH; not creating wrapper."
 }
 if (-not (Test-RealPythonCommand 'python3')) {
-  Write-Output "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
+  Write-Log "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
   New-PythonWrapper -Name "python3" -TargetExe $PyExe
 } else {
   Write-Verbose "Usable 'python3' command already exists in PATH; not creating wrapper."

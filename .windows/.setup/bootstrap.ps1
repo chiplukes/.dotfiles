@@ -3,9 +3,9 @@ param(
     [string]$Branch = "main"  # Add branch parameter
 )
 
-Write-Output ""
-Write-Output "====== Setting up bare dotfiles repository (Windows) ======"
-Write-Output ""
+Write-Log ""
+Write-Log "====== Setting up bare dotfiles repository (Windows) ======"
+Write-Log ""
 
 $DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
 $DotfilesDir = "$env:USERPROFILE\.dotfiles-bare"
@@ -16,7 +16,7 @@ $HelpersPath = Join-Path $env:USERPROFILE ".windows\.setup\helpers.ps1"
 if (Test-Path $HelpersPath) {
     try {
         . $HelpersPath
-        Write-Output "Loaded helpers from: $HelpersPath"
+        Write-Log "Loaded helpers from: $HelpersPath"
     } catch {
         $msg = "Failed to dot-source helpers.ps1 from {0}: {1}" -f $HelpersPath, $_.Exception.Message
         throw $msg
@@ -26,11 +26,11 @@ if (Test-Path $HelpersPath) {
 }
 
 # Clean up any existing dotfiles setup
-Write-Output "Cleaning up any existing dotfiles setup..."
+Write-Log "Cleaning up any existing dotfiles setup..."
 
 # Remove existing .dotfiles-bare directory
 if (Test-Path $DotfilesDir) {
-    Write-Output "Removing existing .dotfiles-bare directory..."
+    Write-Log "Removing existing .dotfiles-bare directory..."
     Remove-Item -Recurse -Force $DotfilesDir
 }
 
@@ -41,7 +41,7 @@ Remove-Item Alias:\dotfiles -ErrorAction SilentlyContinue
 # Clean up PowerShell profile - remove any existing dotfiles function
 $ProfilePath = $PROFILE.CurrentUserCurrentHost
 if (Test-Path $ProfilePath) {
-    Write-Output "Cleaning up PowerShell profile..."
+    Write-Log "Cleaning up PowerShell profile..."
     $ProfileContent = Get-Content $ProfilePath | Where-Object {
         $_ -notmatch "function dotfiles" -and
         $_ -notmatch "# Dotfiles management function"
@@ -52,8 +52,8 @@ if (Test-Path $ProfilePath) {
 # Create dotfiles function for this session
 function dotfiles { git --git-dir="$DotfilesDir" --work-tree="$env:USERPROFILE" @args }
 
-Write-Output "Using branch: $Branch"
-Write-Output "Cloning dotfiles as bare repository to $DotfilesDir"
+Write-Log "Using branch: $Branch"
+Write-Log "Cloning dotfiles as bare repository to $DotfilesDir"
 
 # Clone the repository as bare with specific branch
 git clone --bare -b $Branch $DotfilesRepo $DotfilesDir
@@ -64,7 +64,7 @@ dotfiles fetch origin
 
 # Detect and back up conflicting files after all git operations
 
-Write-Output "Checking out dotfiles..."
+Write-Log "Checking out dotfiles..."
 # Try checkout, capture error output
 $checkoutOutput = dotfiles checkout 2>&1
 Write-Verbose "[DEBUG] Checkout output:"
@@ -91,7 +91,7 @@ Write-Verbose "[DEBUG] Conflicting files detected:"
 $conflictFiles | ForEach-Object { Write-Verbose $_ }
 
 if ($conflictFiles.Count -gt 0) {
-    Write-Output "Backing up pre-existing dot files to $DotfilesBackup"
+    Write-Log "Backing up pre-existing dot files to $DotfilesBackup"
     New-Item -ItemType Directory -Force -Path $DotfilesBackup | Out-Null
     foreach ($file in $conflictFiles) {
         $sourcePath = Join-Path $env:USERPROFILE $file
@@ -99,27 +99,27 @@ if ($conflictFiles.Count -gt 0) {
         $backupDir = Split-Path $backupPath -Parent
         New-Item -ItemType Directory -Force -Path $backupDir -ErrorAction SilentlyContinue | Out-Null
         if (Test-Path $sourcePath) {
-            Write-Output "Backing up: $sourcePath -> $backupPath"
+            Write-Log "Backing up: $sourcePath -> $backupPath"
             Copy-Item $sourcePath $backupPath -Force -ErrorAction SilentlyContinue
         } else {
-            Write-Warning "[Warning] Source file does not exist: $sourcePath"
+            Write-Log "[Warning] Source file does not exist: $sourcePath" -Level 'WARNING'
         }
     }
     # Remove originals after backup
     foreach ($file in $conflictFiles) {
         $sourcePath = Join-Path $env:USERPROFILE $file
         if (Test-Path $sourcePath) {
-            Write-Output "Removing original: $sourcePath"
+            Write-Log "Removing original: $sourcePath"
             Remove-Item $sourcePath -Force -ErrorAction SilentlyContinue
         }
     }
     # Try checkout again
-    Write-Output "Performing actual checkout after backup..."
+    Write-Log "Performing actual checkout after backup..."
     dotfiles checkout
 }
 
 # Configure the repository
-Write-Output "Configuring dotfiles repository..."
+Write-Log "Configuring dotfiles repository..."
 dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree $env:USERPROFILE
 
@@ -129,7 +129,7 @@ if (-not (Test-Path $ProfilePath)) {
 }
 
 $FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }'
-Write-Output "Adding dotfiles function to PowerShell profile"
+Write-Log "Adding dotfiles function to PowerShell profile"
 Add-Content $ProfilePath ""
 Add-Content $ProfilePath "# Dotfiles management function"
 Add-Content $ProfilePath $FunctionLine
@@ -137,16 +137,16 @@ Add-Content $ProfilePath $FunctionLine
 # Create .config directory if it doesn't exist (for cross-platform config)
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\nvim" | Out-Null
 
-Write-Output ""
-Write-Output "====== Dotfiles setup complete! ======"
-Write-Output "Usage:"
-Write-Output "  dotfiles status"
-Write-Output "  dotfiles add .config\nvim\init.lua"
-Write-Output "  dotfiles commit -m 'Update config'"
-Write-Output "  dotfiles push"
-Write-Output ""
-Write-Output "Platform-specific setup scripts available in:"
-Write-Output "  ~/.windows/setup/ (run as needed)"
-Write-Output ""
-Write-Output "Restart PowerShell to pick up the dotfiles function."
-Write-Output "Your original conflicting files (if any) are backed up in: $DotfilesBackup"
+Write-Log ""
+Write-Log "====== Dotfiles setup complete! ======"
+Write-Log "Usage:"
+Write-Log "  dotfiles status"
+Write-Log "  dotfiles add .config\nvim\init.lua"
+Write-Log "  dotfiles commit -m 'Update config'"
+Write-Log "  dotfiles push"
+Write-Log ""
+Write-Log "Platform-specific setup scripts available in:"
+Write-Log "  ~/.windows/setup/ (run as needed)"
+Write-Log ""
+Write-Log "Restart PowerShell to pick up the dotfiles function."
+Write-Log "Your original conflicting files (if any) are backed up in: $DotfilesBackup"

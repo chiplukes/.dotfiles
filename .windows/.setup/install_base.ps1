@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param()
 
-Write-Output "`n=== Base Bootstrap: winget + Chocolatey ===`n"
+Write-Log "`n=== Base Bootstrap: winget + Chocolatey ===`n"
 
 # (Optional) Restore point if elevated
 try {
@@ -11,12 +11,12 @@ try {
     } else {
     Write-Verbose "Not elevated; skipping restore point."
   }
-} catch { Write-Warning "Checkpoint skipped: $($_.Exception.Message)" }
+} catch { Write-Log "Checkpoint skipped: $($_.Exception.Message)" -Level 'WARN' }
 
 # Ensure winget (DesktopAppInstaller)
 $pkg = Get-AppPackage -Name 'Microsoft.DesktopAppInstaller' -ErrorAction SilentlyContinue
 if (!$pkg -or [version]$pkg.Version -lt [version]"1.10.0.0") {
-  Write-Output "Installing / updating winget..."
+  Write-Log "Installing / updating winget..."
   Add-AppxPackage -Path 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx'
   $relUrl = 'https://api.github.com/repos/microsoft/winget-cli/releases/latest'
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -29,11 +29,11 @@ if (!$pkg -or [version]$pkg.Version -lt [version]"1.10.0.0") {
 
 # Ensure Chocolatey (official bootstrap)
 if (-not (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
-  Write-Output "Installing Chocolatey..."
+  Write-Log "Installing Chocolatey..."
   Set-ExecutionPolicy Bypass -Scope Process -Force
   Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 } else {
   Write-Verbose "Chocolatey already present."
 }
 
-Write-Output "`nBase tools ready. Run install_apps.ps1 next.`n"
+Write-Log "`nBase tools ready. Run install_apps.ps1 next.`n"

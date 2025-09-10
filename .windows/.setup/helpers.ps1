@@ -117,7 +117,7 @@ function New-Symlink-Elevated {
         New-Item -Path $Link -ItemType SymbolicLink -Value $Target -Force -ErrorAction Stop | Out-Null
         return $true
     } catch {
-        Write-Warning "Symlink creation requires elevation; retrying elevated..."
+        Write-Log "Symlink creation requires elevation; retrying elevated..." -Level 'WARN'
         $ps = "New-Item -Path '$Link' -ItemType SymbolicLink -Value '$Target' -Force"
         Start-Process -FilePath 'powershell' -ArgumentList '-NoProfile','-Command',$ps -Verb RunAs -Wait
         return (Test-Path $Link)
@@ -133,29 +133,131 @@ function Invoke-SetupScript {
         [switch]$WhatIf
     )
     if (-not (Test-Path $ScriptPath)) {
-        if ($SkipIfMissing) { Write-Warning "Skipping missing script: $ScriptPath"; return $true }
-        Write-Error "Required script missing: $ScriptPath"; return $false
+        if ($SkipIfMissing) { Write-Log "Skipping missing script: $ScriptPath" -Level 'WARN'; return $true }
+        Write-Log "Required script missing: $ScriptPath" -Level 'ERROR'; return $false
     }
-    Write-Output "Running: $Description"
-    if ($WhatIf) { Write-Output "WOULD RUN: $ScriptPath"; return $true }
+    Write-Log "Running: $Description"
+    if ($WhatIf) { Write-Log "WOULD RUN: $ScriptPath"; return $true }
     try {
         if ($Arguments.Count -gt 0) { & $ScriptPath @Arguments } else { & $ScriptPath }
         return $true
     } catch {
-        Write-Error ('Failed running {0}: {1}' -f $ScriptPath, $_.Exception.Message); return $false
+        Write-Log ('Failed running {0}: {1}' -f $ScriptPath, $_.Exception.Message) -Level 'ERROR'; return $false
     }
 }
 
-function Write-Section {
-    param([string]$Title)
-    Write-Output ""
-    Write-Output ('=' * 60)
-    Write-Output " $Title "
-    Write-Output ('=' * 60)
-    Write-Output ""
-}
 
 function Write-DryRun {
     param([switch]$DryRun,[string]$Message)
-    if ($DryRun) { Write-Output "[DRY RUN] $Message"; return $false } else { return $true }
+    if ($DryRun) { Write-Log "[DRY RUN] $Message"; return $false } else { return $true }
+}
+
+
+# Ensure severity map and default log level are initialized
+if (-not $Script:SeverityMap -or $null -eq $Script:SeverityMap) {
+    $Script:SeverityMap = @{
+        'DEBUG' = 10
+        'INFO'  = 20
+        'WARN'  = 30
+        'ERROR' = 40
+    }
+}
+
+if (-not $Global:InstallLogLevel -or $null -eq $Global:InstallLogLevel) {
+    $envLevel = $env:INSTALL_LOG_LEVEL
+    $Global:InstallLogLevel = if ($envLevel) { $envLevel.ToUpper() } else { 'INFO' }
+}
+
+function Write-Log {
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Message,
+
+        [ValidateSet('INFO','WARN','ERROR','DEBUG')]
+        [string]$Level = 'INFO',
+
+        [switch]$Section
+    )
+
+    # Defensive: ensure severity map exists
+    if (-not $Script:SeverityMap) {
+        $Script:SeverityMap = @{
+            'DEBUG' = 10
+            'INFO'  = 20
+            'WARN'  = 30
+            'ERROR' = 40
+        }
+    }
+
+    # Only emit if message severity >= configured level
+    if ($Script:SeverityMap[$Level] -lt $Script:SeverityMap[$Global:InstallLogLevel]) { return }
+
+    $timestamp = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+    $logPath = Join-Path $env:USERPROFILE 'install.log'
+
+    # If caller asked for a true blank line: host blank, file gets a timestamped placeholder line
+    if ($Message -eq '') {
+        Write-Host ''
+        try {
+            $fileLine = "$timestamp [$Level]"
+            Add-Content -Path $logPath -Value $fileLine
+        } catch { Write-Warning "Write-Log: failed to write to install.log : $($_.Exception.Message)" }
+        return
+    }
+
+    # scriptblock now accepts explicit params to avoid capturing ambiguous outer variables
+    $WriteLine = {
+        param(
+            [string]$Text,
+            [string]$Lvl,
+            [string]$Ts,
+            [string]$LogFile
+        )
+
+        # Host output: no timestamp for INFO/DEBUG; include level prefix for WARN/ERROR
+        switch ($Lvl) {
+            'ERROR' {
+                $hostLine = "[$Lvl] $Text"
+                $fileLine = "$Ts [$Lvl] $Text"
+                Write-Host $hostLine -ForegroundColor Red
+                Write-Error -Message $Text -ErrorAction Continue
+            }
+            'WARN' {
+                $hostLine = "[$Lvl] $Text"
+                $fileLine = "$Ts [$Lvl] $Text"
+                Write-Host $hostLine -ForegroundColor Yellow
+                Write-Warning $Text
+            }
+            'DEBUG' {
+                $hostLine = $Text
+                $fileLine = "$Ts [$Lvl] $Text"
+                if ($VerbosePreference -ne 'SilentlyContinue') { Write-Host $hostLine -ForegroundColor DarkGray }
+            }
+            default {
+                # INFO and default: no level prefix on host
+                $hostLine = $Text
+                $fileLine = "$Ts [$Lvl] $Text"
+                Write-Host $hostLine
+            }
+        }
+
+        try { Add-Content -Path $LogFile -Value $fileLine } catch { Write-Warning "Write-Log: failed to write to install.log : $($_.Exception.Message)" }
+    }
+
+    if ($Section) {
+        $title = $Message
+        $sepLen = [Math]::Max(10, ($title.Length + 8))
+        $sep = ('=' * $sepLen)
+        $center = "  $title  "
+        & $WriteLine '' $Level $timestamp $logPath
+        & $WriteLine $sep $Level $timestamp $logPath
+        & $WriteLine $center $Level $timestamp $logPath
+        & $WriteLine $sep $Level $timestamp $logPath
+        & $WriteLine '' $Level $timestamp $logPath
+        return
+    }
+
+    # Normal single-line log (pass explicit params)
+    & $WriteLine $Message $Level $timestamp $logPath
 }

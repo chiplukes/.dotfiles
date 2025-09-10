@@ -9,7 +9,7 @@ param(
 # Dot-source shared helpers (resolve via script path)
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $helpers = Join-Path $ScriptRoot 'helpers.ps1'
-if (Test-Path $helpers) { . $helpers } else { Write-Warning "helpers.ps1 not found at $helpers" }
+if (Test-Path $helpers) { . $helpers } else { Write-Log "helpers.ps1 not found at $helpers" -Level 'WARN' }
 
 # Resolve config paths relative to script root when needed
 $ConfigFilePath = $ConfigFile
@@ -32,7 +32,7 @@ function Install-WingetApp {
     try {
         $listApp = winget list --exact -q $app.name --accept-source-agreements 2>$null
         if (-not ([string]::Join('', $listApp).Contains($app.name))) {
-            Write-Output "Installing: $($app.name)"
+            Write-Log "Installing: $($app.name)"
             if ($app.source) {
                 winget install --exact --silent $app.name --source $app.source --accept-package-agreements --accept-source-agreements
             } else {
@@ -42,7 +42,7 @@ function Install-WingetApp {
             Write-Verbose "Already installed: $($app.name)"
         }
     } catch {
-        Write-Warning "winget failed for $($app.name): $($_.Exception.Message)"
+        Write-Log "winget failed for $($app.name): $($_.Exception.Message)" -Level 'WARN'
     }
 }
 
@@ -52,13 +52,13 @@ function Install-ChocoApp {
     try {
         choco list --localonly --exact $app.name | Select-String -Quiet " $($app.name) " >$null 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Output "Installing: $($app.name)"
+            Write-Log "Installing: $($app.name)"
             choco install $app.name -y --no-progress
         } else {
             Write-Verbose "Already installed: $($app.name)"
         }
     } catch {
-        Write-Warning "choco failed for $($app.name): $($_.Exception.Message)"
+        Write-Log "choco failed for $($app.name): $($_.Exception.Message)" -Level 'WARN'
     }
 }
 
@@ -74,7 +74,7 @@ function Install-UrlApp {
         return
     }
 
-    Write-Output "Installing: $appName from URL"
+    Write-Log "Installing: $appName from URL"
     $tempDir = Join-Path $env:TEMP "url_app_install_$appName"
     try {
         New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
@@ -99,28 +99,28 @@ function Install-UrlApp {
             }
         }
 
-        Write-Output "  [OK] Successfully installed $appName"
+        Write-Log "  [OK] Successfully installed $appName"
     } catch {
-        Write-Error "Failed to install $appName`: $($_.Exception.Message)"
+        Write-Log "Failed to install $appName`: $($_.Exception.Message)" -Level 'ERROR'
     } finally {
         if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue }
     }
 }
 
 # Load configs
-Write-Output "`n====== Installing Applications ======`n"
-try { $baseConfig = Import-JsonConfig -Path $ConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Error $_.Exception.Message; exit 1 }
+Write-Log "`n====== Installing Applications ======`n"
+try { $baseConfig = Import-JsonConfig -Path $ConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Log $_.Exception.Message -Level 'ERROR'; exit 1 }
 $localConfig = $null
-if (Test-Path $LocalConfigFile) { try { $localConfig = Import-JsonConfig -Path $LocalConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Warning "Failed to parse local config: $LocalConfigFile" } }
+if (Test-Path $LocalConfigFile) { try { $localConfig = Import-JsonConfig -Path $LocalConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Log "Failed to parse local config: $LocalConfigFile" -Level 'WARN' } }
 
 $config = Merge-AppConfigsGeneric -Base $baseConfig -Local $localConfig
 
-Write-Output "Total apps to consider:"
-Write-Output "  Winget: $($config.winget_apps.Count)"
-Write-Output "  Chocolatey: $($config.choco_apps.Count)"
-Write-Output "  URL-based: $($config.url_apps.Count)"
+Write-Log "Total apps to consider:"
+Write-Log "  Winget: $($config.winget_apps.Count)"
+Write-Log "  Chocolatey: $($config.choco_apps.Count)"
+Write-Log "  URL-based: $($config.url_apps.Count)"
 
-Write-Output "`nConfiguring winget..."
+Write-Log "`nConfiguring winget..."
 $settingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json"
 $settingsJson = @"
 {
@@ -130,26 +130,26 @@ $settingsJson = @"
 New-Item -ItemType Directory -Force -Path (Split-Path $settingsPath) | Out-Null
 $settingsJson | Out-File $settingsPath -Encoding utf8 -Force
 
-Write-Output "`nInstalling Winget Apps..."
+Write-Log "`nInstalling Winget Apps..."
 $wingetApps = $config.winget_apps
 if ($Categories.Count -gt 0) { $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }; Write-Verbose "Filtered to categories: $($Categories -join ', ')" }
-foreach ($app in $wingetApps) { if ($DryRun) { Write-Output "[DRY RUN] Would install winget: $($app.name) (category: $($app.category))" } else { Install-WingetApp $app } }
+foreach ($app in $wingetApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install winget: $($app.name) (category: $($app.category))" } else { Install-WingetApp $app } }
 
 Refresh-Path
 
-Write-Output "`nInstalling URL-based Apps..."
+Write-Log "`nInstalling URL-based Apps..."
 $urlApps = $config.url_apps
 if ($Categories.Count -gt 0) { $urlApps = $urlApps | Where-Object { $_.category -in $Categories } }
-foreach ($app in $urlApps) { if ($DryRun) { Write-Output "[DRY RUN] Would install url-app: $($app.name) -> $($app.url) (category: $($app.category))" } else { Install-UrlApp $app } }
+foreach ($app in $urlApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install url-app: $($app.name) -> $($app.url) (category: $($app.category))" } else { Install-UrlApp $app } }
 
 Refresh-Path
 
-Write-Output "`nInstalling Chocolatey Apps..."
+Write-Log "`nInstalling Chocolatey Apps..."
 $chocoApps = $config.choco_apps
 if ($Categories.Count -gt 0) { $chocoApps = $chocoApps | Where-Object { $_.category -in $Categories } }
-foreach ($app in $chocoApps) { if ($DryRun) { Write-Output "[DRY RUN] Would install choco: $($app.name) (category: $($app.category))" } else { Install-ChocoApp $app } }
+foreach ($app in $chocoApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install choco: $($app.name) (category: $($app.category))" } else { Install-ChocoApp $app } }
 
 # Setup WSL
-if ($DryRun) { Write-Output "`n[DRY RUN] Would run: wsl --install" } else { Write-Output "`nSetting up WSL..."; try { wsl --install } catch { Write-Verbose "WSL setup completed or already configured." } }
+if ($DryRun) { Write-Log "`n[DRY RUN] Would run: wsl --install" } else { Write-Log "`nSetting up WSL..."; try { wsl --install } catch { Write-Verbose "WSL setup completed or already configured." } }
 
-Write-Output "`n====== Installation Complete! ======`n"
+Write-Log "`n====== Installation Complete! ======`n"
