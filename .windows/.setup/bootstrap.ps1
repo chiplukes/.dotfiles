@@ -18,10 +18,11 @@ if (Test-Path $HelpersPath) {
         . $HelpersPath
         Write-Output "Loaded helpers from: $HelpersPath"
     } catch {
-        throw "Failed to dot-source helpers.ps1 from $HelpersPath: $($_.Exception.Message)"
+        $msg = "Failed to dot-source helpers.ps1 from {0}: {1}" -f $HelpersPath, $_.Exception.Message
+        throw $msg
     }
 } else {
-    throw "helpers.ps1 not found at expected location: $HelpersPath. Ensure helpers.ps1 exists in ~/.windows/.setup/"
+    throw ("helpers.ps1 not found at expected location: {0}. Ensure helpers.ps1 exists in ~/.windows/.setup/" -f $HelpersPath)
 }
 
 # Clean up any existing dotfiles setup
