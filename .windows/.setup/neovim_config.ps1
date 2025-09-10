@@ -48,7 +48,7 @@ if (Test-Path $dotfilesConfiguration) {
     }
 } else {
     Write-Warning "Dotfiles Neovim config not found at: $dotfilesConfiguration"
-    Write-Host "Make sure you've run the dotfiles bootstrap script first"
+    Write-Output "Make sure you've run the dotfiles bootstrap script first"
 }
 
 # Create Python venv for Neovim if Python is available
