@@ -1,3 +1,4 @@
+// full line comments are removed before parsing
 {
   "winget_apps": [
     {
@@ -96,6 +97,14 @@
     {
       "name": "SomePythonThings.WingetUIStore",
       "category": "misc"
+    },
+    {
+      "name": "JesseDuffield.lazygit",
+      "category": "dev"
+    },
+    {
+      "name": "wez.wezterm",
+      "category": "dev"
     }
   ],
   "choco_apps": [
@@ -129,7 +138,7 @@
       "name": "verible",
       "url": "https://github.com/chipsalliance/verible/releases/download/v0.0-4023-gc1271a00/verible-v0.0-4023-gc1271a00-win64.zip",
       "install_path": "$env:USERPROFILE\\tools\\verible",
-      "executable_paths": ["*"],
+      "binary_name": ["verible-verilog-ls.exe"],
       "category": "dev",
       "description": "SystemVerilog developer tools"
     },
@@ -137,7 +146,7 @@
       "name": "lua",
       "url": "https://downloads.sourceforge.net/project/luabinaries/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip?ts=gAAAAABowQL-dbffAUMUHvEQYA42qMptfFQpPjfZYaRSAUOG0xY-Q1l_MYjfjUVk2CnddyngCh1xWECl0ZBLjy3-88ljrejYpg%3D%3D&r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fluabinaries%2Ffiles%2F5.1.5%2FTools%2520Executables%2Flua-5.1.5_Win64_bin.zip%2Fdownload",
       "install_path": "$env:USERPROFILE\\tools\\lua",
-      "executable_paths": ["*"],
+      "binary_name": ["lua5.1.exe"],
       "category": "dev",
       "description": "Lua 5.1.5"
     },
@@ -145,7 +154,7 @@
       "name": "luarocks",
       "url": "https://luarocks.github.io/luarocks/releases/luarocks-3.12.2-windows-64.zip",
       "install_path": "$env:USERPROFILE\\tools\\luarocks",
-      "executable_paths": ["*"],
+      "binary_name": ["luarocks.exe"],
       "category": "dev",
       "description": "LuaRocks package manager"
     }

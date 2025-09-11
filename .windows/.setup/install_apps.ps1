@@ -29,20 +29,45 @@ function Refresh-Path {
 function Install-WingetApp {
     param($app)
 
+    # Ensure we don't let global error preferences turn non-zero exits into stops
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     try {
-        $listApp = winget list --exact -q $app.name --accept-source-agreements 2>$null
-        if (-not ([string]::Join('', $listApp).Contains($app.name))) {
+        Write-Log "Checking/Installing winget app: $($app.name) (category: $($app.category))"
+
+        # Query installed state (capture all output)
+        $listOutput = & winget list --exact -q $app.name --accept-source-agreements 2>&1 | Out-String
+        Write-Log "winget list output for $($app.name):" -Level 'DEBUG'
+        $listOutput -split "`n" | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
+
+        $isInstalled = $false
+        if ($listOutput -and $listOutput -match [regex]::Escape($app.name)) { $isInstalled = $true }
+
+        if (-not $isInstalled) {
             Write-Log "Installing: $($app.name)"
-            if ($app.source) {
-                winget install --exact --silent $app.name --source $app.source --accept-package-agreements --accept-source-agreements
+            # Build args explicitly so we can log them
+            $args = @('install','--exact','--silent',$app.name,'--accept-package-agreements','--accept-source-agreements')
+            if ($app.source) { $args = @('install','--exact','--silent',$app.name,'--source',$app.source,'--accept-package-agreements','--accept-source-agreements') }
+
+            Write-Log ("Running: winget {0}" -f ($args -join ' ')) -Level 'DEBUG'
+
+            # Run winget and capture output; do not let non-zero exit throw
+            $installOutput = & winget @args 2>&1 | Out-String
+            $installOutput -split "`n" | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
+
+            # Inspect output / last exit code
+            if ($LASTEXITCODE -ne 0) {
+                Write-Log "Installer reported exit code $LASTEXITCODE for $($app.name). See winget output above (DEBUG) or winget logs." -Level 'WARN'
             } else {
-                winget install --exact --silent $app.name --accept-package-agreements --accept-source-agreements
+                Write-Log "Successfully initiated install for $($app.name)"
             }
         } else {
-            Write-Verbose "Already installed: $($app.name)"
+            Write-Log "Already installed: $($app.name)" -Level 'DEBUG'
         }
     } catch {
         Write-Log "winget failed for $($app.name): $($_.Exception.Message)" -Level 'WARN'
+    } finally {
+        $ErrorActionPreference = $prevEAP
     }
 }
 
@@ -55,7 +80,7 @@ function Install-ChocoApp {
             Write-Log "Installing: $($app.name)"
             choco install $app.name -y --no-progress
         } else {
-            Write-Verbose "Already installed: $($app.name)"
+            Write-Log "Already installed: $($app.name)" -Level 'DEBUG'
         }
     } catch {
         Write-Log "choco failed for $($app.name): $($_.Exception.Message)" -Level 'WARN'
@@ -70,7 +95,7 @@ function Install-UrlApp {
 
     # Check if already installed
     if (Test-Path $installPath) {
-        Write-Verbose "Already installed: $appName"
+        Write-Log "Already installed: $appName" -Level 'INFO'
         return
     }
 
@@ -81,7 +106,13 @@ function Install-UrlApp {
         $uri = [System.Uri]$app.url
         $fileName = [System.IO.Path]::GetFileName($uri.LocalPath)
         $downloadPath = Join-Path $tempDir $fileName
-        if (Get-Command curl -ErrorAction SilentlyContinue) { curl -L -o $downloadPath $app.url } else { Invoke-WebRequest -Uri $app.url -OutFile $downloadPath -UseBasicParsing }
+        # Prefer external curl.exe when available (supports -L -o). Fallback to Invoke-WebRequest.
+        if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+            & curl.exe -L -o $downloadPath $app.url
+        } else {
+            # Use Invoke-WebRequest (PowerShell) as fallback; note -UseBasicParsing is for Windows PowerShell only
+            Invoke-WebRequest -Uri $app.url -OutFile $downloadPath
+        }
         New-Item -ItemType Directory -Force -Path $installPath | Out-Null
         if ($fileName -like '*.zip') {
             if (Get-Command 7z -ErrorAction SilentlyContinue) { 7z x $downloadPath -o"$installPath" -y | Out-Null } else { Expand-Archive -Path $downloadPath -DestinationPath $installPath -Force }
@@ -89,14 +120,76 @@ function Install-UrlApp {
             Copy-Item $downloadPath -Destination $installPath -Force
         }
 
-        if ($app.executable_paths) {
+        # Determine list of binary-name candidates to search for.
+        # Preferred new JSON field: "binary_name": ["luarocks-3.12.2-windows-64","bin","luarocks.exe"]
+        # Backwards-compatible: if binary_name absent, fall back to executable_paths; if those absent use "*"
+        $candidates = @()
+        if ($null -ne $app.binary_name) {
+            $candidates = $app.binary_name
+        } elseif ($null -ne $app.executable_paths) {
+            $candidates = $app.executable_paths
+        } else {
+            $candidates = @('*')
+        }
+
+        $addedPaths = @()
+        foreach ($cand in $candidates) {
+            if ($cand -eq '*') {
+                # add installPath itself
+                if (Test-Path $installPath) { $addedPaths += (Get-Item $installPath).FullName }
+                continue
+            }
+
+            # 1) Prefer matching executable files: search recursively for files matching the candidate.
+            try {
+                $fileMatches = Get-ChildItem -Path $installPath -File -Recurse -ErrorAction SilentlyContinue |
+                               Where-Object { $_.Name -like "*$cand*" -or $_.Name -ieq $cand }
+            } catch {
+                $fileMatches = @()
+            }
+
+            if ($fileMatches.Count -gt 0) {
+                foreach ($f in $fileMatches) { $addedPaths += $f.DirectoryName }
+                continue
+            }
+
+            # 2) Try direct top-level match first (folder)
+            $topMatch = Join-Path $installPath $cand
+            if (Test-Path $topMatch) {
+                $addedPaths += (Get-Item $topMatch).FullName
+                continue
+            }
+
+            # 3) Search for matching directories under installPath (case-insensitive, partial match)
+            try {
+                $matches = Get-ChildItem -Path $installPath -Directory -Recurse -ErrorAction SilentlyContinue |
+                           Where-Object { $_.Name -like "*$cand*" -or $_.FullName -like "*$cand*" }
+            } catch {
+                $matches = @()
+            }
+
+            foreach ($m in $matches) { $addedPaths += $m.FullName }
+        }
+
+        # If nothing matched, as a last resort add the installPath itself
+        if ($addedPaths.Count -eq 0 -and (Test-Path $installPath)) {
+            $addedPaths += (Get-Item $installPath).FullName
+        }
+
+        # Add unique paths to User PATH
+        if ($addedPaths.Count -gt 0) {
             $userPath = [Environment]::GetEnvironmentVariable('Path','User')
-            foreach ($p in $app.executable_paths) {
-                $candidate = Join-Path $installPath $p
-                if (Test-Path $candidate) {
-                    if ($userPath -notlike "*$candidate*") { [Environment]::SetEnvironmentVariable('Path', "$candidate;$userPath", 'User'); $userPath = "$candidate;$userPath"; Write-Verbose "Added $candidate to user PATH" }
+            foreach ($p in ($addedPaths | Select-Object -Unique)) {
+                if ($userPath -notlike "*$p*") {
+                    [Environment]::SetEnvironmentVariable('Path', "$p;$userPath", 'User')
+                    $userPath = "$p;$userPath"
+                    Write-Log "Added $p to user PATH" -Level 'INFO'
+                } else {
+                    Write-Log "Path already in user PATH: $p" -Level 'DEBUG'
                 }
             }
+        } else {
+            Write-Log "No candidate binary folders found for $appName; install path: $installPath" -Level 'WARN'
         }
 
         Write-Log "  [OK] Successfully installed $appName"
@@ -132,7 +225,7 @@ $settingsJson | Out-File $settingsPath -Encoding utf8 -Force
 
 Write-Log "`nInstalling Winget Apps..."
 $wingetApps = $config.winget_apps
-if ($Categories.Count -gt 0) { $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }; Write-Verbose "Filtered to categories: $($Categories -join ', ')" }
+if ($Categories.Count -gt 0) { $wingetApps = $wingetApps | Where-Object { $_.category -in $Categories }; Write-Log "Filtered to categories: $($Categories -join ', ')" -Level 'INFO' }
 foreach ($app in $wingetApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install winget: $($app.name) (category: $($app.category))" } else { Install-WingetApp $app } }
 
 Refresh-Path
@@ -150,6 +243,6 @@ if ($Categories.Count -gt 0) { $chocoApps = $chocoApps | Where-Object { $_.categ
 foreach ($app in $chocoApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install choco: $($app.name) (category: $($app.category))" } else { Install-ChocoApp $app } }
 
 # Setup WSL
-if ($DryRun) { Write-Log "`n[DRY RUN] Would run: wsl --install" } else { Write-Log "`nSetting up WSL..."; try { wsl --install } catch { Write-Verbose "WSL setup completed or already configured." } }
+if ($DryRun) { Write-Log "`n[DRY RUN] Would run: wsl --install" } else { Write-Log "`nSetting up WSL..."; try { wsl --install } catch { Write-Log "WSL setup completed or already configured." -Level 'INFO' } }
 
 Write-Log "`n====== Installation Complete! ======`n"

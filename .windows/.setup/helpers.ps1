@@ -36,7 +36,7 @@ function Set-FileWithBackup {
     )
     if (Test-Path $TargetPath) {
         $bk = Copy-FileBackup -Path $TargetPath -BackupRoot $BackupRoot
-        Write-Verbose "Backed up $TargetPath -> $bk"
+        Write-Log "Backed up $TargetPath -> $bk" -Level 'INFO'
     } else {
         New-DirectoryIfMissing -Path (Split-Path $TargetPath -Parent) | Out-Null
     }
@@ -98,9 +98,9 @@ function Add-ToUserPath {
     $userPath = [Environment]::GetEnvironmentVariable('Path','User')
     if ($userPath -notmatch [Regex]::Escape($Path)) {
         [Environment]::SetEnvironmentVariable('Path', ("{0};{1}" -f $Path, $userPath), 'User')
-        Write-Verbose "Added to user PATH: $Path"
+        Write-Log "Added to user PATH: $Path" -Level 'INFO'
     } else {
-        Write-Verbose "Already in user PATH: $Path"
+        Write-Log "Already in user PATH: $Path" -Level 'INFO'
     }
 }
 

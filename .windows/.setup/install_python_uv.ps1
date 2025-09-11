@@ -14,7 +14,7 @@ $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
 function Ensure-Curl {
   if (Test-CommandExists -CmdName 'curl') { return }
-  Write-Verbose "curl not found; attempting install..."
+  Write-Log "curl not found; attempting install..." -Level 'INFO'
   if (Test-CommandExists -CmdName 'winget') {
     try {
       winget install --id cURL.cURL -e --accept-package-agreements --accept-source-agreements -h
@@ -103,13 +103,13 @@ if (-not (Test-RealPythonCommand 'python')) {
   Write-Log "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
   New-PythonWrapper -Name "python" -TargetExe $PyExe
 } else {
-  Write-Verbose "Usable 'python' command already exists in PATH; not creating wrapper."
+  Write-Log "Usable 'python' command already exists in PATH; not creating wrapper." -Level 'WARN'
 }
 if (-not (Test-RealPythonCommand 'python3')) {
   Write-Log "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
   New-PythonWrapper -Name "python3" -TargetExe $PyExe
 } else {
-  Write-Verbose "Usable 'python3' command already exists in PATH; not creating wrapper."
+  Write-Log "Usable 'python3' command already exists in PATH; not creating wrapper." -Level 'WARN'
 }
 
 $UserPath = [Environment]::GetEnvironmentVariable("Path","User")

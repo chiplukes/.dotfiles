@@ -67,8 +67,8 @@ dotfiles fetch origin
 Write-Log "Checking out dotfiles..."
 # Try checkout, capture error output
 $checkoutOutput = dotfiles checkout 2>&1
-Write-Verbose "[DEBUG] Checkout output:"
-$checkoutOutput | ForEach-Object { Write-Verbose $_ }
+Write-Log "Checkout output:" -Level 'DEBUG'
+$checkoutOutput | ForEach-Object { Write-Log $_ -Level 'DEBUG' }
 $conflictFiles = @()
 $collect = $false
 foreach ($line in $checkoutOutput) {
@@ -87,8 +87,8 @@ foreach ($line in $checkoutOutput) {
         }
     }
 }
-Write-Verbose "[DEBUG] Conflicting files detected:"
-$conflictFiles | ForEach-Object { Write-Verbose $_ }
+Write-Log "Conflicting files detected:" -Level 'DEBUG'
+$conflictFiles | ForEach-Object { Write-Log $_ -Level 'DEBUG' }
 
 if ($conflictFiles.Count -gt 0) {
     Write-Log "Backing up pre-existing dot files to $DotfilesBackup"

@@ -15,7 +15,7 @@ if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
     Write-Log "Installing Neovim..."
     winget install Neovim.Neovim --accept-package-agreements --accept-source-agreements
 } else {
-    Write-Verbose "Neovim already installed"
+    Write-Log "Neovim already installed" -Level 'INFO'
 }
 
 # Refresh PATH
@@ -32,7 +32,7 @@ if (Test-Path $localConfiguration -PathType Container) {
         Write-Log "Removing existing Neovim config (not a symlink)..." -Level 'WARN'
         Remove-Item $localConfiguration -Recurse -Force
     } else {
-    Write-Verbose "Neovim config symlink already exists"
+        Write-Log "Neovim config symlink already exists" -Level 'WARN'
         # continue on to Python venv setup even if the symlink is present
     }
 }
@@ -81,7 +81,7 @@ if ($pythonCmdInfo -or $pyLauncherInfo) {
             Write-Log "Failed to create venv python at: $venvPy" -Level 'ERROR'
         }
     } else {
-    Write-Verbose "Python venv already exists at $nvimVenv"
+        Write-Log "Python venv already exists at $nvimVenv" -Level 'WARN'
     }
 } else {
     Write-Log "Python not found - skipping Python provider setup" -Level 'WARN'
