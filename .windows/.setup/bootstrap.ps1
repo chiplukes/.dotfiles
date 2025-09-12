@@ -3,34 +3,17 @@ param(
     [string]$Branch = "main"  # Add branch parameter
 )
 
-Write-Log ""
-Write-Log "====== Setting up bare dotfiles repository (Windows) ======"
-Write-Log ""
+Write-Host ""
+Write-Host "====== Setting up bare dotfiles repository (Windows) ======"
+Write-Host ""
 
 $DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
 $DotfilesDir = "$env:USERPROFILE\.dotfiles-bare"
 $DotfilesBackup = "$env:USERPROFILE\.config-backup"
 
-# Load shared helpers from the known location under the user's home
-$HelpersPath = Join-Path $env:USERPROFILE ".windows\.setup\helpers.ps1"
-if (Test-Path $HelpersPath) {
-    try {
-        . $HelpersPath
-        Write-Log "Loaded helpers from: $HelpersPath"
-    } catch {
-        $msg = "Failed to dot-source helpers.ps1 from {0}: {1}" -f $HelpersPath, $_.Exception.Message
-        throw $msg
-    }
-} else {
-    throw ("helpers.ps1 not found at expected location: {0}. Ensure helpers.ps1 exists in ~/.windows/.setup/" -f $HelpersPath)
-}
-
-# Clean up any existing dotfiles setup
-Write-Log "Cleaning up any existing dotfiles setup..."
-
 # Remove existing .dotfiles-bare directory
 if (Test-Path $DotfilesDir) {
-    Write-Log "Removing existing .dotfiles-bare directory..."
+    Write-Host "Removing existing .dotfiles-bare directory..."
     Remove-Item -Recurse -Force $DotfilesDir
 }
 
@@ -38,22 +21,12 @@ if (Test-Path $DotfilesDir) {
 Remove-Item Function:\dotfiles -ErrorAction SilentlyContinue
 Remove-Item Alias:\dotfiles -ErrorAction SilentlyContinue
 
-# Clean up PowerShell profile - remove any existing dotfiles function
-$ProfilePath = $PROFILE.CurrentUserCurrentHost
-if (Test-Path $ProfilePath) {
-    Write-Log "Cleaning up PowerShell profile..."
-    $ProfileContent = Get-Content $ProfilePath | Where-Object {
-        $_ -notmatch "function dotfiles" -and
-        $_ -notmatch "# Dotfiles management function"
-    }
-    $ProfileContent | Set-Content $ProfilePath
-}
 
 # Create dotfiles function for this session
 function dotfiles { git --git-dir="$DotfilesDir" --work-tree="$env:USERPROFILE" @args }
 
-Write-Log "Using branch: $Branch"
-Write-Log "Cloning dotfiles as bare repository to $DotfilesDir"
+Write-Host "Using branch: $Branch"
+Write-Host "Cloning dotfiles as bare repository to $DotfilesDir"
 
 # Clone the repository as bare with specific branch
 git clone --bare -b $Branch $DotfilesRepo $DotfilesDir
@@ -62,18 +35,21 @@ git clone --bare -b $Branch $DotfilesRepo $DotfilesDir
 dotfiles config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 dotfiles fetch origin
 
-# Detect and back up conflicting files after all git operations
+# Configure the repository
+Write-Host "Configuring dotfiles repository..."
+dotfiles config --local status.showUntrackedFiles no
+dotfiles config --local core.worktree $env:USERPROFILE
 
-Write-Log "Checking out dotfiles..."
+# Detect and back up conflicting files after all git operations
+Write-Host "Checking for conflicting files during checkout..."
 # Try checkout, capture error output
 $checkoutOutput = dotfiles checkout 2>&1
-Write-Log "Checkout output:" -Level 'DEBUG'
-$checkoutOutput | ForEach-Object { Write-Log $_ -Level 'DEBUG' }
+#$checkoutOutput | ForEach-Object { Write-Host $_ } # uncomment for debugging
 $conflictFiles = @()
 $collect = $false
 foreach ($line in $checkoutOutput) {
     $strLine = $line.ToString()
-    if ($strLine -match 'The following untracked working tree files would be overwritten by checkout:') {
+    if ($strLine -and ($strLine.IndexOf('files would be overwritten by checkout:', [System.StringComparison]::Ordinal) -ge 0)) {
         $collect = $true
         continue
     }
@@ -87,11 +63,11 @@ foreach ($line in $checkoutOutput) {
         }
     }
 }
-Write-Log "Conflicting files detected:" -Level 'DEBUG'
-$conflictFiles | ForEach-Object { Write-Log $_ -Level 'DEBUG' }
+Write-Warning "Conflicting the following files will be overwritten by checkout:"
+$conflictFiles | ForEach-Object { Write-Host $_ }
 
 if ($conflictFiles.Count -gt 0) {
-    Write-Log "Backing up pre-existing dot files to $DotfilesBackup"
+    Write-Warning "Backing up pre-existing dot files to $DotfilesBackup"
     New-Item -ItemType Directory -Force -Path $DotfilesBackup | Out-Null
     foreach ($file in $conflictFiles) {
         $sourcePath = Join-Path $env:USERPROFILE $file
@@ -99,54 +75,103 @@ if ($conflictFiles.Count -gt 0) {
         $backupDir = Split-Path $backupPath -Parent
         New-Item -ItemType Directory -Force -Path $backupDir -ErrorAction SilentlyContinue | Out-Null
         if (Test-Path $sourcePath) {
-            Write-Log "Backing up: $sourcePath -> $backupPath"
+            Write-Host "Backing up: $sourcePath -> $backupPath"
             Copy-Item $sourcePath $backupPath -Force -ErrorAction SilentlyContinue
         } else {
-            Write-Log "[Warning] Source file does not exist: $sourcePath" -Level 'WARNING'
+            Write-Warning "[Warning] Source file does not exist: $sourcePath"
         }
     }
     # Remove originals after backup
     foreach ($file in $conflictFiles) {
         $sourcePath = Join-Path $env:USERPROFILE $file
         if (Test-Path $sourcePath) {
-            Write-Log "Removing original: $sourcePath"
+            Write-Host "Removing original: $sourcePath"
             Remove-Item $sourcePath -Force -ErrorAction SilentlyContinue
         }
     }
     # Try checkout again
-    Write-Log "Performing actual checkout after backup..."
+    Write-Host "Performing actual checkout after backup..."
     dotfiles checkout
 }
 
-# Configure the repository
-Write-Log "Configuring dotfiles repository..."
-dotfiles config --local status.showUntrackedFiles no
-dotfiles config --local core.worktree $env:USERPROFILE
 
-# Add dotfiles function to PowerShell profile
-if (-not (Test-Path $ProfilePath)) {
-    New-Item -Path $ProfilePath -Force | Out-Null
+# Consolidated: backup, remove, and symlink each PowerShell profile
+$MasterProfile = Join-Path $env:USERPROFILE 'profile.ps1'
+$ProfileObjects = @(
+    @{ Path = $PROFILE.AllUsersAllHosts; Description = 'All Users, All Hosts' },
+    @{ Path = $PROFILE.AllUsersCurrentHost; Description = 'All Users, Current Host' },
+    @{ Path = $PROFILE.CurrentUserAllHosts; Description = 'Current User, All Hosts' },
+    @{ Path = $PROFILE.CurrentUserCurrentHost; Description = 'Current User, Current Host' }
+)
+
+$ProfilesBackedUp = @()
+Write-Host "Master profile location: $MasterProfile"
+
+foreach ($p in $ProfileObjects) {
+    $ProfilePath = $p.Path
+    $ProfileDesc = $p.Description
+    if (-not $ProfilePath) { continue }
+
+    # If profile exists, back it up before removing
+    if (Test-Path $ProfilePath) {
+        try {
+            if ($ProfilePath.StartsWith($env:USERPROFILE, [System.StringComparison]::OrdinalIgnoreCase)) {
+                $rel = $ProfilePath.Substring($env:USERPROFILE.Length).TrimStart('\')
+                $safe = Join-Path 'UserProfile' $rel
+            } else {
+                $drive = $ProfilePath.Substring(0,1).ToUpper()
+                $rest  = $ProfilePath.Substring(2).TrimStart('\')
+                $safe  = Join-Path ("${drive}_Drive") $rest
+            }
+
+            $BackupPath = Join-Path $DotfilesBackup (Join-Path 'powershell-profiles' $safe)
+            $BackupDir  = Split-Path $BackupPath -Parent
+            New-Item -ItemType Directory -Force -Path $BackupDir | Out-Null
+            Copy-Item -Path $ProfilePath -Destination $BackupPath -Force -ErrorAction Stop
+            $ProfilesBackedUp += $ProfilePath
+            Write-Host "Backed up PowerShell profile: $ProfilePath -> $BackupPath"
+        } catch {
+            Write-Warning "Failed to backup profile $ProfilePath`: $($_.Exception.Message)"
+        }
+
+        try { Remove-Item -Path $ProfilePath -Force -ErrorAction SilentlyContinue } catch { }
+        Write-Host "Removed existing PowerShell profile: $ProfilePath"
+    }
+
+    # Ensure parent directory exists before creating a symlink
+    $ProfileDir = Split-Path $ProfilePath -Parent
+    if (-not (Test-Path $ProfileDir)) {
+        New-Item -Path $ProfileDir -ItemType Directory -Force | Out-Null
+    }
+
+    # Create symlink to master profile if it exists
+    if (Test-Path $MasterProfile) {
+        try {
+            Write-Host "Creating symlink for profile ($ProfileDesc): $ProfilePath -> $MasterProfile"
+            New-Item -ItemType SymbolicLink -Path $ProfilePath -Target $MasterProfile -Force | Out-Null
+        } catch {
+            Write-Warning "Failed to create symlink for profile ($ProfileDesc): $ProfilePath - $($_.Exception.Message)"
+            Write-Warning "You may need to run as Administrator to create symbolic links"
+        }
+    } else {
+        Write-Warning "Master profile not found at $MasterProfile - skipping symlink creation for $ProfileDesc"
+    }
 }
 
-$FunctionLine = 'function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }'
-Write-Log "Adding dotfiles function to PowerShell profile"
-Add-Content $ProfilePath ""
-Add-Content $ProfilePath "# Dotfiles management function"
-Add-Content $ProfilePath $FunctionLine
+if ($ProfilesBackedUp.Count -gt 0) {
+    Write-Host "Backed up $($ProfilesBackedUp.Count) PowerShell profile(s) to $DotfilesBackup\powershell-profiles\"
+}
 
-# Create .config directory if it doesn't exist (for cross-platform config)
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\nvim" | Out-Null
-
-Write-Log ""
-Write-Log "====== Dotfiles setup complete! ======"
-Write-Log "Usage:"
-Write-Log "  dotfiles status"
-Write-Log "  dotfiles add .config\nvim\init.lua"
-Write-Log "  dotfiles commit -m 'Update config'"
-Write-Log "  dotfiles push"
-Write-Log ""
-Write-Log "Platform-specific setup scripts available in:"
-Write-Log "  ~/.windows/setup/ (run as needed)"
-Write-Log ""
-Write-Log "Restart PowerShell to pick up the dotfiles function."
-Write-Log "Your original conflicting files (if any) are backed up in: $DotfilesBackup"
+Write-Host ""
+Write-Host "====== Dotfiles setup complete! ======"
+Write-Host "Usage:"
+Write-Host "  dotfiles status"
+Write-Host "  dotfiles add .config\nvim\init.lua"
+Write-Host "  dotfiles commit -m 'Update config'"
+Write-Host "  dotfiles push"
+Write-Host ""
+Write-Host "Platform-specific setup scripts available in:"
+Write-Host "  ~/.windows/setup/ (run as needed)"
+Write-Host ""
+Write-Host "Restart PowerShell to pick up the dotfiles function."
+Write-Host "Your original conflicting files (if any) are backed up in: $DotfilesBackup"

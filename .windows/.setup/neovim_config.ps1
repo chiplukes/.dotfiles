@@ -18,6 +18,9 @@ if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
     Write-Log "Neovim already installed" -Level 'INFO'
 }
 
+# Create .config directory if it doesn't exist (for cross-platform config)
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\nvim" | Out-Null
+
 # Refresh PATH
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
