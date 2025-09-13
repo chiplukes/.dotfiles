@@ -4,7 +4,7 @@ param(
 )
 
 Write-Host ""
-Write-Host "====== Setting up bare dotfiles repository (Windows) ======"
+Write-Host "====== Setting up bare dotfiles repository ======"
 Write-Host ""
 
 $DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
@@ -20,7 +20,6 @@ if (Test-Path $DotfilesDir) {
 # Remove any existing dotfiles function/alias from current session
 Remove-Item Function:\dotfiles -ErrorAction SilentlyContinue
 Remove-Item Alias:\dotfiles -ErrorAction SilentlyContinue
-
 
 # Create dotfiles function for this session
 function dotfiles { git --git-dir="$DotfilesDir" --work-tree="$env:USERPROFILE" @args }
@@ -63,7 +62,7 @@ foreach ($line in $checkoutOutput) {
         }
     }
 }
-Write-Warning "Conflicting the following files will be overwritten by checkout:"
+Write-Warning "The following files will be overwritten by checkout:"
 $conflictFiles | ForEach-Object { Write-Host $_ }
 
 if ($conflictFiles.Count -gt 0) {
@@ -94,9 +93,9 @@ if ($conflictFiles.Count -gt 0) {
     dotfiles checkout
 }
 
-
 # Consolidated: backup, remove, and symlink each PowerShell profile
 $MasterProfile = Join-Path $env:USERPROFILE 'profile.ps1'
+# Potential locations for powershell profiles (may or may not exist on a given system)
 $ProfileObjects = @(
     @{ Path = $PROFILE.AllUsersAllHosts; Description = 'All Users, All Hosts' },
     @{ Path = $PROFILE.AllUsersCurrentHost; Description = 'All Users, Current Host' },
@@ -105,7 +104,7 @@ $ProfileObjects = @(
 )
 
 $ProfilesBackedUp = @()
-Write-Host "Master profile location: $MasterProfile"
+Write-Host "Dotfiles Powershell profile location: $MasterProfile"
 
 foreach ($p in $ProfileObjects) {
     $ProfilePath = $p.Path
