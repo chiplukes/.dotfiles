@@ -382,9 +382,36 @@ install_pip_packages() {
     local packages=("$@")
 
     log_info "Installing Python packages: ${packages[*]}"
-    if ! "$venv_path/bin/python" -m pip install --upgrade pip "${packages[@]}"; then
-        die "Failed to install Python packages"
+    
+    # Verify venv exists and works
+    if [[ ! -f "$venv_path/bin/python" ]]; then
+        die "Virtual environment not found: $venv_path"
     fi
+    
+    if ! "$venv_path/bin/python" --version >/dev/null 2>&1; then
+        die "Virtual environment Python is not working: $venv_path"
+    fi
+    
+    # Change to a stable directory to avoid "No such file or directory" errors
+    local current_dir="$PWD"
+    safe_cd "$HOME"
+    
+    # Upgrade pip first
+    log_info "Upgrading pip..."
+    if ! "$venv_path/bin/python" -m pip install --upgrade pip; then
+        log_warning "pip upgrade failed, continuing..."
+    fi
+    
+    # Install packages
+    if ! "$venv_path/bin/python" -m pip install "${packages[@]}"; then
+        # Return to original directory and fail
+        safe_cd "$current_dir"
+        die "Failed to install Python packages: ${packages[*]}"
+    fi
+    
+    # Return to original directory
+    safe_cd "$current_dir"
+    log_success "Python packages installed successfully: ${packages[*]}"
 }
 
 # Path management

@@ -45,9 +45,16 @@ install_neovim() {
 setup_neovim_python() {
     local nvim_venv="$HOME/.config/nvim/.venv"
 
+    # Ensure we're working from a stable directory
+    local current_dir="$PWD"
+    safe_cd "$HOME"
+
     log_info "Setting up Python virtual environment for Neovim..."
     create_venv "$nvim_venv" "$python_real_path"
     install_pip_packages "$nvim_venv" pynvim
+    
+    # Return to original directory
+    safe_cd "$current_dir"
 
     # Configure Python host in init.lua
     local nvim_init_lua="$HOME/.config/nvim/init.lua"
