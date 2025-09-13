@@ -14,9 +14,8 @@ fix_ubuntu_sources
 apt_update
 apt_upgrade
 
-# Install base packages
-base_packages=(git curl subversion ripgrep)
-install_packages "${base_packages[@]}"
+# Install base packages with correct verification commands
+install_packages_with_verify "git:git" "curl:curl" "subversion:svn" "ripgrep:rg"
 
 # Install fzf
 install_fzf() {

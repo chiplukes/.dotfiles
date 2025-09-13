@@ -17,12 +17,26 @@ scripts=(
     "install_hdl_tools.sh"
 )
 
+# Ensure ~/bin is in PATH for all subsequent scripts
+if [[ -d "$HOME/bin" ]] && ! echo "$PATH" | grep -q "$HOME/bin"; then
+    export PATH="$HOME/bin:$PATH"
+    log_info "Added ~/bin to PATH for current session"
+fi
+
 # Run each script
 for script in "${scripts[@]}"; do
+    log_info "Starting $script..."
+    
+    # Refresh PATH between scripts in case symlinks were created
+    if [[ -d "$HOME/bin" ]] && ! echo "$PATH" | grep -q "$HOME/bin"; then
+        export PATH="$HOME/bin:$PATH"
+    fi
+    
     if source_script "$script"; then
         log_success "$script completed"
     else
         log_error "$script failed"
+        # Continue with other scripts even if one fails
     fi
 done
 

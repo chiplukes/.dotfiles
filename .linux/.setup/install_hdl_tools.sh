@@ -10,59 +10,59 @@ set_strict_mode
 log_header "Installing HDL Tools"
 
 # Verify Python
-verify_python
+ensure_python
 python_real_path=$(get_python_real_path)
 
 # Install Icarus Verilog
 install_icarus_verilog() {
     log_header "Installing Icarus Verilog"
-    
+
     # Install prerequisites
     install_build_deps gperf autoconf flex bison
-    
+
     # Setup and build
     local build_dir="$HOME/tmp/iverilog"
     setup_build_dir "$build_dir"
-    
+
     git_clone_or_update "https://github.com/steveicarus/iverilog.git" "$build_dir"
     chmod -R u+w .
     run_autotools_build
-    
+
     verify_installation iverilog "Icarus Verilog" "-V"
 }
 
 # Install MyHDL with VPI
 install_myhdl() {
     log_header "Installing MyHDL"
-    
+
     local build_dir="$HOME/tmp/myhdl"
     setup_build_dir "$build_dir"
-    
+
     git_clone_or_update "https://github.com/jandecaluwe/myhdl.git" "$build_dir"
     chmod -R u+w .
-    
+
     # Create venv and install MyHDL
     create_venv ".venv" "$python_real_path"
     install_pip_packages ".venv" setuptools wheel
-    
+
     if ! .venv/bin/python setup.py install; then
         die "Failed to install MyHDL"
     fi
-    
+
     # Build and install VPI module
     log_info "Installing MyHDL VPI module..."
     safe_cd "cosimulation/icarus"
     chmod -R u+w .
-    
+
     if ! make; then
         die "Failed to build MyHDL VPI"
     fi
-    
+
     # Install VPI to both common locations
     sudo mkdir -p /usr/lib/ivl /usr/local/lib/ivl
     sudo install -m 0755 -D ./myhdl.vpi /usr/lib/ivl/myhdl.vpi
     sudo cp ./myhdl.vpi /usr/local/lib/ivl/ || log_warning "Failed to copy to /usr/local/lib/ivl/"
-    
+
     log_to_file "MyHDL" "Installed"
 }
 

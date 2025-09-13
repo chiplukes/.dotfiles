@@ -12,8 +12,8 @@ mkdir -p "$HOME/.config/nvim"
 
 log_header "Install Neovim"
 
-# Verify Python
-verify_python
+# Ensure Python environment is available
+ensure_python
 python_real_path=$(get_python_real_path)
 
 # Install dependencies
