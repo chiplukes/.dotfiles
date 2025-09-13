@@ -1,56 +1,77 @@
 #!/bin/bash
-set -euo pipefail
+# Install user Python with uv
 
-# Set the desired major.minor (or full patch) user Python version here.
+# Load helpers
+script_dir="$(dirname "${BASH_SOURCE[0]}")"
+# shellcheck source=./helpers.sh
+source "$script_dir/helpers.sh"
+set_strict_mode
+
+# Configuration
 USER_PY_VERSION="3.12"
 
-echo -e "\n====== Installing user Python with uv (${USER_PY_VERSION}) ======\n"
+log_header "Installing user Python with uv (${USER_PY_VERSION})"
 
-LOGFILE="$HOME/install_progress_log.txt"
+# Install uv if not present
+install_uv() {
+    if has_command uv; then
+        log_info "uv already installed"
+        return 0
+    fi
+    
+    log_info "Installing uv..."
+    if ! has_command curl; then
+        install_packages curl ca-certificates
+    fi
+    
+    if ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
+        die "uv installation failed"
+    fi
+    
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    if ! has_command uv; then
+        die "uv installation verification failed"
+    fi
+}
 
-# Ensure uv present (bootstrap only if missing)
-if ! command -v uv >/dev/null 2>&1; then
-  if ! command -v curl >/dev/null 2>&1; then
-    sudo apt-get update -y
-    sudo apt-get install -y curl ca-certificates
-  fi
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  export PATH="$HOME/.local/bin:$PATH"
-fi
+# Setup Python with uv
+setup_python() {
+    log_info "Installing Python $USER_PY_VERSION with uv..."
+    
+    # Install interpreter if not cached
+    if ! uv python find "$USER_PY_VERSION" >/dev/null 2>&1; then
+        uv python install "$USER_PY_VERSION"
+    fi
+    
+    local py_path
+    py_path="$(uv python find "$USER_PY_VERSION" 2>/dev/null || true)"
+    
+    if [[ -z "$py_path" ]]; then
+        die "Failed to resolve Python $USER_PY_VERSION"
+    fi
+    
+    # Get version info
+    local maj_min patch_ver
+    maj_min="$("$py_path" -c 'import sys;print(".".join(map(str,sys.version_info[:2])))')"
+    patch_ver="$("$py_path" -c 'import sys;print(".".join(map(str,sys.version_info[:3])))')"
+    
+    # Create symlinks
+    ensure_dir "$HOME/bin"
+    ln -sf "$py_path" "$HOME/bin/python${maj_min}"
+    ln -sf "$py_path" "$HOME/bin/python${patch_ver}"
+    ln -sf "$py_path" "$HOME/bin/python-user"
+    ln -sf "$py_path" "$HOME/bin/python${maj_min}-user"
+    
+    log_success "Python $patch_ver installed successfully!"
+    log_info "Interpreter path: $py_path"
+    log_info "Symlinks: python${maj_min} python${patch_ver} python-user"
+    
+    "$py_path" -V
+    log_to_file "python${patch_ver}" "Installed (uv)"
+}
 
-if ! command -v uv >/dev/null 2>&1; then
-  echo "uv install failed" | tee -a "$LOGFILE"
-  exit 1
-fi
+install_uv
+setup_python
 
-# Install interpreter if not already cached (idempotent)
-if ! uv python find "$USER_PY_VERSION" >/dev/null 2>&1; then
-  uv python install "$USER_PY_VERSION"
-fi
-
-PY_PATH="$(uv python find "$USER_PY_VERSION" 2>/dev/null || true)"
-if [[ -z "$PY_PATH" ]]; then
-  echo "Failed to resolve Python $USER_PY_VERSION" | tee -a "$LOGFILE"
-  exit 1
-fi
-
-MAJ_MIN="$("$PY_PATH" -c 'import sys;print(".".join(map(str,sys.version_info[:2])))')"
-PATCH_VER="$("$PY_PATH" -c 'import sys;print(".".join(map(str,sys.version_info[:3])))')"
-
-mkdir -p "$HOME/bin"
-
-# Symlinks (avoid overriding system 'python')
-ln -sf "$PY_PATH" "$HOME/bin/python${MAJ_MIN}"
-ln -sf "$PY_PATH" "$HOME/bin/python${PATCH_VER}"
-ln -sf "$PY_PATH" "$HOME/bin/python-user"           # THIS IS ALL WE NEED
-ln -sf "$PY_PATH" "$HOME/bin/python${MAJ_MIN}-user" # versioned alias
-
-"$PY_PATH" -V
-echo "Interpreter path: $PY_PATH"
-echo "Symlinks: python${MAJ_MIN} python${PATCH_VER} python-user"
-
-echo "python${PATCH_VER} Installed (uv)" >> "$LOGFILE"
-
-echo ""
-echo "✓ Python $PATCH_VER installed successfully!"
-echo "✓ Use 'python-user' in all scripts for version-independent access"
+log_success "Use 'python-user' in all scripts for version-independent access"

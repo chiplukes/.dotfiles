@@ -1,94 +1,62 @@
 #!/bin/bash
-set -euo pipefail
+# Install Verilator HDL simulator
 
-echo -e "\n====== Installing Verilator ======\n"
+# Load helpers
+script_dir="$(dirname "${BASH_SOURCE[0]}")"
+# shellcheck source=./helpers.sh
+source "$script_dir/helpers.sh"
+set_strict_mode
 
-# Install prerequisites
-echo "Installing Verilator prerequisites..."
-packages=(
-    perl help2man make autoconf g++ flex bison ccache
-    libgoogle-perftools-dev numactl perl-doc
-    libfl2 libfl-dev zlibc zlib1g zlib1g-dev mold
-)
+log_header "Installing Verilator"
 
-if ! sudo apt-get update; then
-    echo "Failed to update package list" >&2
-    exit 1
-fi
+# Install prerequisites (allow some to fail)
+install_verilator_deps() {
+    log_info "Installing Verilator prerequisites..."
+    apt_update
+    
+    local packages=(
+        perl help2man make autoconf g++ flex bison ccache
+        libgoogle-perftools-dev numactl perl-doc
+        libfl2 libfl-dev zlibc zlib1g zlib1g-dev mold
+    )
+    
+    for package in "${packages[@]}"; do
+        if ! sudo apt-get install -y "$package"; then
+            log_warning "Failed to install $package (continuing)"
+        fi
+    done
+}
 
-for package in "${packages[@]}"; do
-    if ! sudo apt-get install -y "$package"; then
-        echo "Warning: Failed to install $package (continuing)" >&2
+# Build and install Verilator
+build_verilator() {
+    local build_dir="$HOME/tmp/verilator"
+    
+    if [[ -d "$build_dir" ]]; then
+        log_info "Updating existing Verilator repository..."
+        safe_cd "$build_dir"
+        git pull || die "Failed to update repository"
+    else
+        setup_build_dir "$build_dir"
+        git_clone_or_update "https://github.com/verilator/verilator" "$build_dir"
     fi
-done
-
-# Setup build directory
-BUILD_DIR="$HOME/tmp"
-VERILATOR_DIR="$BUILD_DIR/verilator"
-
-echo "Setting up build directory: $BUILD_DIR"
-mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR" || exit 1
-
-# Clone or update repository
-if [[ -d "$VERILATOR_DIR" ]]; then
-    echo "Updating existing Verilator repository..."
-    cd "$VERILATOR_DIR" || exit 1
-    if ! git pull; then
-        echo "Failed to update repository" >&2
-        exit 1
+    
+    # Clean environment and checkout stable
+    unset VERILATOR_ROOT 2>/dev/null || true
+    
+    log_info "Checking out stable branch..."
+    if ! git checkout stable; then
+        die "Failed to checkout stable branch"
     fi
-else
-    echo "Cloning Verilator repository..."
-    if ! git clone https://github.com/verilator/verilator; then
-        echo "Failed to clone repository" >&2
-        exit 1
-    fi
-    cd "$VERILATOR_DIR" || exit 1
-fi
+    
+    # Build
+    run_autotools_build
+}
 
-# Clean environment and checkout stable
-unset VERILATOR_ROOT 2>/dev/null || true
+install_verilator_deps
+build_verilator
 
-echo "Checking out stable branch..."
-if ! git checkout stable; then
-    echo "Failed to checkout stable branch" >&2
-    exit 1
-fi
+verify_installation verilator "Verilator" "--version"
 
-# Build Verilator
-echo "Building Verilator..."
-if ! autoconf; then
-    echo "Failed to run autoconf" >&2
-    exit 1
-fi
+safe_cleanup "$HOME/tmp"
 
-if ! ./configure; then
-    echo "Failed to configure" >&2
-    exit 1
-fi
-
-if ! make -j"$(nproc)"; then
-    echo "Failed to build Verilator" >&2
-    exit 1
-fi
-
-if ! sudo make install; then
-    echo "Failed to install Verilator" >&2
-    exit 1
-fi
-
-# Verify installation
-if command -v verilator >/dev/null; then
-    echo "✓ Verilator installed successfully"
-    echo "Verilator Installed" >> "$HOME/install_progress_log.txt"
-    verilator --version
-else
-    echo "✗ Verilator installation failed!"
-    echo "Verilator FAILED TO INSTALL!!!" >> "$HOME/install_progress_log.txt"
-    exit 1
-fi
-
-echo ""
-echo "Verilator installation complete!"
-echo "Build directory: $VERILATOR_DIR"
+log_success "Verilator installation complete!"

@@ -1,9 +1,20 @@
 #!/bin/bash
-set -euo pipefail
+# Bootstrap dotfiles repository setup
+# Usage: ./bootstrap.sh [--branch BRANCH] [--repo URL]
 
-# Parse command line arguments
+# Minimal fallback functions if helpers not available
+log_info() { echo "[INFO] $1"; }
+log_error() { echo "[ERROR] $1" >&2; }
+die() { log_error "$1"; exit 1; }
+ensure_dir() { mkdir -p "$1" || die "Failed to create directory: $1"; }
+
+set_strict_mode
+
+# Configuration
 BRANCH="main"
 REPO_URL="https://github.com/chiplukes/.dotfiles.git"
+DOTFILES_DIR="$HOME/.dotfiles-bare"
+DOTFILES_BACKUP="$HOME/.config-backup"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -108,26 +119,6 @@ dotfiles config --local core.worktree "$HOME"
 echo "Setting up branch tracking..."
 dotfiles checkout "$BRANCH"
 dotfiles branch --set-upstream-to=origin/"$BRANCH" "$BRANCH"
-
-# Add dotfiles alias to shell profiles
-ALIAS_LINE='alias dotfiles="git --git-dir=$HOME/.dotfiles-bare --work-tree=$HOME"'
-
-for profile in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.bash_profile"; do
-    if [[ -f "$profile" ]] && ! grep -q "alias dotfiles=" "$profile"; then
-        echo "Adding dotfiles alias to $profile"
-        echo "" >> "$profile"
-        echo "# Dotfiles management alias" >> "$profile"
-        echo "$ALIAS_LINE" >> "$profile"
-    elif [[ ! -f "$profile" ]] && [[ "$profile" == "$HOME/.bashrc" ]]; then
-        # Create .bashrc if it doesn't exist (common on minimal systems)
-        echo "Creating .bashrc with dotfiles alias"
-        echo "# Dotfiles management alias" > "$profile"
-        echo "$ALIAS_LINE" >> "$profile"
-    fi
-done
-
-# Create .config/nvim directory if it doesn't exist (for cross-platform config)
-mkdir -p "$HOME/.config/nvim"
 
 echo -e "\n====== Dotfiles setup complete! ======\n"
 echo "Branch used: $BRANCH"

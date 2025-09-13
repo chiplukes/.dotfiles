@@ -1,120 +1,99 @@
 #!/bin/bash
-set -euo pipefail
+# Install RISC-V development toolchain
 
-echo -e "\n====== Installing RISC-V Development Tools ======\n"
+# Load helpers
+script_dir="$(dirname "${BASH_SOURCE[0]}")"
+# shellcheck source=./helpers.sh
+source "$script_dir/helpers.sh"
+set_strict_mode
 
-# Install prerequisites
-echo "Installing RISC-V toolchain prerequisites..."
-packages=(
-    autoconf automake autotools-dev curl libmpc-dev libmpfr-dev
-    libgmp-dev gawk build-essential bison flex texinfo gperf
-    libtool patchutils bc zlib1g-dev libexpat-dev
-)
+log_header "Installing RISC-V Development Tools"
 
-if ! sudo apt-get update; then
-    echo "Failed to update package list" >&2
-    exit 1
-fi
-
-for package in "${packages[@]}"; do
-    if ! sudo apt-get install -y "$package"; then
-        echo "Failed to install $package" >&2
-        exit 1
-    fi
-done
-
-# Setup build directory
-BUILD_DIR="$HOME/tmp/riscv-toolchain"
+# Configuration
 PREFIX="/usr/local/share/gcc-riscv32-unknown-elf"
 
-echo "Setting up build directory: $BUILD_DIR"
-mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR" || exit 1
+# Install prerequisites
+install_riscv_deps() {
+    log_info "Installing RISC-V toolchain prerequisites..."
+    
+    local packages=(
+        autoconf automake autotools-dev curl libmpc-dev libmpfr-dev
+        libgmp-dev gawk build-essential bison flex texinfo gperf
+        libtool patchutils bc zlib1g-dev libexpat-dev
+    )
+    
+    apt_update
+    install_build_deps "${packages[@]}"
+}
 
-# Clone repositories
-echo "Cloning toolchain repositories (this may take a while)..."
-if [[ ! -d "gcc" ]]; then
-    if ! git clone --depth=1 https://gcc.gnu.org/git/gcc.git; then
-        echo "Failed to clone GCC repository" >&2
-        exit 1
-    fi
-fi
-
-if [[ ! -d "binutils-gdb" ]]; then
-    if ! git clone --depth=1 https://sourceware.org/git/binutils-gdb.git; then
-        echo "Failed to clone binutils repository" >&2
-        exit 1
-    fi
-fi
-
-if [[ ! -d "newlib-cygwin" ]]; then
-    if ! git clone --depth=1 https://sourceware.org/git/newlib-cygwin.git; then
-        echo "Failed to clone newlib repository" >&2
-        exit 1
-    fi
-fi
-
-# Create combined source directory
-echo "Creating combined source directory..."
-rm -rf combined
-mkdir combined
-cd combined || exit 1
-
-# Create symlinks
-ln -sf ../newlib-cygwin/* .
-ln -sf ../binutils-gdb/* .
-ln -sf ../gcc/* .
+# Clone toolchain repositories
+clone_toolchain_repos() {
+    local build_dir="$HOME/tmp/riscv-toolchain"
+    setup_build_dir "$build_dir"
+    
+    log_info "Cloning toolchain repositories (this may take a while)..."
+    
+    git_clone_or_update "https://gcc.gnu.org/git/gcc.git" "gcc"
+    git_clone_or_update "https://sourceware.org/git/binutils-gdb.git" "binutils-gdb" 
+    git_clone_or_update "https://sourceware.org/git/newlib-cygwin.git" "newlib-cygwin"
+    
+    # Create combined source directory with symlinks
+    log_info "Creating combined source directory..."
+    rm -rf combined
+    ensure_dir combined
+    safe_cd combined
+    
+    ln -sf ../newlib-cygwin/* .
+    ln -sf ../binutils-gdb/* .
+    ln -sf ../gcc/* .
+}
 
 # Build toolchain
-echo "Building RISC-V toolchain (this will take a long time)..."
-mkdir -p build
-cd build || exit 1
+build_riscv_toolchain() {
+    log_info "Building RISC-V toolchain (this will take a long time)..."
+    
+    ensure_dir build
+    safe_cd build
+    
+    log_info "Configuring build..."
+    if ! ../configure \
+        --target=riscv32-unknown-elf \
+        --enable-languages=c \
+        --disable-shared \
+        --disable-threads \
+        --disable-multilib \
+        --disable-gdb \
+        --disable-libssp \
+        --with-newlib \
+        --with-arch=rv32ima \
+        --with-abi=ilp32 \
+        --prefix="$PREFIX"; then
+        die "Failed to configure toolchain"
+    fi
+    
+    log_info "Building (using $(nproc) jobs)..."
+    if ! make -j"$(nproc)"; then
+        die "Failed to build toolchain"
+    fi
+    
+    log_info "Installing..."
+    if ! sudo make install; then
+        die "Failed to install toolchain"
+    fi
+}
 
-if ! ../configure \
-    --target=riscv32-unknown-elf \
-    --enable-languages=c \
-    --disable-shared \
-    --disable-threads \
-    --disable-multilib \
-    --disable-gdb \
-    --disable-libssp \
-    --with-newlib \
-    --with-arch=rv32ima \
-    --with-abi=ilp32 \
-    --prefix="$PREFIX"; then
-    echo "Failed to configure toolchain" >&2
-    exit 1
-fi
-
-if ! make -j"$(nproc)"; then
-    echo "Failed to build toolchain" >&2
-    exit 1
-fi
-
-if ! sudo make install; then
-    echo "Failed to install toolchain" >&2
-    exit 1
-fi
+install_riscv_deps
+clone_toolchain_repos
+build_riscv_toolchain
 
 # Add to PATH
-echo "Adding toolchain to PATH..."
-if ! grep -q "$PREFIX/bin" "$HOME/.bashrc"; then
-    echo "export PATH=\$PATH:$PREFIX/bin" >> "$HOME/.bashrc"
-fi
-
-# Verify installation
+add_to_bashrc "export PATH=\$PATH:$PREFIX/bin" "RISC-V toolchain"
 export PATH="$PATH:$PREFIX/bin"
-if command -v riscv32-unknown-elf-gcc >/dev/null; then
-    echo "✓ RISC-V toolchain installed successfully"
-    echo "RISC-V toolchain Installed" >> "$HOME/install_progress_log.txt"
-    riscv32-unknown-elf-gcc -v
-else
-    echo "✗ RISC-V toolchain installation failed!"
-    echo "RISC-V toolchain FAILED TO INSTALL!!!" >> "$HOME/install_progress_log.txt"
-    exit 1
-fi
 
-echo ""
-echo "RISC-V toolchain installation complete!"
+verify_installation riscv32-unknown-elf-gcc "RISC-V toolchain" "-v"
+
+safe_cleanup "$HOME/tmp"
+
+log_success "RISC-V toolchain installation complete!"
 echo "Toolchain installed to: $PREFIX"
 echo "Restart your shell or run: source ~/.bashrc"

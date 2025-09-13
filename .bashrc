@@ -117,7 +117,7 @@ if ! shopt -oq posix; then
 fi
 
 # dotfiles alias
-alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles-bare/ --work-tree=$HOME'
+alias dotfiles='git --git-dir=$HOME/.dotfiles-bare --work-tree=$HOME'
 
 ##pyenv
 #export PYENV_ROOT="$HOME/.pyenv"

@@ -1,152 +1,83 @@
 #!/bin/bash
-set -euo pipefail
+# Install Neovim with Python support
 
-echo -e "\n====== Install Neovim ======\n"
+# Load helpers
+script_dir="$(dirname "${BASH_SOURCE[0]}")"
+# shellcheck source=./helpers.sh
+source "$script_dir/helpers.sh"
+set_strict_mode
 
-# Use python-user but get the real path for venv creation
-PYTHON_CMD="python-user"
+# Create .config/nvim directory if it doesn't exist (for cross-platform config)
+mkdir -p "$HOME/.config/nvim"
 
-echo "Using Python command: $PYTHON_CMD"
+log_header "Install Neovim"
 
-# Verify Python executable exists
-if ! command -v "$PYTHON_CMD" >/dev/null; then
-    echo "Python executable $PYTHON_CMD not found!" >&2
-    echo "Make sure install_python_uv.sh was run first." >&2
-    exit 1
-fi
+# Verify Python
+verify_python
+python_real_path=$(get_python_real_path)
 
-# Get the real Python path for venv creation
-PYTHON_REAL_PATH=$(readlink -f "$(which $PYTHON_CMD)")
-echo "Python version: $("$PYTHON_CMD" --version)"
-echo "Real Python path: $PYTHON_REAL_PATH"
+# Install dependencies
+install_build_deps ripgrep gcc make unzip git xclip curl
 
-echo "Installing dependencies..."
-if ! sudo apt update; then
-    echo "Failed to update package list" >&2
-    exit 1
-fi
+# Remove existing installations
+remove_existing neovim /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim* ~/.local/bin/nvim* ~/.local/share/nvim*
 
-if ! sudo apt install -y ripgrep gcc make unzip git xclip curl; then
-    echo "Failed to install packages" >&2
-    exit 1
-fi
+# Download and install Neovim
+install_neovim() {
+    log_info "Downloading latest Neovim..."
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    safe_cd "$temp_dir"
 
-# Install latest stable Neovim following official instructions
-echo "Installing latest stable Neovim..."
-
-# Remove ALL existing Neovim installations first
-echo "Removing any existing Neovim installations..."
-
-# Remove apt version
-sudo apt remove --purge neovim -y 2>/dev/null || echo "No apt neovim to remove"
-
-# Remove snap version
-sudo snap remove nvim 2>/dev/null || echo "No snap nvim to remove"
-
-# Remove from common locations
-sudo rm -rf /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim*
-rm -rf ~/.local/bin/nvim* ~/.local/share/nvim*
-
-# Remove any nvim symlinks
-sudo find /usr/bin /usr/local/bin -name "nvim*" -type l -delete 2>/dev/null || true
-
-# Download Neovim
-echo "Downloading latest Neovim..."
-if ! curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz; then
-    echo "Failed to download Neovim" >&2
-    exit 1
-fi
-
-# Remove old installation and install new one
-echo "Installing Neovim to /opt..."
-if ! sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz; then
-    echo "Failed to extract Neovim" >&2
-    exit 1
-fi
-
-# Clean up download
-rm nvim-linux-x86_64.tar.gz
-
-# Add to PATH for current session
-export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
-
-# Clean up old PATH entries in .bashrc and add new one
-if [[ -f "$HOME/.bashrc" ]]; then
-    # Remove old nvim PATH entries
-    sed -i '/nvim/d' "$HOME/.bashrc"
-
-    # Add new PATH entry
-    echo '' >> "$HOME/.bashrc"
-    echo '# Add Neovim to PATH' >> "$HOME/.bashrc"
-    echo 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' >> "$HOME/.bashrc"
-fi
-
-# Create Python venv for Neovim provider using the real Python path
-NVIM_VENV="${HOME}/.config/nvim/.venv"
-echo "Setting up Python virtual environment for Neovim..."
-
-# Clean up any existing virtual environment
-if [[ -d "$NVIM_VENV" ]]; then
-    echo "Removing existing Neovim virtual environment..."
-    rm -rf "$NVIM_VENV"
-fi
-
-# Create fresh virtual environment
-echo "Creating new virtual environment..."
-if ! "$PYTHON_REAL_PATH" -m venv "$NVIM_VENV"; then
-    echo "Failed to create Python virtual environment" >&2
-    exit 1
-fi
-
-# Verify the new venv works
-if ! "$NVIM_VENV/bin/python" --version >/dev/null 2>&1; then
-    echo "Virtual environment Python is not working!" >&2
-    exit 1
-fi
-
-echo "Installing Python packages in virtual environment..."
-if ! "$NVIM_VENV/bin/python" -m pip install --upgrade pip pynvim; then
-    echo "Failed to install Python packages" >&2
-    exit 1
-fi
-
-# Configure Python host program in init.lua
-NVIM_INIT_LUA="${HOME}/.config/nvim/init.lua"
-mkdir -p "$(dirname "$NVIM_INIT_LUA")"
-
-# Check if Python host prog is already configured
-if [[ -f "$NVIM_INIT_LUA" ]] && grep -q "python3_host_prog" "$NVIM_INIT_LUA"; then
-    echo "Python host prog already configured in init.lua"
-else
-    echo "Configuring Python host prog in init.lua"
-    # Ensure file exists and has proper spacing
-    touch "$NVIM_INIT_LUA"
-    if [[ -s "$NVIM_INIT_LUA" ]]; then
-        echo "" >> "$NVIM_INIT_LUA"
+    if ! curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz; then
+        die "Failed to download Neovim"
     fi
-    {
-        echo "-- Added by install_neovim.sh"
-        echo "vim.g.python3_host_prog = '${NVIM_VENV}/bin/python'"
-    } >> "$NVIM_INIT_LUA"
-fi
 
-# Verify installation
-if command -v nvim >/dev/null; then
-    echo "✓ Neovim installed successfully"
-    echo "nvim Installed" >> "${HOME}/install_progress_log.txt"
-    nvim --version | head -1
-else
-    echo "✗ Neovim installation failed!"
-    echo "nvim FAILED TO INSTALL!!!" >> "${HOME}/install_progress_log.txt"
-    exit 1
-fi
+    log_info "Installing Neovim to /opt..."
+    if ! sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz; then
+        die "Failed to extract Neovim"
+    fi
 
-echo ""
-echo "Neovim setup complete!"
+    rm -rf "$temp_dir"
+}
+
+# Setup Python venv for Neovim
+setup_neovim_python() {
+    local nvim_venv="$HOME/.config/nvim/.venv"
+
+    log_info "Setting up Python virtual environment for Neovim..."
+    create_venv "$nvim_venv" "$python_real_path"
+    install_pip_packages "$nvim_venv" pynvim
+
+    # Configure Python host in init.lua
+    local nvim_init_lua="$HOME/.config/nvim/init.lua"
+    ensure_dir "$(dirname "$nvim_init_lua")"
+
+    if [[ -f "$nvim_init_lua" ]] && grep -q "python3_host_prog" "$nvim_init_lua"; then
+        log_info "Python host prog already configured in init.lua"
+    else
+        log_info "Configuring Python host prog in init.lua"
+        {
+            [[ -s "$nvim_init_lua" ]] && echo ""
+            echo "-- Added by install_neovim.sh"
+            echo "vim.g.python3_host_prog = '${nvim_venv}/bin/python'"
+        } >> "$nvim_init_lua"
+    fi
+}
+
+# Add to PATH
+setup_neovim_path() {
+    add_to_bashrc 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' "Add Neovim to PATH"
+    export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+}
+
+install_neovim
+setup_neovim_path
+setup_neovim_python
+
+verify_installation nvim "nvim" "--version"
+
+log_success "Neovim setup complete!"
 echo "Installation directory: /opt/nvim-linux-x86_64"
-echo "Binary location: /opt/nvim-linux-x86_64/bin/nvim"
-echo "Virtual environment: $NVIM_VENV"
-echo "Configuration: $NVIM_INIT_LUA"
-echo "Python executable used: $PYTHON_CMD ($PYTHON_REAL_PATH)"
-echo ""
+echo "Virtual environment: $HOME/.config/nvim/.venv"
 echo "Note: Restart your shell or run 'source ~/.bashrc' to ensure nvim is in your PATH"

@@ -1,12 +1,15 @@
 #!/bin/bash
-set -euo pipefail
+# Main PC setup script - runs all installation components
 
-echo -e "\n====== Work PC Setup ======\n"
+# Load helpers
+script_dir="$(dirname "${BASH_SOURCE[0]}")"
+# shellcheck source=./helpers.sh
+source "$script_dir/helpers.sh"
+set_strict_mode
 
-# Get script directory
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+log_header "Work PC Setup"
 
-# Source installation scripts
+# Installation scripts in order
 scripts=(
     "install_base.sh"
     "install_python_uv.sh"
@@ -14,26 +17,28 @@ scripts=(
     "install_hdl_tools.sh"
 )
 
+# Run each script
 for script in "${scripts[@]}"; do
-    script_path="$SCRIPT_DIR/$script"
-    if [[ -f "$script_path" ]]; then
-        echo "Running $script..."
-        if ! bash "$script_path"; then
-            echo "Warning: $script failed" >&2
-        fi
+    if source_script "$script"; then
+        log_success "$script completed"
     else
-        echo "Warning: Script not found: $script_path" >&2
+        log_error "$script failed"
     fi
 done
 
-# Install summary
-echo -e "\n====== Installation Summary ======\n"
-if [[ -f "$HOME/install_progress_log.txt" ]]; then
-    cat "$HOME/install_progress_log.txt"
-    rm "$HOME/install_progress_log.txt"
-else
-    echo "No installation log found"
-fi
+# Show installation summary
+show_summary() {
+    log_header "Installation Summary"
 
-echo -e "\n====== Setup Complete! ======"
+    if [[ -f "$LOG_FILE" ]]; then
+        cat "$LOG_FILE"
+        rm "$LOG_FILE"
+    else
+        echo "No installation log found"
+    fi
+}
+
+show_summary
+
+log_header "Setup Complete!"
 echo "Please restart your shell to pick up all changes"
