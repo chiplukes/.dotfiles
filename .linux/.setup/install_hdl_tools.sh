@@ -29,6 +29,9 @@ install_icarus_verilog() {
     run_autotools_build
 
     verify_installation iverilog "Icarus Verilog" "-V"
+    
+    # Clean up immediately after successful installation
+    safe_cleanup "$build_dir"
 }
 
 # Install MyHDL with VPI
@@ -64,13 +67,13 @@ install_myhdl() {
     sudo cp ./myhdl.vpi /usr/local/lib/ivl/ || log_warning "Failed to copy to /usr/local/lib/ivl/"
 
     log_to_file "MyHDL" "Installed"
+    
+    # Clean up immediately after successful installation
+    safe_cleanup "$build_dir"
 }
 
 install_icarus_verilog
 install_myhdl
-
-# Cleanup
-safe_cleanup "$HOME/tmp"
 
 log_success "HDL Tools installation complete!"
 echo "Installation Summary:"

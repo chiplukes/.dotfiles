@@ -70,8 +70,44 @@ safe_cleanup() {
     local dir="$1"
     if [[ -d "$dir" ]]; then
         log_info "Cleaning up: $dir"
-        chmod -R u+w "$dir" 2>/dev/null || true
-        rm -rf "$dir"
+        
+        # Multiple attempts to fix permissions and remove
+        local attempts=3
+        local success=false
+        
+        for ((i=1; i<=attempts; i++)); do
+            # Try increasingly aggressive permission fixes
+            if [[ $i -eq 1 ]]; then
+                # First attempt: standard permission fix
+                chmod -R u+w "$dir" 2>/dev/null || true
+            elif [[ $i -eq 2 ]]; then
+                # Second attempt: more aggressive permission fix
+                find "$dir" -type d -exec chmod u+wx {} \; 2>/dev/null || true
+                find "$dir" -type f -exec chmod u+w {} \; 2>/dev/null || true
+            else
+                # Third attempt: nuclear option with sudo if available
+                if command -v sudo >/dev/null 2>&1; then
+                    log_warning "Using sudo to fix stubborn permissions in $dir"
+                    sudo chmod -R u+w "$dir" 2>/dev/null || true
+                fi
+            fi
+            
+            # Try to remove
+            if rm -rf "$dir" 2>/dev/null; then
+                success=true
+                break
+            fi
+            
+            # If not the last attempt, wait a moment
+            if [[ $i -lt $attempts ]]; then
+                sleep 1
+            fi
+        done
+        
+        if [[ "$success" == "false" ]] && [[ -d "$dir" ]]; then
+            log_warning "Could not completely remove $dir (some permission issues)"
+            log_info "You may need to manually run: sudo rm -rf $dir"
+        fi
     fi
 }
 
