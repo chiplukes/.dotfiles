@@ -27,17 +27,26 @@ install_neovim() {
     log_info "Downloading latest Neovim..."
     local temp_dir
     temp_dir=$(mktemp -d)
+    
+    # Save current directory to return to it
+    local original_dir="$PWD"
     safe_cd "$temp_dir"
 
     if ! curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz; then
+        safe_cd "$original_dir"
+        rm -rf "$temp_dir"
         die "Failed to download Neovim"
     fi
 
     log_info "Installing Neovim to /opt..."
     if ! sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz; then
+        safe_cd "$original_dir"
+        rm -rf "$temp_dir"
         die "Failed to extract Neovim"
     fi
 
+    # Return to original directory before cleanup
+    safe_cd "$original_dir"
     rm -rf "$temp_dir"
 }
 
@@ -45,16 +54,12 @@ install_neovim() {
 setup_neovim_python() {
     local nvim_venv="$HOME/.config/nvim/.venv"
 
-    # Ensure we're working from a stable directory
-    local current_dir="$PWD"
+    # Always work from HOME directory for stability
     safe_cd "$HOME"
 
     log_info "Setting up Python virtual environment for Neovim..."
     create_venv "$nvim_venv" "$python_real_path"
     install_pip_packages "$nvim_venv" pynvim
-    
-    # Return to original directory
-    safe_cd "$current_dir"
 
     # Configure Python host in init.lua
     local nvim_init_lua="$HOME/.config/nvim/init.lua"
@@ -77,6 +82,9 @@ setup_neovim_path() {
     add_to_bashrc 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' "Add Neovim to PATH"
     export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 }
+
+# Ensure we start in a stable directory
+safe_cd "$HOME"
 
 install_neovim
 setup_neovim_path

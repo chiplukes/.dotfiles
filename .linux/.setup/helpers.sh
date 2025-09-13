@@ -70,11 +70,11 @@ safe_cleanup() {
     local dir="$1"
     if [[ -d "$dir" ]]; then
         log_info "Cleaning up: $dir"
-        
+
         # Multiple attempts to fix permissions and remove
         local attempts=3
         local success=false
-        
+
         for ((i=1; i<=attempts; i++)); do
             # Try increasingly aggressive permission fixes
             if [[ $i -eq 1 ]]; then
@@ -91,19 +91,19 @@ safe_cleanup() {
                     sudo chmod -R u+w "$dir" 2>/dev/null || true
                 fi
             fi
-            
+
             # Try to remove
             if rm -rf "$dir" 2>/dev/null; then
                 success=true
                 break
             fi
-            
+
             # If not the last attempt, wait a moment
             if [[ $i -lt $attempts ]]; then
                 sleep 1
             fi
         done
-        
+
         if [[ "$success" == "false" ]] && [[ -d "$dir" ]]; then
             log_warning "Could not completely remove $dir (some permission issues)"
             log_info "You may need to manually run: sudo rm -rf $dir"
@@ -114,6 +114,32 @@ safe_cleanup() {
 # Command existence check
 has_command() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Safe temporary directory operations
+with_temp_dir() {
+    local callback="$1"
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    local original_dir="$PWD"
+
+    # Ensure we can return to original directory
+    if [[ ! -d "$original_dir" ]]; then
+        original_dir="$HOME"
+    fi
+
+    # Execute callback in temp directory
+    (
+        safe_cd "$temp_dir"
+        "$callback" "$temp_dir"
+    )
+    local exit_code=$?
+
+    # Always clean up and return to safe directory
+    safe_cd "$original_dir"
+    rm -rf "$temp_dir" 2>/dev/null || true
+
+    return $exit_code
 }
 
 # Safe symlink creation (removes existing link first to prevent circular references)
@@ -245,13 +271,13 @@ install_build_deps() {
 # Python helpers
 get_python_cmd() {
     local python_cmd="python-user"
-    
+
     # First check if it's in PATH
     if has_command "$python_cmd"; then
         echo "$python_cmd"
         return 0
     fi
-    
+
     # Check if it exists in ~/bin but PATH isn't updated yet
     if [[ -f "$HOME/bin/$python_cmd" ]]; then
         log_info "Found python-user in ~/bin, updating PATH for current session"
@@ -261,7 +287,7 @@ get_python_cmd() {
             return 0
         fi
     fi
-    
+
     # Fallback: try to find any Python 3.x
     for cmd in python3.12 python3.11 python3.10 python3; do
         if has_command "$cmd"; then
@@ -270,7 +296,7 @@ get_python_cmd() {
             return 0
         fi
     done
-    
+
     die "No suitable Python executable found! Run install_python_uv.sh first."
 }
 
@@ -297,7 +323,7 @@ ensure_python() {
         log_info "Python environment not found, installing..."
         local script_dir
         script_dir=$(get_script_dir)
-        
+
         if [[ -f "$script_dir/install_python_uv.sh" ]]; then
             if ! source_script "install_python_uv.sh"; then
                 die "Failed to install Python environment"
@@ -418,33 +444,33 @@ install_pip_packages() {
     local packages=("$@")
 
     log_info "Installing Python packages: ${packages[*]}"
-    
+
     # Verify venv exists and works
     if [[ ! -f "$venv_path/bin/python" ]]; then
         die "Virtual environment not found: $venv_path"
     fi
-    
+
     if ! "$venv_path/bin/python" --version >/dev/null 2>&1; then
         die "Virtual environment Python is not working: $venv_path"
     fi
-    
+
     # Change to a stable directory to avoid "No such file or directory" errors
     local current_dir="$PWD"
     safe_cd "$HOME"
-    
+
     # Upgrade pip first
     log_info "Upgrading pip..."
     if ! "$venv_path/bin/python" -m pip install --upgrade pip; then
         log_warning "pip upgrade failed, continuing..."
     fi
-    
+
     # Install packages
     if ! "$venv_path/bin/python" -m pip install "${packages[@]}"; then
         # Return to original directory and fail
         safe_cd "$current_dir"
         die "Failed to install Python packages: ${packages[*]}"
     fi
-    
+
     # Return to original directory
     safe_cd "$current_dir"
     log_success "Python packages installed successfully: ${packages[*]}"
