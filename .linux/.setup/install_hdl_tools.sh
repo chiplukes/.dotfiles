@@ -20,17 +20,22 @@ install_icarus_verilog() {
     # Install prerequisites
     install_build_deps gperf autoconf flex bison
 
-    # Setup and build
+    # Setup and build from stable directory
     local build_dir="$HOME/tmp/iverilog"
-    setup_build_dir "$build_dir"
+    local start_dir="$PWD"
+
+    # Prepare build directory without changing to it
+    safe_cleanup "$build_dir"
+    ensure_dir "$build_dir"
 
     git_clone_or_update "https://github.com/steveicarus/iverilog.git" "$build_dir"
     chmod -R u+w .
     run_autotools_build
 
     verify_installation iverilog "Icarus Verilog" "-V"
-    
-    # Clean up immediately after successful installation
+
+    # Return to stable directory before cleanup
+    safe_cd "$start_dir"
     safe_cleanup "$build_dir"
 }
 
@@ -39,7 +44,11 @@ install_myhdl() {
     log_header "Installing MyHDL"
 
     local build_dir="$HOME/tmp/myhdl"
-    setup_build_dir "$build_dir"
+    local start_dir="$PWD"
+
+    # Prepare build directory without changing to it
+    safe_cleanup "$build_dir"
+    ensure_dir "$build_dir"
 
     git_clone_or_update "https://github.com/jandecaluwe/myhdl.git" "$build_dir"
     chmod -R u+w .
@@ -67,8 +76,9 @@ install_myhdl() {
     sudo cp ./myhdl.vpi /usr/local/lib/ivl/ || log_warning "Failed to copy to /usr/local/lib/ivl/"
 
     log_to_file "MyHDL" "Installed"
-    
-    # Clean up immediately after successful installation
+
+    # Return to stable directory before cleanup
+    safe_cd "$start_dir"
     safe_cleanup "$build_dir"
 }
 
