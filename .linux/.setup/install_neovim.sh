@@ -17,7 +17,7 @@ ensure_python
 python_real_path=$(get_python_real_path)
 
 # Install dependencies for building from source
-install_build_deps ripgrep gcc make git xclip curl cmake ninja-build gettext
+install_build_deps ripgrep gcc make git xclip curl cmake ninja-build gettext fd-find wget
 
 # Remove existing installations
 remove_existing neovim /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim* ~/.local/bin/nvim* ~/.local/share/nvim* "$HOME/tools/neovim"
@@ -67,6 +67,65 @@ install_neovim() {
     log_success "Neovim built and installed successfully!"
 }
 
+# Install LuaRocks
+install_luarocks() {
+    log_header "Installing LuaRocks"
+
+    local build_dir="$HOME/tmp/luarocks"
+    local start_dir="$PWD"
+
+    # Prepare build directory
+    safe_cleanup "$build_dir"
+    ensure_dir "$build_dir"
+    safe_cd "$build_dir"
+
+    # Download LuaRocks
+    log_info "Downloading LuaRocks 3.12.2..."
+    if ! wget https://luarocks.org/releases/luarocks-3.12.2.tar.gz; then
+        safe_cd "$start_dir"
+        die "Failed to download LuaRocks"
+    fi
+
+    # Extract
+    log_info "Extracting LuaRocks..."
+    if ! tar zxpf luarocks-3.12.2.tar.gz; then
+        safe_cd "$start_dir"
+        die "Failed to extract LuaRocks"
+    fi
+
+    safe_cd luarocks-3.12.2
+
+    # Configure, build and install
+    log_info "Configuring and building LuaRocks..."
+    if ! ./configure; then
+        safe_cd "$start_dir"
+        die "Failed to configure LuaRocks"
+    fi
+
+    if ! make; then
+        safe_cd "$start_dir"
+        die "Failed to build LuaRocks"
+    fi
+
+    log_info "Installing LuaRocks..."
+    if ! sudo make install; then
+        safe_cd "$start_dir"
+        die "Failed to install LuaRocks"
+    fi
+
+    # Install luasocket
+    log_info "Installing luasocket..."
+    if ! sudo luarocks install luasocket; then
+        log_warning "Failed to install luasocket, but continuing..."
+    fi
+
+    # Return to stable directory and cleanup
+    safe_cd "$start_dir"
+    safe_cleanup "$build_dir"
+
+    log_success "LuaRocks installed successfully!"
+}
+
 # Setup Python venv for Neovim
 setup_neovim_python() {
     local nvim_venv="$HOME/.config/nvim/.venv"
@@ -104,6 +163,7 @@ setup_neovim_path() {
 safe_cd "$HOME"
 
 install_neovim
+install_luarocks
 setup_neovim_path
 setup_neovim_python
 
