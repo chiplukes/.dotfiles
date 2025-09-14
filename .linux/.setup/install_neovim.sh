@@ -16,38 +16,55 @@ log_header "Install Neovim"
 ensure_python
 python_real_path=$(get_python_real_path)
 
-# Install dependencies
-install_build_deps ripgrep gcc make unzip git xclip curl
+# Install dependencies for building from source
+install_build_deps ripgrep gcc make git xclip curl cmake ninja-build gettext
 
 # Remove existing installations
-remove_existing neovim /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim* ~/.local/bin/nvim* ~/.local/share/nvim*
+remove_existing neovim /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim* ~/.local/bin/nvim* ~/.local/share/nvim* "$HOME/tools/neovim"
 
-# Download and install Neovim
+# Build and install Neovim from source
 install_neovim() {
-    log_info "Downloading latest Neovim..."
-    local temp_dir
-    temp_dir=$(mktemp -d)
+    log_header "Building Neovim from source"
     
-    # Save current directory to return to it
-    local original_dir="$PWD"
-    safe_cd "$temp_dir"
-
-    if ! curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz; then
-        safe_cd "$original_dir"
-        rm -rf "$temp_dir"
-        die "Failed to download Neovim"
+    local build_dir="$HOME/tmp/neovim"
+    local install_dir="$HOME/tools/neovim"
+    local start_dir="$PWD"
+    
+    # Prepare build directory
+    safe_cleanup "$build_dir"
+    ensure_dir "$build_dir"
+    
+    # Clone and checkout stable branch
+    git_clone_or_update "https://github.com/neovim/neovim.git" "$build_dir"
+    
+    log_info "Checking out stable branch..."
+    if ! git checkout stable; then
+        die "Failed to checkout stable branch"
     fi
-
-    log_info "Installing Neovim to /opt..."
-    if ! sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz; then
-        safe_cd "$original_dir"
-        rm -rf "$temp_dir"
-        die "Failed to extract Neovim"
+    
+    # Clear any existing build cache
+    log_info "Clearing CMake cache..."
+    rm -rf build/
+    
+    # Build with specified flags
+    log_info "Building Neovim..."
+    if ! make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$install_dir"; then
+        safe_cd "$start_dir"
+        die "Failed to build Neovim"
     fi
-
-    # Return to original directory before cleanup
-    safe_cd "$original_dir"
-    rm -rf "$temp_dir"
+    
+    # Install
+    log_info "Installing Neovim to $install_dir..."
+    if ! make install; then
+        safe_cd "$start_dir"
+        die "Failed to install Neovim"
+    fi
+    
+    # Return to stable directory and cleanup
+    safe_cd "$start_dir"
+    safe_cleanup "$build_dir"
+    
+    log_success "Neovim built and installed successfully!"
 }
 
 # Setup Python venv for Neovim
@@ -79,8 +96,8 @@ setup_neovim_python() {
 
 # Add to PATH
 setup_neovim_path() {
-    add_to_bashrc 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' "Add Neovim to PATH"
-    export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+    add_to_bashrc 'export PATH="$HOME/tools/neovim/bin:$PATH"' "Add Neovim to PATH"
+    export PATH="$HOME/tools/neovim/bin:$PATH"
 }
 
 # Ensure we start in a stable directory
@@ -93,6 +110,6 @@ setup_neovim_python
 verify_installation nvim "nvim" "--version"
 
 log_success "Neovim setup complete!"
-echo "Installation directory: /opt/nvim-linux-x86_64"
+echo "Installation directory: $HOME/tools/neovim"
 echo "Virtual environment: $HOME/.config/nvim/.venv"
 echo "Note: Restart your shell or run 'source ~/.bashrc' to ensure nvim is in your PATH"
