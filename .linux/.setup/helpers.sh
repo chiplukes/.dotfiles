@@ -351,7 +351,7 @@ git_clone_or_update() {
     local target_dir="$2"
     local branch="${3:-main}"
 
-    if [[ -d "$target_dir" ]]; then
+    if [[ -d "$target_dir/.git" ]]; then
         log_info "Updating existing repository: $(basename "$target_dir")"
         safe_cd "$target_dir"
         if ! git pull; then
@@ -359,6 +359,10 @@ git_clone_or_update() {
         fi
     else
         log_info "Cloning repository: $(basename "$target_dir")"
+        # Remove any existing non-git directory
+        if [[ -d "$target_dir" ]]; then
+            rm -rf "$target_dir"
+        fi
         if ! git clone${branch:+ -b "$branch"} "$repo_url" "$target_dir"; then
             die "Failed to clone repository"
         fi
