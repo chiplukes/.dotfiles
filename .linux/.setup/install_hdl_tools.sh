@@ -28,7 +28,7 @@ install_icarus_verilog() {
     safe_cleanup "$build_dir"
     ensure_dir "$build_dir"
 
-    git_clone_or_update "https://github.com/steveicarus/iverilog.git" "$build_dir"
+    git_clone_or_update "https://github.com/steveicarus/iverilog.git" "$build_dir" "master"
     chmod -R u+w .
     run_autotools_build
 
