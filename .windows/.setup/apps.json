@@ -105,6 +105,10 @@
     {
       "name": "wez.wezterm",
       "category": "dev"
+    },
+    {
+      "name": "sharkdp.fd",
+      "category": "dev"
     }
   ],
   "choco_apps": [
