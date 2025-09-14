@@ -183,3 +183,9 @@ vitislaunch ()
   /tools/Xilinx/Vitis/$1/bin/vitis "$2"
   fi
 }
+
+# Add Neovim to PATH
+export PATH="$HOME/tools/neovim/bin:$PATH"
+
+# Add ~/tools/fd/ to PATH for fd and other tools
+export PATH="$HOME/tools/fd:$PATH"
