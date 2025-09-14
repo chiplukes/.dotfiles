@@ -121,7 +121,7 @@ install_fd() {
     fi
 
     # Add to PATH if not already there
-    add_to_bashrc 'export PATH="$HOME/tools/fd/bin:$PATH"' "Add ~/tools/fd/ to PATH for fd and other tools"
+    add_to_bashrc 'export PATH="$HOME/tools/fd:$PATH"' "Add ~/tools/fd/ to PATH for fd and other tools"
 }
 
 install_fd
