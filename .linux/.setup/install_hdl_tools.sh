@@ -50,7 +50,7 @@ install_myhdl() {
     safe_cleanup "$build_dir"
     ensure_dir "$build_dir"
 
-    git_clone_or_update "https://github.com/jandecaluwe/myhdl.git" "$build_dir"
+    git_clone_or_update "https://github.com/jandecaluwe/myhdl.git" "$build_dir" "master"
     chmod -R u+w .
 
     # Create venv and install MyHDL
