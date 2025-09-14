@@ -17,7 +17,7 @@ ensure_python
 python_real_path=$(get_python_real_path)
 
 # Install dependencies for building from source
-install_build_deps ripgrep gcc make git xclip curl cmake ninja-build gettext fd-find wget
+install_build_deps ripgrep gcc make git xclip curl cmake ninja-build gettext fd-find lua5.1 wget
 
 # Remove existing installations
 remove_existing neovim /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim* ~/.local/bin/nvim* ~/.local/share/nvim* "$HOME/tools/neovim"
