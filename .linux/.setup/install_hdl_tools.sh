@@ -53,11 +53,12 @@ install_myhdl() {
     git_clone_or_update "https://github.com/jandecaluwe/myhdl.git" "$build_dir" "master"
     chmod -R u+w .
 
-    # Create venv and install MyHDL
-    create_venv ".venv" "$python_real_path"
-    install_pip_packages ".venv" setuptools wheel
+    # Create venv and install MyHDL (use absolute path for venv)
+    local venv_dir="$build_dir/.venv"
+    create_venv "$venv_dir" "$python_real_path"
+    install_pip_packages "$venv_dir" setuptools wheel
 
-    if ! .venv/bin/python setup.py install; then
+    if ! "$venv_dir/bin/python" setup.py install; then
         die "Failed to install MyHDL"
     fi
 
