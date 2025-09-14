@@ -97,7 +97,7 @@ install_luarocks() {
 
     # Configure, build and install
     log_info "Configuring and building LuaRocks..."
-    if ! ./configure; then
+    if ! ./configure --lua-version=5.1; then
         safe_cd "$start_dir"
         die "Failed to configure LuaRocks"
     fi
