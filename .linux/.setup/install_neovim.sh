@@ -25,45 +25,45 @@ remove_existing neovim /opt/nvim* /usr/local/bin/nvim* /usr/local/share/nvim* ~/
 # Build and install Neovim from source
 install_neovim() {
     log_header "Building Neovim from source"
-    
+
     local build_dir="$HOME/tmp/neovim"
     local install_dir="$HOME/tools/neovim"
     local start_dir="$PWD"
-    
+
     # Prepare build directory
     safe_cleanup "$build_dir"
     ensure_dir "$build_dir"
-    
+
     # Clone and checkout stable branch
-    git_clone_or_update "https://github.com/neovim/neovim.git" "$build_dir"
-    
+    git_clone_or_update "https://github.com/neovim/neovim.git" "$build_dir" "master"
+
     log_info "Checking out stable branch..."
     if ! git checkout stable; then
         die "Failed to checkout stable branch"
     fi
-    
+
     # Clear any existing build cache
     log_info "Clearing CMake cache..."
     rm -rf build/
-    
+
     # Build with specified flags
     log_info "Building Neovim..."
     if ! make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$install_dir"; then
         safe_cd "$start_dir"
         die "Failed to build Neovim"
     fi
-    
+
     # Install
     log_info "Installing Neovim to $install_dir..."
     if ! make install; then
         safe_cd "$start_dir"
         die "Failed to install Neovim"
     fi
-    
+
     # Return to stable directory and cleanup
     safe_cd "$start_dir"
     safe_cleanup "$build_dir"
-    
+
     log_success "Neovim built and installed successfully!"
 }
 
