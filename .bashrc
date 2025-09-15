@@ -189,3 +189,6 @@ export PATH="$HOME/tools/neovim/bin:$PATH"
 
 # Add ~/tools/fd/ to PATH for fd and other tools
 export PATH="$HOME/tools/fd:$PATH"
+
+#Add ~/tools/lazygit to PATH
+export PATH="$HOME/tools/lazygit:$PATH"

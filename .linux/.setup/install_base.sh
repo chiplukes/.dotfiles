@@ -126,9 +126,86 @@ install_fd() {
 
 install_fd
 
+# Install latest lazygit binary from GitHub
+install_lazygit() {
+    log_header "Installing lazygit from GitHub releases"
+
+    local bin_dir="$HOME/tools/lazygit"
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    local start_dir="$PWD"
+
+    # Create directory
+    ensure_dir "$bin_dir"
+
+    safe_cd "$temp_dir"
+
+    # Get latest release version
+    log_info "Fetching latest lazygit release information..."
+    local lazygit_version
+    lazygit_version=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | \
+                      grep -Po '"tag_name": *"v\K[^"]*')
+
+    if [[ -z "$lazygit_version" ]]; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to get lazygit version"
+    fi
+
+    log_info "Latest lazygit version: v$lazygit_version"
+
+    # Download lazygit
+    local download_url="https://github.com/jesseduffield/lazygit/releases/download/v${lazygit_version}/lazygit_${lazygit_version}_Linux_x86_64.tar.gz"
+    log_info "Downloading lazygit from: $download_url"
+
+    if ! curl -Lo lazygit.tar.gz "$download_url"; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to download lazygit"
+    fi
+
+    # Extract
+    log_info "Extracting lazygit..."
+    if ! tar xf lazygit.tar.gz lazygit; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to extract lazygit"
+    fi
+
+    # Install binary to ~/tools/lazygit
+    log_info "Installing lazygit binary to $bin_dir..."
+    if ! cp lazygit "$bin_dir/lazygit"; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to install lazygit binary"
+    fi
+
+    # Make executable
+    chmod +x "$bin_dir/lazygit"
+
+    # Cleanup
+    safe_cd "$start_dir"
+    rm -rf "$temp_dir"
+
+    # Verify installation
+    if "$bin_dir/lazygit" --version >/dev/null 2>&1; then
+        log_success "lazygit installed successfully!"
+        log_info "lazygit version: $("$bin_dir/lazygit" --version)"
+        log_to_file "lazygit" "Installed from GitHub releases"
+    else
+        die "lazygit installation verification failed"
+    fi
+
+    # Add to PATH if not already there
+    add_to_bashrc 'export PATH="$HOME/tools/lazygit:$PATH"' "Add ~/tools/lazygit to PATH"
+}
+
+install_lazygit
+
 log_success "Base installation complete!"
 echo "Installed packages:"
 echo "- git, curl, subversion, ripgrep (via apt)"
 echo "- fzf (from GitHub)"
 echo "- fd-find (latest from GitHub releases)"
-echo "Note: Restart your shell to pick up fzf, fd, and PATH changes"
+echo "- lazygit (latest from GitHub releases)"
+echo "Note: Restart your shell to pick up fzf, fd, lazygit, and PATH changes"

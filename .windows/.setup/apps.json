@@ -109,6 +109,14 @@
     {
       "name": "sharkdp.fd",
       "category": "dev"
+    },
+    {
+      "name": "JesseDuffield.lazygit",
+      "category": "dev"
+    },
+    {
+      "name": "wez.wezterm",
+      "category": "dev"
     }
   ],
   "choco_apps": [
