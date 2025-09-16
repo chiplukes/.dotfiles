@@ -83,10 +83,96 @@ install_myhdl() {
     safe_cleanup "$build_dir"
 }
 
+# Install Verible HDL tools
+install_verible() {
+    log_header "Installing Verible from GitHub releases"
+
+    local install_dir="$HOME/tools/verible"  # Fixed: was $HOME/tmp/verible
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    local start_dir="$PWD"
+
+    safe_cd "$temp_dir"
+
+    # Get latest release version
+    log_info "Fetching latest Verible release information..."
+    local latest_release
+    latest_release=$(curl -s "https://api.github.com/repos/chipsalliance/verible/releases/latest" | \
+                    grep -Po '"tag_name": *"\K[^"]*')
+
+    if [[ -z "$latest_release" ]]; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to get latest Verible release version"
+    fi
+
+    log_info "Latest Verible version: $latest_release"
+
+    # Download Verible
+    local download_url="https://github.com/chipsalliance/verible/releases/download/${latest_release}/verible-${latest_release}-linux-static-x86_64.tar.gz"
+    log_info "Downloading Verible from: $download_url"
+
+    if ! curl -Lo verible.tar.gz "$download_url"; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to download Verible"
+    fi
+
+    # Extract
+    log_info "Extracting Verible..."
+    if ! tar xzf verible.tar.gz; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to extract Verible"
+    fi
+
+    # Find extracted directory (should be something like verible-v0.0-4023-gc1271a00-linux-static-x86_64)
+    local extracted_dir
+    extracted_dir=$(find . -maxdepth 1 -type d -name "verible-*" | head -1)
+
+    if [[ -z "$extracted_dir" ]]; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Could not find extracted Verible directory"
+    fi
+
+    # Remove old installation and install to ~/tools/verible
+    log_info "Installing Verible to $install_dir..."
+    rm -rf "$install_dir"
+    ensure_dir "$(dirname "$install_dir")"
+
+    if ! mv "$extracted_dir" "$install_dir"; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to move Verible to install directory"
+    fi
+
+    # Make binaries executable
+    chmod +x "$install_dir/bin"/*
+
+    # Cleanup
+    safe_cd "$start_dir"
+    rm -rf "$temp_dir"
+
+    # Verify installation
+    if "$install_dir/bin/verible-verilog-format" --version >/dev/null 2>&1; then
+        log_success "Verible installed successfully!"
+        log_info "Verible location: $install_dir"
+        log_to_file "Verible" "Installed from GitHub releases"
+    else
+        die "Verible installation verification failed"
+    fi
+
+    # Add to PATH if not already there
+    add_to_bashrc 'export PATH="$HOME/tools/verible/bin:$PATH"' "Add Verible tools to PATH"
+}
+
 install_icarus_verilog
 install_myhdl
+install_verible
 
 log_success "HDL Tools installation complete!"
 echo "Installation Summary:"
 echo "- Icarus Verilog: $(iverilog -V | head -1)"
 echo "- MyHDL VPI modules installed to /usr/lib/ivl/ and /usr/local/lib/ivl/"
+echo "- Verible: Installed to $HOME/tools/verible"

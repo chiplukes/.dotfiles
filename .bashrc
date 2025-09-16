@@ -192,3 +192,6 @@ export PATH="$HOME/tools/fd:$PATH"
 
 #Add ~/tools/lazygit to PATH
 export PATH="$HOME/tools/lazygit:$PATH"
+
+# Add Verible tools to PATH
+export PATH="$HOME/tools/verible/bin:$PATH"
