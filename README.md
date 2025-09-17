@@ -182,3 +182,7 @@ chmod +x *.sh
 ./install_neovim.sh
 # etc.
 ```
+
+# TODOS
+
+* remove init.vim file so that there are not dueling neovim configs
