@@ -259,7 +259,7 @@ vim.keymap.set('n', '<leader>mm', function()
     local mark = line:match('^%s*([a-z])')
     if mark then used_marks[mark] = true end
   end
-  
+
   -- Find first unused mark
   for i = string.byte('a'), string.byte('z') do
     local mark = string.char(i)
@@ -282,7 +282,7 @@ end, { desc = '[M]ark [N]ext bookmark' })
 
 -- Jump to previous mark (approximate bookmark navigation)
 vim.keymap.set('n', '<leader>mp', function()
-  vim.cmd("normal! ['") 
+  vim.cmd("normal! ['")
 end, { desc = '[M]ark [P]revious bookmark' })
 
 -- =============================================================================
@@ -305,7 +305,7 @@ vim.keymap.set('n', '<leader>y', function()
   vim.lsp.buf.code_action()
 end, { desc = '[Y]es/Accept suggestions' })
 
--- Hide/dismiss suggestions (like VSCode leader+u) 
+-- Hide/dismiss suggestions (like VSCode leader+u)
 vim.keymap.set('n', '<leader>u', '<cmd>lua vim.diagnostic.hide()<CR>', { desc = '[U]ndo/Hide suggestions/diagnostics' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
@@ -989,7 +989,71 @@ require('lazy').setup({
   -- =============================================================================
   -- Custom Plugins for Enhanced Functionality
   -- =============================================================================
-  
+
+  -- Flash for EasyMotion-like movement (modern and fast)
+  {
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    keys = {
+      { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = '[S] Flash jump (EasyMotion-style)' },
+      { 'S', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = '[S] Flash treesitter' },
+      { 'r', mode = 'o', function() require('flash').remote() end, desc = 'Remote flash' },
+      { 'R', mode = { 'o', 'x' }, function() require('flash').treesitter_search() end, desc = 'Flash treesitter search' },
+    },
+    opts = {
+      -- Flash configuration to match VSCode EasyMotion behavior
+      labels = 'asdfghjklqwertyuiopzxcvbnm',
+      search = {
+        -- Search settings for better UX
+        multi_window = true,
+        forward = true,
+        wrap = true,
+        incremental = false,
+      },
+      jump = {
+        -- Jump behavior
+        jumplist = true,
+        pos = 'start',
+        history = false,
+        register = false,
+      },
+      label = {
+        -- Label appearance
+        uppercase = false,
+        exclude = '',
+        current = true,
+        after = true,
+        before = false,
+        style = 'overlay',
+      },
+      highlight = {
+        -- Colors and highlighting
+        backdrop = true,
+        matches = true,
+        priority = 5000,
+      },
+      modes = {
+        -- Configure different flash modes
+        search = {
+          enabled = true,
+          highlight = { backdrop = false },
+          jump = { history = true, register = true, nohlsearch = true },
+        },
+        char = {
+          enabled = true,
+          config = function(opts)
+            -- Autohide flash when in operator-pending mode
+            opts.autohide = opts.autohide or (vim.fn.mode(true):find('no') and vim.v.operator == 'y')
+          end,
+          -- Hide after jump when in operator-pending mode
+          autohide = true,
+          jump_labels = true,
+          multi_line = true,
+        },
+      },
+    },
+  },
+
   -- Marker Groups for enhanced bookmarking (similar to VSCode bookmarks)
   {
     'jameswolensky/marker-groups.nvim',
@@ -1011,7 +1075,7 @@ require('lazy').setup({
           preview = true,
         })
       end, { desc = '[G]o [A]lign by character' })
-      
+
       -- Additional alignment options
       vim.keymap.set('v', 'gA', function()
         require('align').align_to_string({
@@ -1030,13 +1094,13 @@ require('lazy').setup({
     dependencies = { 'rafamadriz/friendly-snippets' },
     config = function()
       local luasnip = require('luasnip')
-      
+
       -- Load friendly-snippets
       require('luasnip.loaders.from_vscode').lazy_load()
-      
+
       -- Load our custom snippets (we'll create these files)
       require('luasnip.loaders.from_lua').load({ paths = vim.fn.stdpath('config') .. '/lua/snippets' })
-      
+
       -- Snippet expansion and navigation keybindings
       vim.keymap.set({'i', 's'}, '<Tab>', function()
         if luasnip.expand_or_jumpable() then
@@ -1045,7 +1109,7 @@ require('lazy').setup({
           return '<Tab>'
         end
       end, {expr = true, silent = true})
-      
+
       vim.keymap.set({'i', 's'}, '<S-Tab>', function()
         if luasnip.jumpable(-1) then
           luasnip.jump(-1)
@@ -1053,7 +1117,7 @@ require('lazy').setup({
           return '<S-Tab>'
         end
       end, {expr = true, silent = true})
-      
+
       -- Choice selection
       vim.keymap.set('i', '<C-e>', function()
         if luasnip.choice_active() then
