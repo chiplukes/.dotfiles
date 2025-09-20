@@ -53,8 +53,6 @@ module {module_name} #(
     
     // {interface_description}
     {ports}
-    
-    {body}
 );
 
 // Internal signals
