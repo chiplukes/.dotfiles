@@ -202,19 +202,19 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- =============================================================================
 
 -- Command Palette equivalent
-vim.keymap.set('n', '<leader>cp', '<cmd>lua require("snacks").picker.command_palette()<CR>', { desc = '[C]ommand [P]alette' })
+vim.keymap.set('n', '<leader>cp', function() require('snacks').picker.commands() end, { desc = '[C]ommand [P]alette' })
 
 -- Quick file open (like Ctrl+P in VSCode)
-vim.keymap.set('n', '<leader>o', '<cmd>lua require("snacks").picker.files()<CR>', { desc = '[O]pen file picker' })
+vim.keymap.set('n', '<leader>o', function() require('snacks').picker.files() end, { desc = '[O]pen file picker' })
 
 -- Find in project (like Ctrl+Shift+F in VSCode)
-vim.keymap.set('n', '<leader>f', '<cmd>lua require("snacks").picker.grep()<CR>', { desc = '[F]ind in project' })
+vim.keymap.set('n', '<leader>f', function() require('snacks').picker.grep() end, { desc = '[F]ind in project' })
 
 -- Window management (matching VSCode leader+w combinations)
 vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = '[W]indow split [V]ertical' })
 vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = '[W]indow [C]lose' })
-vim.keymap.set('n', '<leader>wf', '<cmd>lua vim.cmd("wincmd o")<CR>', { desc = '[W]indow [F]ullscreen (close others)' })
-vim.keymap.set('n', '<leader>we', '<cmd>lua require("snacks").picker.explorer()<CR>', { desc = '[W]indow [E]xplorer' })
+vim.keymap.set('n', '<leader>wf', '<cmd>only<CR>', { desc = '[W]indow [F]ullscreen (close others)' })
+vim.keymap.set('n', '<leader>we', '<cmd>Explore<CR>', { desc = '[W]indow [E]xplorer (netrw)' })
 
 -- Context menu equivalent
 vim.keymap.set('n', '<leader>cm', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = '[C]ontext [M]enu (code actions)' })
@@ -223,7 +223,7 @@ vim.keymap.set('n', '<leader>cm', '<cmd>lua vim.lsp.buf.code_action()<CR>', { de
 vim.keymap.set('n', 'gh', '<cmd>lua vim.lsp.buf.hover()<CR>', { desc = '[G]o [H]over info' })
 
 -- Go to symbol/outline (like VSCode go)
-vim.keymap.set('n', 'go', '<cmd>lua require("snacks").picker.lsp_document_symbols()<CR>', { desc = '[G]o to [O]utline/symbols' })
+vim.keymap.set('n', 'go', function() vim.lsp.buf.document_symbol() end, { desc = '[G]o to [O]utline/symbols' })
 
 -- Multi-cursor simulation with visual block and substitution
 vim.keymap.set('v', '<leader>ca', '<cmd>s/\\%V\\(\\S\\+\\)/&/g<CR>', { desc = '[C]ursor [A]ll (select all in visual)' })
@@ -241,8 +241,8 @@ vim.keymap.set('n', '<A-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<A-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<A-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- EasyMotion-style movement (matching VSCode 's' mapping)
-vim.keymap.set('n', 's', '<cmd>lua require("snacks").picker.jump()<CR>', { desc = 'EasyMotion-style [S]earch and jump' })
+-- EasyMotion-style movement (matching VSCode 's' mapping) - Flash.nvim will override this
+vim.keymap.set('n', 's', function() require('flash').jump() end, { desc = 'Flash [S]earch and jump' })
 
 -- =============================================================================
 -- Bookmark functionality (matching VSCode bookmarks extension)
@@ -253,7 +253,7 @@ vim.keymap.set('n', 's', '<cmd>lua require("snacks").picker.jump()<CR>', { desc 
 -- Toggle bookmark at current line
 vim.keymap.set('n', '<leader>mm', function()
   -- Get next available mark (a-z)
-  local marks = vim.fn.execute('marks'):split('\n')
+  local marks = vim.split(vim.fn.execute('marks'), '\n')
   local used_marks = {}
   for _, line in ipairs(marks) do
     local mark = line:match('^%s*([a-z])')
