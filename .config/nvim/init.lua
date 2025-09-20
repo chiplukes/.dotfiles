@@ -208,7 +208,7 @@ vim.keymap.set('n', '<leader>cp', function() require('snacks').picker.commands()
 vim.keymap.set('n', '<leader>o', function() require('snacks').picker.files() end, { desc = '[O]pen file picker' })
 
 -- Find in project (like Ctrl+Shift+F in VSCode)
-vim.keymap.set('n', '<leader>f', function() require('snacks').picker.grep() end, { desc = '[F]ind in project' })
+vim.keymap.set('n', '<leader>ff', function() require('snacks').picker.grep() end, { desc = '[F]ind in project with [G]rep' })
 
 -- Window management (matching VSCode leader+w combinations)
 vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = '[W]indow split [V]ertical' })
@@ -231,13 +231,10 @@ vim.keymap.set('v', '<leader>ca', '<cmd>s/\\%V\\(\\S\\+\\)/&/g<CR>', { desc = '[
 -- Paste from yank register (like VSCode leader+p)
 vim.keymap.set('n', '<leader>p', '"0p', { desc = '[P]aste from yank register' })
 
--- Tab/Buffer navigation (matching VSCode Ctrl+h/l)
-vim.keymap.set('n', '<C-h>', '<cmd>bprevious<CR>', { desc = 'Previous buffer/tab' })
-vim.keymap.set('n', '<C-l>', '<cmd>bnext<CR>', { desc = 'Next buffer/tab' })
-
--- Window navigation (use Alt for actual window movement to avoid conflict)
-vim.keymap.set('n', '<A-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<A-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+-- Window navigation (standard Neovim Ctrl+hjkl works by default)
+-- Use Alt+j/k for vertical window movement to complement Alt+h/l buffer nav
+vim.keymap.set('n', '<A-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<A-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 vim.keymap.set('n', '<A-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<A-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
