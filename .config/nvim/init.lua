@@ -187,6 +187,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', 'ge', vim.diagnostic.goto_next, { desc = '[G]oto next [E]rror/diagnostic' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -196,20 +197,116 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+-- =============================================================================
+-- VSCode-style keybindings to maintain muscle memory
+-- =============================================================================
 
--- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
---
---  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+-- Command Palette equivalent
+vim.keymap.set('n', '<leader>cp', '<cmd>lua require("snacks").picker.command_palette()<CR>', { desc = '[C]ommand [P]alette' })
+
+-- Quick file open (like Ctrl+P in VSCode)
+vim.keymap.set('n', '<leader>o', '<cmd>lua require("snacks").picker.files()<CR>', { desc = '[O]pen file picker' })
+
+-- Find in project (like Ctrl+Shift+F in VSCode)
+vim.keymap.set('n', '<leader>f', '<cmd>lua require("snacks").picker.grep()<CR>', { desc = '[F]ind in project' })
+
+-- Window management (matching VSCode leader+w combinations)
+vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = '[W]indow split [V]ertical' })
+vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = '[W]indow [C]lose' })
+vim.keymap.set('n', '<leader>wf', '<cmd>lua vim.cmd("wincmd o")<CR>', { desc = '[W]indow [F]ullscreen (close others)' })
+vim.keymap.set('n', '<leader>we', '<cmd>lua require("snacks").picker.explorer()<CR>', { desc = '[W]indow [E]xplorer' })
+
+-- Context menu equivalent
+vim.keymap.set('n', '<leader>cm', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = '[C]ontext [M]enu (code actions)' })
+
+-- Hover information (like VSCode gh)
+vim.keymap.set('n', 'gh', '<cmd>lua vim.lsp.buf.hover()<CR>', { desc = '[G]o [H]over info' })
+
+-- Go to symbol/outline (like VSCode go)
+vim.keymap.set('n', 'go', '<cmd>lua require("snacks").picker.lsp_document_symbols()<CR>', { desc = '[G]o to [O]utline/symbols' })
+
+-- Multi-cursor simulation with visual block and substitution
+vim.keymap.set('v', '<leader>ca', '<cmd>s/\\%V\\(\\S\\+\\)/&/g<CR>', { desc = '[C]ursor [A]ll (select all in visual)' })
+
+-- Paste from yank register (like VSCode leader+p)
+vim.keymap.set('n', '<leader>p', '"0p', { desc = '[P]aste from yank register' })
+
+-- Tab/Buffer navigation (matching VSCode Ctrl+h/l)
+vim.keymap.set('n', '<C-h>', '<cmd>bprevious<CR>', { desc = 'Previous buffer/tab' })
+vim.keymap.set('n', '<C-l>', '<cmd>bnext<CR>', { desc = 'Next buffer/tab' })
+
+-- Window navigation (use Alt for actual window movement to avoid conflict)
+vim.keymap.set('n', '<A-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<A-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<A-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<A-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- EasyMotion-style movement (matching VSCode 's' mapping)
+vim.keymap.set('n', 's', '<cmd>lua require("snacks").picker.jump()<CR>', { desc = 'EasyMotion-style [S]earch and jump' })
+
+-- =============================================================================
+-- Bookmark functionality (matching VSCode bookmarks extension)
+-- =============================================================================
+-- Note: We'll use Neovim's built-in marks enhanced with custom functions
+-- This provides similar functionality to VSCode bookmarks
+
+-- Toggle bookmark at current line
+vim.keymap.set('n', '<leader>mm', function()
+  -- Get next available mark (a-z)
+  local marks = vim.fn.execute('marks'):split('\n')
+  local used_marks = {}
+  for _, line in ipairs(marks) do
+    local mark = line:match('^%s*([a-z])')
+    if mark then used_marks[mark] = true end
+  end
+  
+  -- Find first unused mark
+  for i = string.byte('a'), string.byte('z') do
+    local mark = string.char(i)
+    if not used_marks[mark] then
+      vim.cmd('mark ' .. mark)
+      print('Bookmark set: ' .. mark)
+      return
+    end
+  end
+  print('No available bookmark slots')
+end, { desc = '[M]ark/Bookmark toggle' })
+
+-- List all bookmarks
+vim.keymap.set('n', '<leader>ml', '<cmd>marks<CR>', { desc = '[M]ark [L]ist bookmarks' })
+
+-- Jump to next mark (approximate bookmark navigation)
+vim.keymap.set('n', '<leader>mn', function()
+  vim.cmd("normal! ]'")
+end, { desc = '[M]ark [N]ext bookmark' })
+
+-- Jump to previous mark (approximate bookmark navigation)
+vim.keymap.set('n', '<leader>mp', function()
+  vim.cmd("normal! ['") 
+end, { desc = '[M]ark [P]revious bookmark' })
+
+-- =============================================================================
+-- Formatting and Code Actions (matching VSCode patterns)
+-- =============================================================================
+
+-- Format document (like VSCode leader+rf)
+vim.keymap.set('n', '<leader>rf', function()
+  vim.lsp.buf.format({ async = true })
+end, { desc = '[R]ecode [F]ormat document' })
+
+-- Format selection in visual mode
+vim.keymap.set('v', '<leader>rf', function()
+  vim.lsp.buf.format({ async = true })
+end, { desc = '[R]ecode [F]ormat selection' })
+
+-- Accept/commit suggestions (like VSCode leader+y)
+vim.keymap.set('n', '<leader>y', function()
+  -- This will be enhanced when we add Copilot, for now use LSP code actions
+  vim.lsp.buf.code_action()
+end, { desc = '[Y]es/Accept suggestions' })
+
+-- Hide/dismiss suggestions (like VSCode leader+u) 
+vim.keymap.set('n', '<leader>u', '<cmd>lua vim.diagnostic.hide()<CR>', { desc = '[U]ndo/Hide suggestions/diagnostics' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
@@ -888,6 +985,83 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+
+  -- =============================================================================
+  -- Custom Plugins for Enhanced Functionality
+  -- =============================================================================
+  
+  -- Marker Groups for enhanced bookmarking (similar to VSCode bookmarks)
+  {
+    'jameswolensky/marker-groups.nvim',
+    config = function()
+      require('marker-groups').setup({
+        -- Configuration will be added as we enhance bookmarks
+      })
+    end,
+  },
+
+  -- Align plugin for text alignment (matching VSCode align-by-regex)
+  {
+    'Vonr/align.nvim',
+    config = function()
+      -- Set up align keybinding to match VSCode 'ga' in visual mode
+      vim.keymap.set('v', 'ga', function()
+        require('align').align_to_char({
+          length = 1,
+          preview = true,
+        })
+      end, { desc = '[G]o [A]lign by character' })
+      
+      -- Additional alignment options
+      vim.keymap.set('v', 'gA', function()
+        require('align').align_to_string({
+          preview = true,
+          regex = true,
+        })
+      end, { desc = '[G]o [A]lign by regex/string' })
+    end,
+  },
+
+  -- LuaSnip for advanced snippets (with custom Python/Verilog snippets)
+  {
+    'L3MON4D3/LuaSnip',
+    version = 'v2.*',
+    build = 'make install_jsregexp',
+    dependencies = { 'rafamadriz/friendly-snippets' },
+    config = function()
+      local luasnip = require('luasnip')
+      
+      -- Load friendly-snippets
+      require('luasnip.loaders.from_vscode').lazy_load()
+      
+      -- Load our custom snippets (we'll create these files)
+      require('luasnip.loaders.from_lua').load({ paths = vim.fn.stdpath('config') .. '/lua/snippets' })
+      
+      -- Snippet expansion and navigation keybindings
+      vim.keymap.set({'i', 's'}, '<Tab>', function()
+        if luasnip.expand_or_jumpable() then
+          luasnip.expand_or_jump()
+        else
+          return '<Tab>'
+        end
+      end, {expr = true, silent = true})
+      
+      vim.keymap.set({'i', 's'}, '<S-Tab>', function()
+        if luasnip.jumpable(-1) then
+          luasnip.jump(-1)
+        else
+          return '<S-Tab>'
+        end
+      end, {expr = true, silent = true})
+      
+      -- Choice selection
+      vim.keymap.set('i', '<C-e>', function()
+        if luasnip.choice_active() then
+          luasnip.change_choice(1)
+        end
+      end)
+    end,
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
