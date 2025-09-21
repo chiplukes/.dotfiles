@@ -1,6 +1,5 @@
 --[[
-
-=====================================================================
+====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
 ========                                    .-----.          ========
@@ -185,9 +184,8 @@ vim.o.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- Diagnostic keymaps
+-- Diagnostic keymaps (will be overridden below with your custom mappings)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-vim.keymap.set('n', 'ge', vim.diagnostic.goto_next, { desc = '[G]oto next [E]rror/diagnostic' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -207,8 +205,8 @@ vim.keymap.set('n', '<leader>cp', function() require('snacks').picker.commands()
 -- Quick file open (like Ctrl+P in VSCode)
 vim.keymap.set('n', '<leader>o', function() require('snacks').picker.files() end, { desc = '[O]pen file picker' })
 
--- Find in project (like Ctrl+Shift+F in VSCode)
-vim.keymap.set('n', '<leader>ff', function() require('snacks').picker.grep() end, { desc = '[F]ind in project with [G]rep' })
+-- Find in project (matching your VS Code <leader>f)
+vim.keymap.set('n', '<leader>ff', function() require('snacks').picker.grep() end, { desc = '[F]ind in project (your VS Code mapping)' })
 
 -- Window management (matching VSCode leader+w combinations)
 vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = '[W]indow split [V]ertical' })
@@ -219,8 +217,27 @@ vim.keymap.set('n', '<leader>we', '<cmd>Explore<CR>', { desc = '[W]indow [E]xplo
 -- Context menu equivalent
 vim.keymap.set('n', '<leader>cm', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = '[C]ontext [M]enu (code actions)' })
 
+-- Quick fix keybindings (matching your VS Code custom setup)
+-- Note: These will work when code action menu is visible
+vim.keymap.set('n', '<C-.>', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = 'Quick fix (VS Code Ctrl+.)' })
+vim.keymap.set('n', '<leader>.', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = 'Quick fix (leader alternative)' })
+vim.keymap.set('v', '<C-.>', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = 'Quick fix selection' })
+
+-- Your custom navigation keybindings
+vim.keymap.set('n', '<A-h>', '<cmd>bprevious<CR>', { desc = 'Previous editor/tab (your Alt+H)' })
+vim.keymap.set('n', '<A-l>', '<cmd>bnext<CR>', { desc = 'Next editor/tab (your Alt+L)' })
+
+-- Diagnostic navigation (matching your 'ge' mapping)
+vim.keymap.set('n', 'ge', vim.diagnostic.goto_next, { desc = '[G]o to next [E]rror (your VS Code mapping)' })
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic' })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic' })
+
+-- Diagnostic details
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
 -- Hover information (like VSCode gh)
-vim.keymap.set('n', 'gh', '<cmd>lua vim.lsp.buf.hover()<CR>', { desc = '[G]o [H]over info' })
+vim.keymap.set('n', 'gh', '<cmd>lua vim.lsp.buf.hover()<CR>', { desc = '[G]o [H]hover info' })
 
 -- Go to symbol/outline (like VSCode go)
 vim.keymap.set('n', 'go', function() vim.lsp.buf.document_symbol() end, { desc = '[G]o to [O]utline/symbols' })
@@ -240,6 +257,17 @@ vim.keymap.set('n', '<A-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 -- EasyMotion-style movement (matching VSCode 's' mapping) - Flash.nvim will override this
 vim.keymap.set('n', 's', function() require('flash').jump() end, { desc = 'Flash [S]earch and jump' })
+
+-- =============================================================================
+-- Completion keybindings (matching your VS Code custom setup)
+-- =============================================================================
+-- Note: Completion keybindings are configured in blink.cmp setup below
+-- These exactly match your VS Code keybindings:
+-- - Ctrl+Space: Trigger/show completion
+-- - Ctrl+N: Next suggestion (in both completion and code action menus)
+-- - Ctrl+P: Previous suggestion (in both completion and code action menus)
+-- - Ctrl+Y: Accept suggestion (in both completion and code action menus)
+-- - Ctrl+U: Hide suggestion widget
 
 -- =============================================================================
 -- Bookmark functionality (matching VSCode bookmarks extension)
@@ -361,7 +389,7 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.keymap.set('n', '<leader>pd', function()
       local line = vim.api.nvim_get_current_line()
       local row = vim.api.nvim_win_get_cursor(0)[1]
-      
+
       -- Check if current line contains a function definition
       if line:match('^%s*def%s+') then
         local indent = line:match('^(%s*)')
@@ -390,10 +418,10 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     local line_count = vim.api.nvim_buf_line_count(0)
     -- Only auto-format smaller files to avoid performance issues
     if line_count <= 500 then
-      require('conform').format({ 
-        async = false, 
+      require('conform').format({
+        async = false,
         timeout_ms = 3000,
-        bufnr = 0 
+        bufnr = 0
       })
     else
       vim.notify('File too large for auto-format. Use <leader>bf to format manually.', vim.log.levels.INFO)
@@ -414,7 +442,7 @@ vim.api.nvim_create_autocmd('FileType', {
       }
       vim.api.nvim_put(template, 'l', true, true)
     end, { desc = '[V]erilog [P]ort Connection', buffer = true })
-    
+
     -- Add keymap for wire declaration
     vim.keymap.set('n', '<leader>vw', function()
       local word = vim.fn.expand('<cword>')
@@ -438,10 +466,10 @@ vim.api.nvim_create_autocmd('BufEnter', {
     local cwd = vim.fn.getcwd()
     local venv_paths = {
       cwd .. '/.venv',
-      cwd .. '/venv', 
+      cwd .. '/venv',
       vim.fn.expand('~/.venv'),
     }
-    
+
     for _, path in ipairs(venv_paths) do
       if vim.fn.isdirectory(path) == 1 then
         vim.env.VIRTUAL_ENV = path
@@ -457,17 +485,17 @@ vim.api.nvim_create_autocmd('BufEnter', {
   end,
 })
 
--- Auto-save for specific file types during development
+-- Auto-save enabled (format on save disabled to prevent auto-formatting)
 vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
   group = vim.api.nvim_create_augroup('AutoSave', { clear = true }),
-  pattern = { '*.py', '*.lua' }, -- Add more file types as needed
+  pattern = { '*.py', '*.lua', '*.js', '*.ts', '*.json', '*.md' }, -- Extended file type support
   callback = function()
-    -- Auto-save after 2 seconds of inactivity
+    -- Auto-save after 3 seconds of inactivity (increased from 2s for better performance)
     vim.defer_fn(function()
       if vim.bo.modified and vim.bo.buftype == '' then
         vim.cmd('silent write')
       end
-    end, 2000)
+    end, 3000)
   end,
 })
 
@@ -667,8 +695,203 @@ require('lazy').setup({
       dap.listeners.before.event_terminated['dapui_config'] = dapui.close
       dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
-      -- Python debugger setup (following hendrikmi's approach)
-      require('dap-python').setup()
+      -- Python debugger setup with virtual environment detection
+      local function get_python_path()
+        -- Check for VIRTUAL_ENV environment variable
+        local venv_path = vim.fn.getenv('VIRTUAL_ENV')
+        if venv_path and venv_path ~= vim.NIL then
+          return venv_path .. (vim.fn.has('win32') == 1 and '\\Scripts\\python.exe' or '/bin/python')
+        end
+
+        -- Check for local .venv directory
+        local cwd = vim.fn.getcwd()
+        local venv_dirs = { '.venv', 'venv', '.env', 'env' }
+
+        for _, venv_dir in ipairs(venv_dirs) do
+          local local_venv = cwd .. '/' .. venv_dir
+          if vim.fn.isdirectory(local_venv) == 1 then
+            return local_venv .. (vim.fn.has('win32') == 1 and '/Scripts/python.exe' or '/bin/python')
+          end
+        end
+
+        -- Check for conda environment
+        local conda_env = vim.fn.getenv('CONDA_DEFAULT_ENV')
+        if conda_env and conda_env ~= vim.NIL and conda_env ~= 'base' then
+          local conda_path = vim.fn.getenv('CONDA_PREFIX')
+          if conda_path and conda_path ~= vim.NIL then
+            return conda_path .. (vim.fn.has('win32') == 1 and '\\python.exe' or '/bin/python')
+          end
+        end
+
+        -- Check for Poetry virtual environment
+        local poetry_venv = vim.fn.system('poetry env info --path 2>/dev/null'):gsub('\n', '')
+        if vim.v.shell_error == 0 and poetry_venv and poetry_venv ~= '' then
+          return poetry_venv .. (vim.fn.has('win32') == 1 and '\\Scripts\\python.exe' or '/bin/python')
+        end
+
+        -- Fallback to system python
+        return 'python'
+      end
+
+      local python_path = get_python_path()
+
+      -- Install debugpy on-demand when debugging starts
+      local function ensure_debugpy_on_debug(python_executable, callback)
+        if python_executable == 'python' then
+          -- Using system Python, assume debugpy is available or user will install manually
+          vim.notify('Using system Python - ensure debugpy is installed globally', vim.log.levels.INFO)
+          if callback then callback() end
+          return
+        end
+
+        -- Check if debugpy is installed
+        local check_cmd = python_executable .. ' -c "import debugpy; print(debugpy.__version__)"'
+        local result = vim.fn.system(check_cmd)
+
+        if vim.v.shell_error ~= 0 then
+          -- debugpy not found - install it
+          vim.notify('🐍 debugpy not found - installing for debugging...', vim.log.levels.WARN)
+          print('=== DEBUGPY INSTALLATION ===')
+          print('debugpy required for debugging - installing...')
+
+          -- Detect if this is a uv environment by checking if pip module is available
+          local pip_check_cmd = python_executable .. ' -c "import pip"'
+          local pip_available = vim.fn.system(pip_check_cmd)
+          local has_pip = vim.v.shell_error == 0
+
+          local install_cmd
+          if has_pip then
+            -- Standard virtual environment with pip
+            install_cmd = python_executable .. ' -m pip install debugpy'
+            print('Running: ' .. install_cmd)
+            print('(Using python -m pip)')
+          else
+            -- Likely a uv environment - try using uv directly
+            install_cmd = 'uv add --dev debugpy'
+            print('Running: ' .. install_cmd)
+            print('(Detected uv environment - using uv add)')
+          end
+
+          vim.fn.jobstart(install_cmd, {
+            on_stdout = function(_, data)
+              if data and #data > 0 then
+                for _, line in ipairs(data) do
+                  if line and line ~= '' then
+                    print('install: ' .. line)
+                  end
+                end
+              end
+            end,
+            on_stderr = function(_, data)
+              if data and #data > 0 then
+                for _, line in ipairs(data) do
+                  if line and line ~= '' then
+                    print('install error: ' .. line)
+                  end
+                end
+              end
+            end,
+            on_exit = function(_, exit_code)
+              if exit_code == 0 then
+                print('=== DEBUGPY INSTALLATION SUCCESS ===')
+                print('✅ debugpy successfully installed!')
+                vim.notify('✅ debugpy installed - starting debugger...', vim.log.levels.INFO)
+                if callback then callback() end
+              else
+                print('=== DEBUGPY INSTALLATION FAILED ===')
+                print('❌ Failed to install debugpy (exit code: ' .. exit_code .. ')')
+                if has_pip then
+                  print('💡 Manual installation: python -m pip install debugpy')
+                  vim.notify('❌ debugpy installation failed! Install manually: python -m pip install debugpy', vim.log.levels.ERROR)
+                else
+                  print('💡 Manual installation: uv add --dev debugpy')
+                  vim.notify('❌ debugpy installation failed! Install manually: uv add --dev debugpy', vim.log.levels.ERROR)
+                end
+              end
+            end,
+          })
+        else
+          -- debugpy is already installed
+          local version = result:gsub('\n', ''):gsub('\r', '')
+          vim.notify('✅ debugpy found (v' .. version .. ') - starting debugger...', vim.log.levels.INFO)
+          if callback then callback() end
+        end
+      end
+
+      require('dap-python').setup(python_path)
+
+      -- Enhanced DAP configuration with on-demand debugpy installation
+      dap.configurations.python = {
+        {
+          type = 'python',
+          request = 'launch',
+          name = 'Launch file',
+          program = '${file}',
+          pythonPath = python_path,
+          console = 'integratedTerminal',
+          cwd = '${workspaceFolder}',
+        },
+        {
+          type = 'python',
+          request = 'launch',
+          name = 'Launch with arguments',
+          program = '${file}',
+          pythonPath = python_path,
+          console = 'integratedTerminal',
+          cwd = '${workspaceFolder}',
+          args = function()
+            local args_string = vim.fn.input('Arguments: ')
+            return vim.split(args_string, ' ')
+          end,
+        },
+      }
+
+      -- Override the DAP continue function to ensure debugpy before starting
+      local original_continue = dap.continue
+      dap.continue = function()
+        ensure_debugpy_on_debug(python_path, function()
+          original_continue()
+        end)
+      end
+
+      -- Add DAP event listeners for better error reporting
+      dap.listeners.before.event_terminated['error_handler'] = function(session, body)
+        if body and body.exitCode and body.exitCode ~= 0 then
+          vim.notify(
+            string.format('Python debugger exited with code: %d. Check :DapShowLog for details.', body.exitCode),
+            vim.log.levels.ERROR
+          )
+        end
+      end
+
+      dap.listeners.before.event_exited['error_handler'] = function(session, body)
+        if body and body.exitCode and body.exitCode ~= 0 then
+          vim.notify(
+            string.format('Python process exited with error code: %d', body.exitCode),
+            vim.log.levels.ERROR
+          )
+        end
+      end
+
+      -- Add helpful keybindings for debugging issues
+      vim.keymap.set('n', '<leader>dl', function()
+        dap.set_log_level('TRACE')
+        vim.notify('DAP log level set to TRACE. Use :DapShowLog to view logs.', vim.log.levels.INFO)
+      end, { desc = 'Debug: Enable verbose logging' })
+
+      vim.keymap.set('n', '<leader>ds', ':DapShowLog<CR>', { desc = 'Debug: Show DAP log' })
+
+      -- Add command to manually install debugpy
+      vim.api.nvim_create_user_command('DebugpyInstall', function()
+        ensure_debugpy_on_debug(python_path, function()
+          vim.notify('✅ debugpy installation check complete!', vim.log.levels.INFO)
+        end)
+      end, { desc = 'Install debugpy in current virtual environment' })
+
+      -- Add some helpful debug messages
+      vim.notify('Python debugger configured with: ' .. python_path, vim.log.levels.INFO)
+      vim.notify('debugpy will be auto-installed when you start debugging', vim.log.levels.INFO)
+      vim.notify('Use :DebugpyInstall to install debugpy manually', vim.log.levels.INFO)
     end,
   },
 
@@ -743,7 +966,7 @@ require('lazy').setup({
       notifier = { enabled = true, timeout = 3000 },
       quickfile = { enabled = true },
       words = { enabled = true },
-      dashboard = { enabled = true },
+      dashboard = { enabled = false },
       indent = { enabled = true },
       input = { enabled = true },
       scroll = { enabled = true },
@@ -853,16 +1076,16 @@ require('lazy').setup({
           map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('grr', function() require('snacks').picker.lsp_references() end, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gri', function() require('snacks').picker.lsp_implementations() end, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('grd', function() require('snacks').picker.lsp_definitions() end, '[G]oto [D]efinition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
@@ -870,16 +1093,16 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
+          map('gO', function() require('snacks').picker.lsp_symbols() end, 'Open Document Symbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
-          map('gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
+          map('gW', function() require('snacks').picker.lsp_symbols({ workspace = true }) end, 'Open Workspace Symbols')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+          map('grt', function() require('snacks').picker.lsp_type_definitions() end, '[G]oto [T]ype Definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -926,51 +1149,51 @@ require('lazy').setup({
           -- =============================================================================
           -- Enhanced LSP Keybindings (Phase 2)
           -- =============================================================================
-          
+
           -- Advanced diagnostic navigation
-          map('gdn', function() 
-            vim.diagnostic.goto_next({ float = true }) 
+          map('gdn', function()
+            vim.diagnostic.goto_next({ float = true })
           end, '[G]oto [D]iagnostic [N]ext')
-          
-          map('gdp', function() 
-            vim.diagnostic.goto_prev({ float = true }) 
+
+          map('gdp', function()
+            vim.diagnostic.goto_prev({ float = true })
           end, '[G]oto [D]iagnostic [P]revious')
-          
+
           -- Show diagnostic in floating window
           map('gdd', function()
             vim.diagnostic.open_float(nil, { focusable = true, border = 'rounded' })
           end, '[G]oto [D]iagnostic [D]etails')
-          
+
           -- Workspace management
           map('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
           map('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
           map('<leader>wl', function()
             print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
           end, '[W]orkspace [L]ist Folders')
-          
+
           -- Enhanced code actions with context
           map('<leader>ca', function()
-            vim.lsp.buf.code_action({ 
-              context = { 
+            vim.lsp.buf.code_action({
+              context = {
                 only = { 'quickfix', 'refactor', 'source' },
                 diagnostics = vim.diagnostic.get(0)
               }
             })
           end, '[C]ode [A]ctions (Enhanced)')
-          
+
           -- Organize imports (if supported)
           if client and client_supports_method(client, 'textDocument/codeAction', event.buf) then
             map('<leader>oi', function()
-              vim.lsp.buf.code_action({ 
+              vim.lsp.buf.code_action({
                 context = { only = { 'source.organizeImports' } },
                 apply = true
               })
             end, '[O]rganize [I]mports')
           end
-          
+
           -- Format current buffer or selection
           map('<leader>bf', function()
-            vim.lsp.buf.format({ 
+            vim.lsp.buf.format({
               async = true,
               filter = function(format_client)
                 -- Prefer specific formatters over LSP formatting
@@ -987,12 +1210,12 @@ require('lazy').setup({
               end
             })
           end, '[B]uffer [F]ormat')
-          
+
           -- Enhanced signature help with better positioning
           map('<C-k>', function()
             vim.lsp.buf.signature_help()
           end, 'Signature Help', 'i')
-          
+
           -- Hover with enhanced formatting
           map('K', function()
             -- Try LSP hover first, fallback to vim's default K
@@ -1012,42 +1235,36 @@ require('lazy').setup({
               end
             end)
           end, 'Hover Documentation')
-          
+
           -- Enhanced symbol search
           map('<leader>ss', function()
-            require('telescope.builtin').lsp_document_symbols({
-              symbol_width = 50,
-              symbol_type_width = 20,
-            })
+            require('snacks').picker.lsp_symbols()
           end, '[S]earch Document [S]ymbols')
-          
+
           map('<leader>sS', function()
-            require('telescope.builtin').lsp_dynamic_workspace_symbols({
-              symbol_width = 50,
-              symbol_type_width = 20,
-            })
+            require('snacks').picker.lsp_symbols({ workspace = true })
           end, '[S]earch Workspace [S]ymbols')
-          
+
           -- Language-specific enhancements
           local filetype = vim.bo[event.buf].filetype
-          
+
           -- Python-specific keybindings
           if filetype == 'python' then
             map('<leader>pi', function()
-              vim.lsp.buf.code_action({ 
+              vim.lsp.buf.code_action({
                 context = { only = { 'source.addMissingImports' } },
                 apply = true
               })
             end, '[P]ython Add Missing [I]mports')
-            
+
             map('<leader>pr', function()
-              vim.lsp.buf.code_action({ 
+              vim.lsp.buf.code_action({
                 context = { only = { 'refactor.extract' } }
               })
             end, '[P]ython [R]efactor Extract')
           end
-          
-          -- Verilog-specific keybindings  
+
+          -- Verilog-specific keybindings
           if filetype == 'verilog' or filetype == 'systemverilog' then
             map('<leader>vm', function()
               -- Custom module instantiation helper
@@ -1060,7 +1277,7 @@ require('lazy').setup({
               end)
             end, '[V]erilog [M]odule Instantiation')
           end
-          
+
           -- Inlay hints toggle (enhanced)
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map('<leader>th', function()
@@ -1078,10 +1295,10 @@ require('lazy').setup({
       vim.diagnostic.config {
         -- Sort by severity (errors first, then warnings, etc.)
         severity_sort = true,
-        
+
         -- Enhanced floating window configuration
-        float = { 
-          border = 'rounded', 
+        float = {
+          border = 'rounded',
           source = 'if_many',
           header = '',
           prefix = '',
@@ -1091,12 +1308,12 @@ require('lazy').setup({
           max_width = 80,
           max_height = 20,
         },
-        
+
         -- Enhanced underline configuration
-        underline = { 
+        underline = {
           severity = { min = vim.diagnostic.severity.HINT } -- Underline all diagnostics
         },
-        
+
         -- Enhanced signs configuration
         signs = {
           text = vim.g.have_nerd_font and {
@@ -1116,7 +1333,7 @@ require('lazy').setup({
             [vim.diagnostic.severity.ERROR] = 'DiagnosticSignError',
           },
         },
-        
+
         -- Enhanced virtual text configuration
         virtual_text = {
           source = 'if_many',
@@ -1131,19 +1348,19 @@ require('lazy').setup({
             if #message > max_len then
               message = message:sub(1, max_len - 3) .. '...'
             end
-            
+
             local severity_icons = {
               [vim.diagnostic.severity.ERROR] = '󰅚',
               [vim.diagnostic.severity.WARN] = '󰀪',
               [vim.diagnostic.severity.INFO] = '󰋽',
               [vim.diagnostic.severity.HINT] = '󰌶',
             }
-            
+
             local icon = severity_icons[diagnostic.severity] or '●'
             return string.format('%s %s', icon, message)
           end,
         },
-        
+
         -- Enhanced update behavior
         update_in_insert = false, -- Don't show diagnostics while typing
       }
@@ -1184,7 +1401,7 @@ require('lazy').setup({
           settings = {
             pylsp = {
               plugins = {
-                -- Disable most plugins to avoid conflicts with Ruff
+                -- Disable ALL linting/formatting plugins to avoid conflicts with Ruff
                 pyflakes = { enabled = false },
                 pycodestyle = { enabled = false },
                 autopep8 = { enabled = false },
@@ -1193,6 +1410,18 @@ require('lazy').setup({
                 pylsp_mypy = { enabled = false },
                 pylsp_black = { enabled = false },
                 pylsp_isort = { enabled = false },
+                -- Additional plugins that might cause issues
+                pydocstyle = { enabled = false },
+                pylint = { enabled = false },
+                flake8 = { enabled = false },
+                rope_autoimport = { enabled = false },
+                rope_completion = { enabled = false },
+                -- Keep only basic language server functionality
+                jedi_completion = { enabled = true },
+                jedi_hover = { enabled = true },
+                jedi_references = { enabled = true },
+                jedi_signature_help = { enabled = true },
+                jedi_symbols = { enabled = true },
               },
             },
           },
@@ -1214,7 +1443,7 @@ require('lazy').setup({
         },
 
         -- Ruff LSP for fast Python linting and formatting
-        ruff_lsp = {
+        ruff = {
           init_options = {
             settings = {
               -- Configure Ruff to be the primary Python tool
@@ -1224,34 +1453,43 @@ require('lazy').setup({
         },
 
         -- =============================================================================
-        -- Verilog/SystemVerilog LSP Configuration
+        -- C/C++ LSP Configuration (Phase 5: C/C++ Support)
         -- =============================================================================
-        svls = {
-          -- SystemVerilog Language Server
-          cmd = { 'svls' },
-          filetypes = { 'verilog', 'systemverilog' },
-          settings = {
-            systemverilog = {
-              includeIndexing = { '*.{v,vh,sv,svh}' },
-              excludeIndexing = { 'test/**/*.{v,sv}' },
-              defines = {},
-              launchConfiguration = '/tools/verilator',
-              linter = 'verilator',
-              formatCommand = 'verible-verilog-format',
-            },
+        clangd = {
+          cmd = {
+            'clangd',
+            '--background-index',
+            '--clang-tidy',
+            '--header-insertion=iwyu',
+            '--completion-style=detailed',
+            '--function-arg-placeholders',
+            '--fallback-style=llvm',
           },
-          -- Custom root directory detection for Verilog projects
+          init_options = {
+            usePlaceholders = true,
+            completeUnimported = true,
+            clangdFileStatus = true,
+          },
           root_dir = function(fname)
             return require('lspconfig.util').root_pattern(
-              '*.core',         -- FuseSoC core files
-              '*.prj',          -- Vivado project files  
-              'Makefile',       -- Make-based projects
-              '.git'            -- Git repositories
+              '.clangd',
+              '.clang-tidy',
+              '.clang-format',
+              'compile_commands.json',
+              'compile_flags.txt',
+              'configure.ac',
+              '.git'
             )(fname) or vim.fn.getcwd()
           end,
         },
 
-        -- Alternative: Verible language server
+        -- =============================================================================
+        -- Verilog/SystemVerilog LSP Configuration
+        -- =============================================================================
+        -- Note: svls (SystemVerilog Language Server) is not available in Mason
+        -- and would need to be manually installed. Using Verible instead.
+
+        -- Verible language server (available in Mason)
         verible = {
           cmd = { 'verible-verilog-ls', '--rules_config_search' },
           filetypes = { 'verilog', 'systemverilog' },
@@ -1277,7 +1515,7 @@ require('lazy').setup({
                 callSnippet = 'Replace',
               },
               -- Enhanced Lua diagnostics
-              diagnostics = { 
+              diagnostics = {
                 -- Recognize vim global
                 globals = { 'vim', 'require' },
                 -- Disable noisy warnings for Neovim config
@@ -1291,6 +1529,7 @@ require('lazy').setup({
               },
               -- Enhanced telemetry settings
               telemetry = { enable = false },
+            },
           },
         },
       }
@@ -1313,26 +1552,31 @@ require('lazy').setup({
         -- =============================================================================
         -- Enhanced Tools for Phase 2 Development
         -- =============================================================================
-        
+
         -- Lua tools
         'stylua', -- Lua formatter
-        
+
         -- Python tools (Ruff-focused approach like hendrikmi)
         'ruff',          -- Primary Python linter and formatter
+        'ruff-lsp',      -- Ruff LSP server
         'debugpy',       -- Python debugger for nvim-dap
         -- Note: Most Python tools removed to avoid conflicts with Ruff
-        
-        -- Verilog/SystemVerilog tools  
-        'verible',       -- SystemVerilog formatter and linter
-        -- Note: svls (SystemVerilog Language Server) may need manual installation
-        
+
+        -- C/C++ tools (Phase 5: C/C++ Support)
+        'clangd',        -- C/C++ LSP server for code navigation and linting (includes clang-tidy)
+        'clang-format',  -- C/C++ code formatter
+        -- Note: cppcheck not available in Mason, but clangd provides excellent linting via clang-tidy
+
+        -- Verilog/SystemVerilog tools
+        'verible',       -- SystemVerilog formatter and linter (includes verible-verilog-ls)
+
         -- General development tools
         'prettier',      -- Multi-language formatter
         'fixjson',       -- JSON formatter
         'yamllint',      -- YAML linter
         'shellcheck',    -- Shell script linter
         'shfmt',         -- Shell script formatter
-        
+
         -- Additional useful tools
         'codespell',     -- Spell checker for code
         'gitlint',       -- Git commit message linter
@@ -1375,24 +1619,33 @@ require('lazy').setup({
       -- Enhanced Conform Configuration (Phase 2)
       -- =============================================================================
       notify_on_error = true, -- Show notifications for formatting errors
-      
-      -- Enhanced format on save with file type specific settings
+
+      -- Format on save DISABLED (use <leader>f for manual formatting)
+      -- This prevents auto-formatting while auto-save is enabled
+      format_on_save = nil,
+
+      -- Alternative: Uncomment below to re-enable format on save for specific files only
+      --[[
       format_on_save = function(bufnr)
         local ft = vim.bo[bufnr].filetype
-        
-        -- Disable auto-format for specific file types where manual control is preferred
-        local disable_filetypes = { 
-          c = true, 
+
+        -- Disable auto-format for most file types (manual control preferred)
+        local disable_filetypes = {
+          python = true,     -- Use manual formatting with <leader>f
+          lua = true,        -- Use manual formatting with <leader>f
+          c = true,
           cpp = true,
+          javascript = true,
+          typescript = true,
           -- Don't auto-format large Verilog files (can be slow)
           verilog = vim.fn.line('$') > 1000,
           systemverilog = vim.fn.line('$') > 1000,
         }
-        
+
         if disable_filetypes[ft] then
           return nil
         end
-        
+
         -- File type specific timeouts
         local timeout_by_ft = {
           python = 2000,      -- Python formatting can be slower
@@ -1400,32 +1653,44 @@ require('lazy').setup({
           systemverilog = 3000,
           default = 1000,
         }
-        
+
         return {
           timeout_ms = timeout_by_ft[ft] or timeout_by_ft.default,
           lsp_format = 'fallback',
           async = false, -- Synchronous for format on save
         }
       end,
-      
+      --]]
+
       -- Comprehensive formatters by file type
       formatters_by_ft = {
         -- =============================================================================
         -- Lua
         -- =============================================================================
         lua = { 'stylua' },
-        
+
         -- =============================================================================
         -- Python (Ruff-focused approach like hendrikmi)
         -- =============================================================================
         python = { 'ruff_format', 'ruff_organize_imports' },
-        
+
+        -- =============================================================================
+        -- C/C++ (Phase 5: C/C++ Support)
+        -- =============================================================================
+        c = { 'clang_format' },
+        cpp = { 'clang_format' },
+        cxx = { 'clang_format' },
+        cc = { 'clang_format' },
+        h = { 'clang_format' },
+        hpp = { 'clang_format' },
+        hxx = { 'clang_format' },
+
         -- =============================================================================
         -- Verilog/SystemVerilog
         -- =============================================================================
         verilog = { 'verible_verilog_format' },
         systemverilog = { 'verible_verilog_format' },
-        
+
         -- =============================================================================
         -- Web and Configuration Files
         -- =============================================================================
@@ -1438,7 +1703,7 @@ require('lazy').setup({
         html = { 'prettier' },
         css = { 'prettier' },
         markdown = { 'prettier' },
-        
+
         -- =============================================================================
         -- Shell and Other
         -- =============================================================================
@@ -1446,7 +1711,7 @@ require('lazy').setup({
         bash = { 'shfmt' },
         zsh = { 'shfmt' },
       },
-      
+
       -- =============================================================================
       -- Custom Formatter Configurations
       -- =============================================================================
@@ -1455,29 +1720,39 @@ require('lazy').setup({
         black = {
           prepend_args = { '--line-length', '88', '--fast' },
         },
-        
-        -- Enhanced isort configuration  
+
+        -- Enhanced isort configuration
         isort = {
           prepend_args = { '--profile', 'black', '--line-length', '88' },
         },
-        
+
         -- Ruff formatter configuration
         ruff_format = {
           command = 'ruff',
           args = { 'format', '--stdin-filename', '$FILENAME', '-' },
           stdin = true,
         },
-        
+
         ruff_organize_imports = {
           command = 'ruff',
           args = { 'check', '--select', 'I', '--fix', '--stdin-filename', '$FILENAME', '-' },
           stdin = true,
         },
-        
+
+        -- C/C++ clang-format configuration (Phase 5: C/C++ Support)
+        clang_format = {
+          command = 'clang-format',
+          args = {
+            '--style={BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 100}',
+            '--assume-filename=$FILENAME'
+          },
+          stdin = true,
+        },
+
         -- Verible Verilog formatter configuration
         verible_verilog_format = {
           command = 'verible-verilog-format',
-          args = { 
+          args = {
             '--assignment_statement_alignment=preserve',
             '--case_items_alignment=infer',
             '--class_member_variables_alignment=infer',
@@ -1489,12 +1764,12 @@ require('lazy').setup({
           },
           stdin = false,
         },
-        
+
         -- Enhanced stylua configuration
         stylua = {
           prepend_args = { '--indent-type', 'Spaces', '--indent-width', '2' },
         },
-        
+
         -- Shell formatter configuration
         shfmt = {
           prepend_args = { '-i', '2', '-ci' }, -- 2 spaces, switch case indent
@@ -1561,7 +1836,18 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        -- Custom keymap to exactly match your VS Code keybindings
+        preset = 'none', -- Use custom mappings
+        ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
+        ['<C-n>'] = { 'select_next', 'fallback' },
+        ['<C-p>'] = { 'select_prev', 'fallback' },
+        ['<C-y>'] = { 'accept', 'fallback' },
+        ['<C-u>'] = { 'hide', 'fallback' },
+        ['<C-e>'] = { 'hide', 'fallback' }, -- Alternative hide
+
+        -- Keep useful defaults
+        ['<Tab>'] = { 'snippet_forward', 'fallback' },
+        ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -1585,7 +1871,6 @@ require('lazy').setup({
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
         },
       },
-
       snippets = { preset = 'luasnip' },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
@@ -1600,6 +1885,35 @@ require('lazy').setup({
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
+  },
+
+  { -- GitHub Copilot (Phase 5: AI-powered code completion)
+    'github/copilot.vim',
+    event = 'InsertEnter',
+    config = function()
+      -- Disable default keybindings to set custom ones that match VS Code
+      vim.g.copilot_no_tab_map = true
+      vim.g.copilot_assume_mapped = true
+
+      -- Custom keybindings to match VS Code Copilot extension
+      vim.keymap.set('i', '<Tab>', function()
+        if vim.fn['copilot#Accept']('') ~= '' then
+          return vim.fn['copilot#Accept']('')
+        else
+          return '<Tab>'
+        end
+      end, { expr = true, replace_keycodes = false, desc = 'Accept Copilot suggestion or Tab' })
+
+      vim.keymap.set('i', '<C-]>', '<Plug>(copilot-next)', { desc = 'Next Copilot suggestion' })
+      vim.keymap.set('i', '<C-[>', '<Plug>(copilot-previous)', { desc = 'Previous Copilot suggestion' })
+      vim.keymap.set('i', '<C-\\>', '<Plug>(copilot-dismiss)', { desc = 'Dismiss Copilot suggestion' })
+
+      -- Word-level acceptance (like VS Code Ctrl+Right Arrow)
+      vim.keymap.set('i', '<C-Right>', '<Plug>(copilot-accept-word)', { desc = 'Accept Copilot word' })
+
+      -- Show Copilot panel (like VS Code Ctrl+Enter)
+      vim.keymap.set('i', '<C-CR>', '<Plug>(copilot-suggest)', { desc = 'Show Copilot suggestions panel' })
+    end,
   },
 
   { -- You can easily change to a different colorscheme.
@@ -1626,6 +1940,8 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+
+
 
   -- =============================================================================
   -- Custom Plugins for Enhanced Functionality
@@ -1814,32 +2130,32 @@ require('lazy').setup({
       -- =============================================================================
       -- Enhanced Treesitter Languages (Phase 2)
       -- =============================================================================
-      ensure_installed = { 
+      ensure_installed = {
         -- Base languages
         'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
-        
+
         -- Python and related
         'python', 'toml', 'yaml', 'json', 'requirements',
-        
+
         -- Verilog/SystemVerilog (if available)
         'verilog',
-        
+
         -- Web development
         'javascript', 'typescript', 'css', 'scss',
-        
+
         -- Configuration and data formats
         'dockerfile', 'gitignore', 'gitcommit', 'ini',
-        
+
         -- Shell and scripting
         'regex', 'ssh_config',
-        
+
         -- Additional useful languages
         'make', 'cmake', 'ninja',
       },
-      
+
       -- Autoinstall languages that are not installed
       auto_install = true,
-      
+
       -- Enhanced highlighting configuration
       highlight = {
         enable = true,
@@ -1851,17 +2167,17 @@ require('lazy').setup({
             return true
           end
         end,
-        
+
         -- Some languages depend on vim's regex highlighting system for indent rules
         additional_vim_regex_highlighting = { 'ruby', 'verilog' },
       },
-      
+
       -- Enhanced indentation
-      indent = { 
-        enable = true, 
+      indent = {
+        enable = true,
         disable = { 'ruby', 'python' }, -- Python indentation can be tricky with Treesitter
       },
-      
+
       -- Enhanced incremental selection
       incremental_selection = {
         enable = true,
@@ -1872,7 +2188,7 @@ require('lazy').setup({
           node_decremental = '<M-space>',
         },
       },
-      
+
       -- Enhanced text objects (if nvim-treesitter-textobjects is installed)
       textobjects = {
         select = {
@@ -1886,7 +2202,7 @@ require('lazy').setup({
             ['ic'] = '@class.inner',
             ['aa'] = '@parameter.outer',
             ['ia'] = '@parameter.inner',
-            
+
             -- General text objects
             ['ab'] = '@block.outer',
             ['ib'] = '@block.inner',
@@ -1896,7 +2212,7 @@ require('lazy').setup({
             ['id'] = '@conditional.inner',
           },
         },
-        
+
         -- Enhanced movement
         move = {
           enable = true,
@@ -1918,7 +2234,7 @@ require('lazy').setup({
             ['[C'] = '@class.outer',
           },
         },
-        
+
         -- Swap parameters/arguments
         swap = {
           enable = true,
@@ -1986,6 +2302,40 @@ require('lazy').setup({
     },
   },
 })
+
+-- =============================================================================
+-- Diagnostic Commands for Troubleshooting LSP Issues
+-- =============================================================================
+
+-- Command to check what LSP servers are running and their capabilities
+vim.api.nvim_create_user_command('LspDebug', function()
+  local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+  if #clients == 0 then
+    print('No LSP clients attached to current buffer')
+    return
+  end
+
+  print('=== ACTIVE LSP SERVERS ===')
+  for _, client in ipairs(clients) do
+    print('Server: ' .. client.name)
+    if client.config and client.config.settings then
+      print('  Settings configured: Yes')
+      if client.name == 'pylsp' and client.config.settings.pylsp and client.config.settings.pylsp.plugins then
+        print('  Pylsp plugins:')
+        for plugin, config in pairs(client.config.settings.pylsp.plugins) do
+          if type(config) == 'table' and config.enabled ~= nil then
+            print('    ' .. plugin .. ': ' .. (config.enabled and 'ENABLED' or 'disabled'))
+          end
+        end
+      end
+    else
+      print('  Settings configured: No')
+    end
+    print('  Root dir: ' .. (client.config.root_dir or 'unknown'))
+    print('  Capabilities: diagnostics=' .. tostring(client.server_capabilities.diagnosticProvider ~= nil))
+    print('')
+  end
+end, { desc = 'Debug LSP server configuration and status' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
