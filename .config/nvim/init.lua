@@ -325,6 +325,152 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- =============================================================================
+-- Enhanced Autocommands for Development (Phase 2)
+-- =============================================================================
+
+-- Python-specific enhancements
+vim.api.nvim_create_augroup('PythonEnhancements', { clear = true })
+
+-- Auto-organize imports on save for Python
+vim.api.nvim_create_autocmd('BufWritePre', {
+  group = 'PythonEnhancements',
+  pattern = '*.py',
+  callback = function()
+    -- Only organize imports if isort or ruff is available
+    local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+    for _, client in ipairs(clients) do
+      if client.name == 'pyright' or client.name == 'pylsp' then
+        -- Try to organize imports via LSP code action
+        vim.lsp.buf.code_action({
+          context = { only = { 'source.organizeImports' } },
+          apply = true,
+        })
+        break
+      end
+    end
+  end,
+})
+
+-- Auto-add docstrings for Python functions (when cursor is on function line)
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'PythonEnhancements',
+  pattern = 'python',
+  callback = function()
+    -- Add keymap for docstring generation
+    vim.keymap.set('n', '<leader>pd', function()
+      local line = vim.api.nvim_get_current_line()
+      local row = vim.api.nvim_win_get_cursor(0)[1]
+      
+      -- Check if current line contains a function definition
+      if line:match('^%s*def%s+') then
+        local indent = line:match('^(%s*)')
+        local docstring = {
+          indent .. '"""',
+          indent .. 'TODO: Add function description',
+          indent .. '"""',
+          ''
+        }
+        vim.api.nvim_buf_set_lines(0, row, row, false, docstring)
+        -- Move cursor to docstring content
+        vim.api.nvim_win_set_cursor(0, { row + 2, #indent + 4 })
+      end
+    end, { desc = '[P]ython Add [D]ocstring', buffer = true })
+  end,
+})
+
+-- Verilog/SystemVerilog enhancements
+vim.api.nvim_create_augroup('VerilogEnhancements', { clear = true })
+
+-- Auto-format Verilog on save (with size limit for performance)
+vim.api.nvim_create_autocmd('BufWritePre', {
+  group = 'VerilogEnhancements',
+  pattern = { '*.v', '*.sv', '*.vh', '*.svh' },
+  callback = function()
+    local line_count = vim.api.nvim_buf_line_count(0)
+    -- Only auto-format smaller files to avoid performance issues
+    if line_count <= 500 then
+      require('conform').format({ 
+        async = false, 
+        timeout_ms = 3000,
+        bufnr = 0 
+      })
+    else
+      vim.notify('File too large for auto-format. Use <leader>bf to format manually.', vim.log.levels.INFO)
+    end
+  end,
+})
+
+-- Enhanced Verilog module instantiation helper
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'VerilogEnhancements',
+  pattern = { 'verilog', 'systemverilog' },
+  callback = function()
+    -- Add keymap for port connection helper
+    vim.keymap.set('n', '<leader>vp', function()
+      local word = vim.fn.expand('<cword>')
+      local template = {
+        '.' .. word .. '(' .. word .. '),',
+      }
+      vim.api.nvim_put(template, 'l', true, true)
+    end, { desc = '[V]erilog [P]ort Connection', buffer = true })
+    
+    -- Add keymap for wire declaration
+    vim.keymap.set('n', '<leader>vw', function()
+      local word = vim.fn.expand('<cword>')
+      vim.ui.input({ prompt = 'Wire width (default 1): ' }, function(width)
+        width = width or '1'
+        local wire_decl = string.format('wire [%s-1:0] %s;', width, word)
+        vim.api.nvim_put({wire_decl}, 'l', true, true)
+      end)
+    end, { desc = '[V]erilog [W]ire Declaration', buffer = true })
+  end,
+})
+
+-- Enhanced LSP workspace management
+vim.api.nvim_create_augroup('LSPWorkspace', { clear = true })
+
+-- Auto-detect Python virtual environments
+vim.api.nvim_create_autocmd('BufEnter', {
+  group = 'LSPWorkspace',
+  pattern = '*.py',
+  callback = function()
+    local cwd = vim.fn.getcwd()
+    local venv_paths = {
+      cwd .. '/.venv',
+      cwd .. '/venv', 
+      vim.fn.expand('~/.venv'),
+    }
+    
+    for _, path in ipairs(venv_paths) do
+      if vim.fn.isdirectory(path) == 1 then
+        vim.env.VIRTUAL_ENV = path
+        local python_path = path .. (vim.fn.has('win32') == 1 and '/Scripts/python.exe' or '/bin/python')
+        if vim.fn.executable(python_path) == 1 then
+          vim.g.python3_host_prog = python_path
+          -- Notify user about detected virtual environment
+          vim.notify('Detected virtual environment: ' .. path, vim.log.levels.INFO)
+          break
+        end
+      end
+    end
+  end,
+})
+
+-- Auto-save for specific file types during development
+vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
+  group = vim.api.nvim_create_augroup('AutoSave', { clear = true }),
+  pattern = { '*.py', '*.lua' }, -- Add more file types as needed
+  callback = function()
+    -- Auto-save after 2 seconds of inactivity
+    vim.defer_fn(function()
+      if vim.bo.modified and vim.bo.buftype == '' then
+        vim.cmd('silent write')
+      end
+    end, 2000)
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -444,6 +590,87 @@ require('lazy').setup({
   --
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
+
+  -- =============================================================================
+  -- Python Debugger Configuration (DAP - Debug Adapter Protocol)
+  -- =============================================================================
+  {
+    'mfussenegger/nvim-dap',
+    dependencies = {
+      -- Creates a beautiful debugger UI
+      'rcarriga/nvim-dap-ui',
+      'nvim-neotest/nvim-nio',
+
+      -- Installs the debug adapters for you
+      'williamboman/mason.nvim',
+      'jay-babu/mason-nvim-dap.nvim',
+
+      -- Python debugger
+      'mfussenegger/nvim-dap-python',
+    },
+    config = function()
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+
+      require('mason-nvim-dap').setup {
+        -- Makes a best effort to setup the various debuggers with reasonable debug configurations
+        automatic_setup = true,
+        automatic_installation = true,
+
+        -- You can provide additional configuration to the handlers,
+        -- see mason-nvim-dap README for more information
+        handlers = {},
+
+        -- You'll need to check that you have the required things installed
+        -- online, please read mason-nvim-dap README for more information
+        ensure_installed = {
+          'debugpy', -- Python
+        },
+      }
+
+      -- Basic debugging keymaps, feel free to change to your liking!
+      vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
+      vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
+      vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
+      vim.keymap.set('n', '<F3>', dap.step_out, { desc = 'Debug: Step Out' })
+      vim.keymap.set('n', '<leader>b', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' })
+      vim.keymap.set('n', '<leader>B', function()
+        dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+      end, { desc = 'Debug: Set Breakpoint' })
+
+      -- Dap UI setup
+      -- For more information, see |:help nvim-dap-ui|
+      dapui.setup {
+        -- Set icons to characters that are more likely to work in every terminal.
+        --    Feel free to remove or use ones that you like more! :)
+        --    Don't feel like these are good choices.
+        icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+        controls = {
+          icons = {
+            pause = '⏸',
+            play = '▶',
+            step_into = '⏎',
+            step_over = '⏭',
+            step_out = '⏮',
+            step_back = 'b',
+            run_last = '▶▶',
+            terminate = '⏹',
+            disconnect = '⏏',
+          },
+        },
+      }
+
+      -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
+      vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Debug: See last session result.' })
+
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+      dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+      -- Python debugger setup (following hendrikmi's approach)
+      require('dap-python').setup()
+    end,
+  },
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
@@ -696,45 +923,229 @@ require('lazy').setup({
             })
           end
 
-          -- The following code creates a keymap to toggle inlay hints in your
-          -- code, if the language server you are using supports them
-          --
-          -- This may be unwanted, since they displace some of your code
+          -- =============================================================================
+          -- Enhanced LSP Keybindings (Phase 2)
+          -- =============================================================================
+          
+          -- Advanced diagnostic navigation
+          map('gdn', function() 
+            vim.diagnostic.goto_next({ float = true }) 
+          end, '[G]oto [D]iagnostic [N]ext')
+          
+          map('gdp', function() 
+            vim.diagnostic.goto_prev({ float = true }) 
+          end, '[G]oto [D]iagnostic [P]revious')
+          
+          -- Show diagnostic in floating window
+          map('gdd', function()
+            vim.diagnostic.open_float(nil, { focusable = true, border = 'rounded' })
+          end, '[G]oto [D]iagnostic [D]etails')
+          
+          -- Workspace management
+          map('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
+          map('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
+          map('<leader>wl', function()
+            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+          end, '[W]orkspace [L]ist Folders')
+          
+          -- Enhanced code actions with context
+          map('<leader>ca', function()
+            vim.lsp.buf.code_action({ 
+              context = { 
+                only = { 'quickfix', 'refactor', 'source' },
+                diagnostics = vim.diagnostic.get(0)
+              }
+            })
+          end, '[C]ode [A]ctions (Enhanced)')
+          
+          -- Organize imports (if supported)
+          if client and client_supports_method(client, 'textDocument/codeAction', event.buf) then
+            map('<leader>oi', function()
+              vim.lsp.buf.code_action({ 
+                context = { only = { 'source.organizeImports' } },
+                apply = true
+              })
+            end, '[O]rganize [I]mports')
+          end
+          
+          -- Format current buffer or selection
+          map('<leader>bf', function()
+            vim.lsp.buf.format({ 
+              async = true,
+              filter = function(format_client)
+                -- Prefer specific formatters over LSP formatting
+                local preferred_formatters = {
+                  python = { 'black', 'autopep8' },
+                  verilog = { 'verible' },
+                  systemverilog = { 'verible' },
+                }
+                local ft = vim.bo.filetype
+                if preferred_formatters[ft] then
+                  return vim.tbl_contains(preferred_formatters[ft], format_client.name)
+                end
+                return true
+              end
+            })
+          end, '[B]uffer [F]ormat')
+          
+          -- Enhanced signature help with better positioning
+          map('<C-k>', function()
+            vim.lsp.buf.signature_help()
+          end, 'Signature Help', 'i')
+          
+          -- Hover with enhanced formatting
+          map('K', function()
+            -- Try LSP hover first, fallback to vim's default K
+            local params = vim.lsp.util.make_position_params()
+            vim.lsp.buf_request(0, 'textDocument/hover', params, function(err, result)
+              if err or not result or not result.contents then
+                -- Fallback to default K behavior
+                local word = vim.fn.expand('<cword>')
+                vim.cmd('help ' .. word)
+              else
+                vim.lsp.util.open_floating_preview(result.contents, 'markdown', {
+                  border = 'rounded',
+                  max_width = 80,
+                  max_height = 20,
+                  focusable = true,
+                })
+              end
+            end)
+          end, 'Hover Documentation')
+          
+          -- Enhanced symbol search
+          map('<leader>ss', function()
+            require('telescope.builtin').lsp_document_symbols({
+              symbol_width = 50,
+              symbol_type_width = 20,
+            })
+          end, '[S]earch Document [S]ymbols')
+          
+          map('<leader>sS', function()
+            require('telescope.builtin').lsp_dynamic_workspace_symbols({
+              symbol_width = 50,
+              symbol_type_width = 20,
+            })
+          end, '[S]earch Workspace [S]ymbols')
+          
+          -- Language-specific enhancements
+          local filetype = vim.bo[event.buf].filetype
+          
+          -- Python-specific keybindings
+          if filetype == 'python' then
+            map('<leader>pi', function()
+              vim.lsp.buf.code_action({ 
+                context = { only = { 'source.addMissingImports' } },
+                apply = true
+              })
+            end, '[P]ython Add Missing [I]mports')
+            
+            map('<leader>pr', function()
+              vim.lsp.buf.code_action({ 
+                context = { only = { 'refactor.extract' } }
+              })
+            end, '[P]ython [R]efactor Extract')
+          end
+          
+          -- Verilog-specific keybindings  
+          if filetype == 'verilog' or filetype == 'systemverilog' then
+            map('<leader>vm', function()
+              -- Custom module instantiation helper
+              local word = vim.fn.expand('<cword>')
+              vim.ui.input({ prompt = 'Instance name: ' }, function(instance_name)
+                if instance_name then
+                  local template = string.format('%s %s_inst (\n    // TODO: Connect ports\n);', word, instance_name)
+                  vim.api.nvim_put({template}, 'l', true, true)
+                end
+              end)
+            end, '[V]erilog [M]odule Instantiation')
+          end
+          
+          -- Inlay hints toggle (enhanced)
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+              local current_setting = vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })
+              vim.lsp.inlay_hint.enable(not current_setting, { bufnr = event.buf })
+              vim.notify(string.format('Inlay hints %s', current_setting and 'disabled' or 'enabled'))
             end, '[T]oggle Inlay [H]ints')
           end
         end,
       })
 
-      -- Diagnostic Config
-      -- See :help vim.diagnostic.Opts
+      -- =============================================================================
+      -- Enhanced Diagnostic Configuration (Phase 2)
+      -- =============================================================================
       vim.diagnostic.config {
+        -- Sort by severity (errors first, then warnings, etc.)
         severity_sort = true,
-        float = { border = 'rounded', source = 'if_many' },
-        underline = { severity = vim.diagnostic.severity.ERROR },
-        signs = vim.g.have_nerd_font and {
-          text = {
-            [vim.diagnostic.severity.ERROR] = '󰅚 ',
-            [vim.diagnostic.severity.WARN] = '󰀪 ',
-            [vim.diagnostic.severity.INFO] = '󰋽 ',
-            [vim.diagnostic.severity.HINT] = '󰌶 ',
+        
+        -- Enhanced floating window configuration
+        float = { 
+          border = 'rounded', 
+          source = 'if_many',
+          header = '',
+          prefix = '',
+          -- Add padding and better formatting
+          focusable = true,
+          style = 'minimal',
+          max_width = 80,
+          max_height = 20,
+        },
+        
+        -- Enhanced underline configuration
+        underline = { 
+          severity = { min = vim.diagnostic.severity.HINT } -- Underline all diagnostics
+        },
+        
+        -- Enhanced signs configuration
+        signs = {
+          text = vim.g.have_nerd_font and {
+            [vim.diagnostic.severity.ERROR] = '󰅚',
+            [vim.diagnostic.severity.WARN] = '󰀪',
+            [vim.diagnostic.severity.INFO] = '󰋽',
+            [vim.diagnostic.severity.HINT] = '󰌶',
+          } or {
+            [vim.diagnostic.severity.ERROR] = 'E',
+            [vim.diagnostic.severity.WARN] = 'W',
+            [vim.diagnostic.severity.INFO] = 'I',
+            [vim.diagnostic.severity.HINT] = 'H',
           },
-        } or {},
+          -- Add line highlight for errors
+          linehl = {},
+          numhl = {
+            [vim.diagnostic.severity.ERROR] = 'DiagnosticSignError',
+          },
+        },
+        
+        -- Enhanced virtual text configuration
         virtual_text = {
           source = 'if_many',
           spacing = 2,
+          prefix = '●',
+          -- Only show virtual text for errors and warnings to reduce noise
+          severity = { min = vim.diagnostic.severity.WARN },
           format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
+            -- Add severity prefix and limit message length
+            local max_len = 50
+            local message = diagnostic.message
+            if #message > max_len then
+              message = message:sub(1, max_len - 3) .. '...'
+            end
+            
+            local severity_icons = {
+              [vim.diagnostic.severity.ERROR] = '󰅚',
+              [vim.diagnostic.severity.WARN] = '󰀪',
+              [vim.diagnostic.severity.INFO] = '󰋽',
+              [vim.diagnostic.severity.HINT] = '󰌶',
             }
-            return diagnostic_message[diagnostic.severity]
+            
+            local icon = severity_icons[diagnostic.severity] or '●'
+            return string.format('%s %s', icon, message)
           end,
         },
+        
+        -- Enhanced update behavior
+        update_in_insert = false, -- Don't show diagnostics while typing
       }
 
       -- LSP servers and clients are able to communicate to each other what features they support.
@@ -766,6 +1177,96 @@ require('lazy').setup({
         -- ts_ls = {},
         --
 
+        -- =============================================================================
+        -- Python LSP Configuration (hendrikmi approach - Ruff-focused)
+        -- =============================================================================
+        pylsp = {
+          settings = {
+            pylsp = {
+              plugins = {
+                -- Disable most plugins to avoid conflicts with Ruff
+                pyflakes = { enabled = false },
+                pycodestyle = { enabled = false },
+                autopep8 = { enabled = false },
+                yapf = { enabled = false },
+                mccabe = { enabled = false },
+                pylsp_mypy = { enabled = false },
+                pylsp_black = { enabled = false },
+                pylsp_isort = { enabled = false },
+              },
+            },
+          },
+          -- Keep virtual environment auto-detection as requested
+          on_init = function(client, initialize_result)
+            -- Detect virtual environment
+            local venv_path = vim.fn.getenv('VIRTUAL_ENV')
+            if venv_path then
+              client.config.settings.python.pythonPath = venv_path .. '/bin/python'
+            else
+              -- Try to find local .venv
+              local local_venv = vim.fn.getcwd() .. '/.venv'
+              if vim.fn.isdirectory(local_venv) == 1 then
+                client.config.settings.python.pythonPath = local_venv .. '/bin/python'
+              end
+            end
+            client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+          end,
+        },
+
+        -- Ruff LSP for fast Python linting and formatting
+        ruff_lsp = {
+          init_options = {
+            settings = {
+              -- Configure Ruff to be the primary Python tool
+              args = { '--extend-select', 'I' }, -- Enable import sorting
+            },
+          },
+        },
+
+        -- =============================================================================
+        -- Verilog/SystemVerilog LSP Configuration
+        -- =============================================================================
+        svls = {
+          -- SystemVerilog Language Server
+          cmd = { 'svls' },
+          filetypes = { 'verilog', 'systemverilog' },
+          settings = {
+            systemverilog = {
+              includeIndexing = { '*.{v,vh,sv,svh}' },
+              excludeIndexing = { 'test/**/*.{v,sv}' },
+              defines = {},
+              launchConfiguration = '/tools/verilator',
+              linter = 'verilator',
+              formatCommand = 'verible-verilog-format',
+            },
+          },
+          -- Custom root directory detection for Verilog projects
+          root_dir = function(fname)
+            return require('lspconfig.util').root_pattern(
+              '*.core',         -- FuseSoC core files
+              '*.prj',          -- Vivado project files  
+              'Makefile',       -- Make-based projects
+              '.git'            -- Git repositories
+            )(fname) or vim.fn.getcwd()
+          end,
+        },
+
+        -- Alternative: Verible language server
+        verible = {
+          cmd = { 'verible-verilog-ls', '--rules_config_search' },
+          filetypes = { 'verilog', 'systemverilog' },
+          root_dir = function(fname)
+            return require('lspconfig.util').root_pattern(
+              '.rules.verible_lint',
+              'verible.filelist',
+              '.git'
+            )(fname) or vim.fn.getcwd()
+          end,
+        },
+
+        -- =============================================================================
+        -- Lua LSP (Enhanced)
+        -- =============================================================================
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -775,9 +1276,21 @@ require('lazy').setup({
               completion = {
                 callSnippet = 'Replace',
               },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
-            },
+              -- Enhanced Lua diagnostics
+              diagnostics = { 
+                -- Recognize vim global
+                globals = { 'vim', 'require' },
+                -- Disable noisy warnings for Neovim config
+                disable = { 'missing-fields', 'incomplete-signature-doc' },
+              },
+              -- Workspace configuration for Neovim development
+              workspace = {
+                -- Make the server aware of Neovim runtime files
+                library = vim.api.nvim_get_runtime_file('', true),
+                checkThirdParty = false, -- Disable third-party checking
+              },
+              -- Enhanced telemetry settings
+              telemetry = { enable = false },
           },
         },
       }
@@ -797,7 +1310,32 @@ require('lazy').setup({
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
+        -- =============================================================================
+        -- Enhanced Tools for Phase 2 Development
+        -- =============================================================================
+        
+        -- Lua tools
+        'stylua', -- Lua formatter
+        
+        -- Python tools (Ruff-focused approach like hendrikmi)
+        'ruff',          -- Primary Python linter and formatter
+        'debugpy',       -- Python debugger for nvim-dap
+        -- Note: Most Python tools removed to avoid conflicts with Ruff
+        
+        -- Verilog/SystemVerilog tools  
+        'verible',       -- SystemVerilog formatter and linter
+        -- Note: svls (SystemVerilog Language Server) may need manual installation
+        
+        -- General development tools
+        'prettier',      -- Multi-language formatter
+        'fixjson',       -- JSON formatter
+        'yamllint',      -- YAML linter
+        'shellcheck',    -- Shell script linter
+        'shfmt',         -- Shell script formatter
+        
+        -- Additional useful tools
+        'codespell',     -- Spell checker for code
+        'gitlint',       -- Git commit message linter
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -833,28 +1371,134 @@ require('lazy').setup({
       },
     },
     opts = {
-      notify_on_error = false,
+      -- =============================================================================
+      -- Enhanced Conform Configuration (Phase 2)
+      -- =============================================================================
+      notify_on_error = true, -- Show notifications for formatting errors
+      
+      -- Enhanced format on save with file type specific settings
       format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
+        local ft = vim.bo[bufnr].filetype
+        
+        -- Disable auto-format for specific file types where manual control is preferred
+        local disable_filetypes = { 
+          c = true, 
+          cpp = true,
+          -- Don't auto-format large Verilog files (can be slow)
+          verilog = vim.fn.line('$') > 1000,
+          systemverilog = vim.fn.line('$') > 1000,
+        }
+        
+        if disable_filetypes[ft] then
           return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
         end
+        
+        -- File type specific timeouts
+        local timeout_by_ft = {
+          python = 2000,      -- Python formatting can be slower
+          verilog = 3000,     -- Verilog formatting can be very slow
+          systemverilog = 3000,
+          default = 1000,
+        }
+        
+        return {
+          timeout_ms = timeout_by_ft[ft] or timeout_by_ft.default,
+          lsp_format = 'fallback',
+          async = false, -- Synchronous for format on save
+        }
       end,
+      
+      -- Comprehensive formatters by file type
       formatters_by_ft = {
+        -- =============================================================================
+        -- Lua
+        -- =============================================================================
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        
+        -- =============================================================================
+        -- Python (Ruff-focused approach like hendrikmi)
+        -- =============================================================================
+        python = { 'ruff_format', 'ruff_organize_imports' },
+        
+        -- =============================================================================
+        -- Verilog/SystemVerilog
+        -- =============================================================================
+        verilog = { 'verible_verilog_format' },
+        systemverilog = { 'verible_verilog_format' },
+        
+        -- =============================================================================
+        -- Web and Configuration Files
+        -- =============================================================================
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'fixjson', 'prettier', stop_after_first = true },
+        yaml = { 'prettier' },
+        html = { 'prettier' },
+        css = { 'prettier' },
+        markdown = { 'prettier' },
+        
+        -- =============================================================================
+        -- Shell and Other
+        -- =============================================================================
+        sh = { 'shfmt' },
+        bash = { 'shfmt' },
+        zsh = { 'shfmt' },
+      },
+      
+      -- =============================================================================
+      -- Custom Formatter Configurations
+      -- =============================================================================
+      formatters = {
+        -- Enhanced Black configuration
+        black = {
+          prepend_args = { '--line-length', '88', '--fast' },
+        },
+        
+        -- Enhanced isort configuration  
+        isort = {
+          prepend_args = { '--profile', 'black', '--line-length', '88' },
+        },
+        
+        -- Ruff formatter configuration
+        ruff_format = {
+          command = 'ruff',
+          args = { 'format', '--stdin-filename', '$FILENAME', '-' },
+          stdin = true,
+        },
+        
+        ruff_organize_imports = {
+          command = 'ruff',
+          args = { 'check', '--select', 'I', '--fix', '--stdin-filename', '$FILENAME', '-' },
+          stdin = true,
+        },
+        
+        -- Verible Verilog formatter configuration
+        verible_verilog_format = {
+          command = 'verible-verilog-format',
+          args = { 
+            '--assignment_statement_alignment=preserve',
+            '--case_items_alignment=infer',
+            '--class_member_variables_alignment=infer',
+            '--formal_parameters_alignment=preserve',
+            '--named_parameter_alignment=flush-left',
+            '--named_port_alignment=flush-left',
+            '--port_declarations_alignment=preserve',
+            '$FILENAME',
+          },
+          stdin = false,
+        },
+        
+        -- Enhanced stylua configuration
+        stylua = {
+          prepend_args = { '--indent-type', 'Spaces', '--indent-width', '2' },
+        },
+        
+        -- Shell formatter configuration
+        shfmt = {
+          prepend_args = { '-i', '2', '-ci' }, -- 2 spaces, switch case indent
+        },
       },
     },
   },
@@ -1167,17 +1811,125 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      -- =============================================================================
+      -- Enhanced Treesitter Languages (Phase 2)
+      -- =============================================================================
+      ensure_installed = { 
+        -- Base languages
+        'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+        
+        -- Python and related
+        'python', 'toml', 'yaml', 'json', 'requirements',
+        
+        -- Verilog/SystemVerilog (if available)
+        'verilog',
+        
+        -- Web development
+        'javascript', 'typescript', 'css', 'scss',
+        
+        -- Configuration and data formats
+        'dockerfile', 'gitignore', 'gitcommit', 'ini',
+        
+        -- Shell and scripting
+        'regex', 'ssh_config',
+        
+        -- Additional useful languages
+        'make', 'cmake', 'ninja',
+      },
+      
       -- Autoinstall languages that are not installed
       auto_install = true,
+      
+      -- Enhanced highlighting configuration
       highlight = {
         enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        -- Disable highlighting for very large files (performance)
+        disable = function(lang, buf)
+          local max_filesize = 100 * 1024 -- 100 KB
+          local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+          if ok and stats and stats.size > max_filesize then
+            return true
+          end
+        end,
+        
+        -- Some languages depend on vim's regex highlighting system for indent rules
+        additional_vim_regex_highlighting = { 'ruby', 'verilog' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      
+      -- Enhanced indentation
+      indent = { 
+        enable = true, 
+        disable = { 'ruby', 'python' }, -- Python indentation can be tricky with Treesitter
+      },
+      
+      -- Enhanced incremental selection
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = '<C-space>',
+          node_incremental = '<C-space>',
+          scope_incremental = '<C-s>',
+          node_decremental = '<M-space>',
+        },
+      },
+      
+      -- Enhanced text objects (if nvim-treesitter-textobjects is installed)
+      textobjects = {
+        select = {
+          enable = true,
+          lookahead = true, -- Automatically jump forward to textobj
+          keymaps = {
+            -- Python-specific text objects
+            ['af'] = '@function.outer',
+            ['if'] = '@function.inner',
+            ['ac'] = '@class.outer',
+            ['ic'] = '@class.inner',
+            ['aa'] = '@parameter.outer',
+            ['ia'] = '@parameter.inner',
+            
+            -- General text objects
+            ['ab'] = '@block.outer',
+            ['ib'] = '@block.inner',
+            ['al'] = '@loop.outer',
+            ['il'] = '@loop.inner',
+            ['ad'] = '@conditional.outer',
+            ['id'] = '@conditional.inner',
+          },
+        },
+        
+        -- Enhanced movement
+        move = {
+          enable = true,
+          set_jumps = true, -- Add to jumplist
+          goto_next_start = {
+            [']f'] = '@function.outer',
+            [']c'] = '@class.outer',
+          },
+          goto_next_end = {
+            [']F'] = '@function.outer',
+            [']C'] = '@class.outer',
+          },
+          goto_previous_start = {
+            ['[f'] = '@function.outer',
+            ['[c'] = '@class.outer',
+          },
+          goto_previous_end = {
+            ['[F'] = '@function.outer',
+            ['[C'] = '@class.outer',
+          },
+        },
+        
+        -- Swap parameters/arguments
+        swap = {
+          enable = true,
+          swap_next = {
+            ['<leader>sn'] = '@parameter.inner',
+          },
+          swap_previous = {
+            ['<leader>sp'] = '@parameter.inner',
+          },
+        },
+      },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
