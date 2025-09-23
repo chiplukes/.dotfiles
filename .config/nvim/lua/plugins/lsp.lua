@@ -24,12 +24,14 @@ return {
       'saghen/blink.cmp',
     },
     config = function()
-      local ok, mod = pcall(require, 'custom.plugins.lsp_config')
+      local ok, mod = pcall(require, 'lsp.lsp_config')
       if ok and mod and type(mod.setup) == 'function' then
         mod.setup()
       elseif ok and type(mod) == 'function' then
         -- Backwards compat: module returned a function
         mod()
+      else
+        vim.notify('Failed to load LSP config: lsp.lsp_config', vim.log.levels.ERROR)
       end
     end,
   },
