@@ -576,6 +576,6 @@ function M.setup()
       end,
     },
   }
-  d
+end
 
 return M

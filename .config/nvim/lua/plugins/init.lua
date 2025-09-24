@@ -28,7 +28,7 @@ for _, f in ipairs(plugin_files) do
     local modname = 'plugins.' .. vim.fn.fnamemodify(f, ':t:r')
     local ok, spec = pcall(require, modname)
     if ok and type(spec) == 'table' then
-      if vim.tbl_islist(spec) then
+      if vim.islist(spec) then
         vim.list_extend(plugins, spec)
       else
         table.insert(plugins, spec)
