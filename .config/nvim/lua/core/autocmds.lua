@@ -87,7 +87,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
         bufnr = 0
       })
     else
-      vim.notify('File too large for auto-format. Use <leader>bf to format manually.', vim.log.levels.INFO)
+      vim.notify('File too large for auto-format. Use <leader>fb to format manually.', vim.log.levels.INFO)
     end
   end,
 })

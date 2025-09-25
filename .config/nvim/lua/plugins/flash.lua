@@ -4,7 +4,7 @@ return {
   'folke/flash.nvim',
   event = 'VeryLazy',
   keys = {
-    { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = '[S] Flash jump (EasyMotion-style)' },
+    { 'sj', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = '[S] Flash jump (EasyMotion-style)' },
     { 'S', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = '[S] Flash treesitter' },
     { 'r', mode = 'o', function() require('flash').remote() end, desc = 'Remote flash' },
     { 'R', mode = { 'o', 'x' }, function() require('flash').treesitter_search() end, desc = 'Flash treesitter search' },

@@ -19,19 +19,19 @@ return {
       -- Python debugger
       'mfussenegger/nvim-dap-python',
     },
-    
+
     -- Only load when these keys are pressed or commands are run
     keys = {
       { '<F5>', function() require('dap').continue() end, desc = 'Debug: Start/Continue' },
       { '<F1>', function() require('dap').step_into() end, desc = 'Debug: Step Into' },
       { '<F2>', function() require('dap').step_over() end, desc = 'Debug: Step Over' },
       { '<F3>', function() require('dap').step_out() end, desc = 'Debug: Step Out' },
-      { '<leader>b', function() require('dap').toggle_breakpoint() end, desc = 'Debug: Toggle Breakpoint' },
+      { '<leader>bp', function() require('dap').toggle_breakpoint() end, desc = 'Debug: Toggle Breakpoint' },
       { '<leader>B', function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = 'Debug: Set Breakpoint' },
     },
-    
+
     cmd = { 'DapUIToggle', 'DapToggleBreakpoint', 'DapContinue', 'DapStepOver', 'DapStepInto', 'DapStepOut' },
-    
+
     config = function()
       local dap = require 'dap'
       local dapui = require 'dapui'
@@ -93,12 +93,12 @@ return {
 
       -- Python DAP configuration
       require('dap-python').setup('python') -- Uses system python by default
-      
+
       -- Configure Python debugging for virtual environments
       if vim.fn.executable('python') == 1 then
         require('dap-python').setup('python')
       end
-      
+
       -- Add Python configuration for debugging
       dap.configurations.python = {
         {

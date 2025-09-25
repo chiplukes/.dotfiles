@@ -190,3 +190,4 @@ chmod +x *.sh
 * https://github.com/scottmckendry/ps-color-scripts (make alias that can be called from the shell that has the same name as https://gitlab.com/dwt1/shell-color-scripts)
 
 
+# kemap issues

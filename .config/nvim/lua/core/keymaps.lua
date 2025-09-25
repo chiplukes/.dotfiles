@@ -34,7 +34,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 vim.keymap.set('n', '<leader>cp', function() require('snacks').picker.commands() end, { desc = '[C]ommand [P]alette' })
 
 -- Quick file open (like Ctrl+P in VSCode)
-vim.keymap.set('n', '<leader>o', function() require('snacks').picker.files() end, { desc = '[O]pen file picker' })
+vim.keymap.set('n', '<leader>of', function() require('snacks').picker.files() end, { desc = '[O]pen file picker' })
 
 -- Find in project (matching your VS Code <leader>f)
 vim.keymap.set('n', '<leader>ff', function() require('snacks').picker.grep() end, { desc = '[F]ind in project (your VS Code mapping)' })
@@ -77,7 +77,7 @@ vim.keymap.set('n', 'go', function() vim.lsp.buf.document_symbol() end, { desc =
 vim.keymap.set('v', '<leader>ca', '<cmd>s/\\%V\\(\\S\\+\\)/&/g<CR>', { desc = '[C]ursor [A]ll (select all in visual)' })
 
 -- Paste from yank register (like VSCode leader+p)
-vim.keymap.set('n', '<leader>p', '"0p', { desc = '[P]aste from yank register' })
+vim.keymap.set('n', '<leader>pr', '"0p', { desc = '[P]aste from yank register' })
 
 -- Window navigation (standard Neovim Ctrl+hjkl works by default)
 -- Use Alt+j/k for vertical window movement to complement Alt+h/l buffer nav

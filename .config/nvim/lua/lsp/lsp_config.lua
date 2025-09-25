@@ -171,7 +171,7 @@ function M.setup()
       end
 
       -- Format current buffer or selection
-      map('<leader>bf', function()
+      map('<leader>fb', function()
         vim.lsp.buf.format({
           async = true,
           filter = function(format_client)
