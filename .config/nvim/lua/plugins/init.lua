@@ -6,7 +6,7 @@ local plugins = {}
 
 -- Load built-in grouped plugin specs in this file
 local base = {
-  -- Load the debugging config from lua/debug/debug.lua (was recently modified)
+  -- Debug plugins are now lazy-loaded (only when debugging) - safe for startup!
   require 'debug.debug',
 
   -- NOTE: Kickstart example plugins are available in lua/kickstart/plugins/ but not loaded by default.

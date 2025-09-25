@@ -3,6 +3,8 @@
 return {
   'nvim-treesitter/nvim-treesitter',
   build = ':TSUpdate',
+  -- Lazy load on file events - only loads when you actually open files
+  event = { 'BufReadPost', 'BufNewFile', 'BufWritePre', 'VeryLazy' },
   main = 'nvim-treesitter.configs', -- Sets main module to use for opts
   -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
   opts = {

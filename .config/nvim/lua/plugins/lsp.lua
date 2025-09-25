@@ -16,8 +16,13 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    event = { 'BufReadPre', 'BufNewFile' }, -- Only load when opening files
     dependencies = {
-      { 'mason-org/mason.nvim', opts = {} },
+      { 
+        'mason-org/mason.nvim', 
+        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall', 'MasonUpdate' },
+        opts = {} 
+      },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
       {
