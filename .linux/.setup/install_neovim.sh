@@ -14,7 +14,8 @@ log_header "Install Neovim"
 
 # Ensure Python environment is available
 ensure_python
-python_real_path=$(get_python_real_path)
+python_version=$(get_python_version)
+log_info "Using Python version: $python_version"
 
 # Install dependencies for building from source
 install_build_deps ripgrep gcc make git xclip curl cmake ninja-build gettext fd-find lua5.1 liblua5.1-dev wget
@@ -134,7 +135,7 @@ setup_neovim_python() {
     safe_cd "$HOME"
 
     log_info "Setting up Python virtual environment for Neovim..."
-    create_venv "$nvim_venv" "$python_real_path"
+    create_venv "$nvim_venv" "$python_version"
     install_pip_packages "$nvim_venv" pynvim
 
     # Configure Python host in init.lua

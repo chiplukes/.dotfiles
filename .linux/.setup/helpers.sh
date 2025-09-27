@@ -269,41 +269,39 @@ install_build_deps() {
 }
 
 # Python helpers
-get_python_cmd() {
-    local python_cmd="python-user"
-
-    # First check if it's in PATH
-    if has_command "$python_cmd"; then
-        echo "$python_cmd"
-        return 0
+get_python_version() {
+    local config_file="$HOME/.dotfiles/python_config"
+    if [[ -f "$config_file" ]]; then
+        grep '^PYTHON_VERSION=' "$config_file" | cut -d'=' -f2 | tr -d ' '
+    else
+        echo "3.12"  # fallback
     fi
-
-    # Check if it exists in ~/bin but PATH isn't updated yet
-    if [[ -f "$HOME/bin/$python_cmd" ]]; then
-        log_info "Found python-user in ~/bin, updating PATH for current session"
-        export PATH="$HOME/bin:$PATH"
-        if has_command "$python_cmd"; then
-            echo "$python_cmd"
-            return 0
-        fi
-    fi
-
-    # Fallback: try to find any Python 3.x
-    for cmd in python3.12 python3.11 python3.10 python3; do
-        if has_command "$cmd"; then
-            log_warning "python-user not found, using fallback: $cmd"
-            echo "$cmd"
-            return 0
-        fi
-    done
-
-    die "No suitable Python executable found! Run install_python_uv.sh first."
 }
 
+get_python_cmd() {
+    # With uv-only approach, we don't need python-user symlinks
+    # Just ensure uv is available and let it handle Python discovery
+    if ! has_command uv; then
+        die "uv not found! Run install_python_uv.sh first."
+    fi
+    
+    local python_version
+    python_version=$(get_python_version)
+    
+    # Verify uv can find this Python version
+    if ! uv python find "$python_version" >/dev/null 2>&1; then
+        die "Python $python_version not found via uv! Run install_python_uv.sh first."
+    fi
+    
+    # Return the uv python path for compatibility
+    uv python find "$python_version"
+}
+
+# Deprecated: get_python_real_path - use get_python_version() instead
+# This function is kept for backward compatibility but will be removed
 get_python_real_path() {
-    local python_cmd
-    python_cmd=$(get_python_cmd)
-    readlink -f "$(which "$python_cmd")"
+    log_warning "get_python_real_path is deprecated - scripts should use uv directly"
+    get_python_cmd
 }
 
 verify_python() {
@@ -319,8 +317,11 @@ verify_python() {
 
 # Ensure Python environment is available (run install_python_uv.sh if needed)
 ensure_python() {
-    if ! has_command python-user && ! [[ -f "$HOME/bin/python-user" ]]; then
-        log_info "Python environment not found, installing..."
+    local python_version
+    python_version=$(get_python_version)
+    
+    if ! has_command uv; then
+        log_info "uv not found, installing..."
         local script_dir
         script_dir=$(get_script_dir)
 
@@ -329,7 +330,12 @@ ensure_python() {
                 die "Failed to install Python environment"
             fi
         else
-            die "python-user not found and install_python_uv.sh not available"
+            die "uv not found and install_python_uv.sh not available"
+        fi
+    elif ! uv python find "$python_version" >/dev/null 2>&1; then
+        log_info "Python $python_version not found, installing..."
+        if ! uv python install "$python_version"; then
+            die "Failed to install Python $python_version with uv"
         fi
     else
         verify_python
@@ -427,19 +433,29 @@ verify_installation() {
 # Virtual environment helpers
 create_venv() {
     local venv_path="$1"
-    local python_path="$2"
+    local python_version="${2:-3.12}"  # Optional version parameter, defaults to 3.12
 
     safe_cleanup "$venv_path"
 
-    log_info "Creating virtual environment: $venv_path"
-    if ! "$python_path" -m venv "$venv_path"; then
-        die "Failed to create virtual environment"
+    log_info "Creating virtual environment with uv: $venv_path (Python $python_version)"
+
+    # Check if uv is available
+    if ! has_command uv; then
+        log_error "uv not found! Please run install_python_uv.sh first."
+        die "uv is required for virtual environment creation"
+    fi
+
+    # Create venv with uv (let uv find the right Python)
+    if ! uv venv --python "$python_version" "$venv_path"; then
+        die "Failed to create virtual environment with uv"
     fi
 
     # Verify venv works
     if ! "$venv_path/bin/python" --version >/dev/null 2>&1; then
         die "Virtual environment Python is not working!"
     fi
+
+    log_success "Virtual environment created successfully with uv (Python $python_version)"
 }
 
 install_pip_packages() {
@@ -447,7 +463,7 @@ install_pip_packages() {
     shift
     local packages=("$@")
 
-    log_info "Installing Python packages: ${packages[*]}"
+    log_info "Installing Python packages with uv: ${packages[*]}"
 
     # Verify venv exists and works
     if [[ ! -f "$venv_path/bin/python" ]]; then
@@ -458,18 +474,18 @@ install_pip_packages() {
         die "Virtual environment Python is not working: $venv_path"
     fi
 
+    # Check if uv is available
+    if ! has_command uv; then
+        log_error "uv not found! Please run install_python_uv.sh first."
+        die "uv is required for package installation"
+    fi
+
     # Change to a stable directory to avoid "No such file or directory" errors
     local current_dir="$PWD"
     safe_cd "$HOME"
 
-    # Upgrade pip first
-    log_info "Upgrading pip..."
-    if ! "$venv_path/bin/python" -m pip install --upgrade pip; then
-        log_warning "pip upgrade failed, continuing..."
-    fi
-
-    # Install packages
-    if ! "$venv_path/bin/python" -m pip install "${packages[@]}"; then
+    # Install packages using uv pip
+    if ! uv pip install --python "$venv_path/bin/python" "${packages[@]}"; then
         # Return to original directory and fail
         safe_cd "$current_dir"
         die "Failed to install Python packages: ${packages[*]}"
@@ -477,7 +493,7 @@ install_pip_packages() {
 
     # Return to original directory
     safe_cd "$current_dir"
-    log_success "Python packages installed successfully: ${packages[*]}"
+    log_success "Python packages installed successfully with uv: ${packages[*]}"
 }
 
 # Path management

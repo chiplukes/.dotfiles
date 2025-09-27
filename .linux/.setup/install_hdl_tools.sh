@@ -11,7 +11,8 @@ log_header "Installing HDL Tools"
 
 # Verify Python
 ensure_python
-python_real_path=$(get_python_real_path)
+python_version=$(get_python_version)
+log_info "Using Python version: $python_version"
 
 # Install Icarus Verilog
 install_icarus_verilog() {
@@ -55,7 +56,7 @@ install_myhdl() {
 
     # Create venv and install MyHDL (use absolute path for venv)
     local venv_dir="$build_dir/.venv"
-    create_venv "$venv_dir" "$python_real_path"
+    create_venv "$venv_dir" "$python_version"
     install_pip_packages "$venv_dir" setuptools wheel
 
     if ! "$venv_dir/bin/python" setup.py install; then

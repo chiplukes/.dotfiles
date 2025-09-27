@@ -4,7 +4,15 @@ param()
 # Dot-source helpers
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $helpers = Join-Path $ScriptRoot 'helpers.ps1'
-$UserPyVersion = "3.12"
+
+# Load Python version from central config
+$configFile = Join-Path (Split-Path -Parent $ScriptRoot) 'python_config'
+if (Test-Path $configFile) {
+    $UserPyVersion = (Get-Content $configFile | Where-Object { $_ -match '^PYTHON_VERSION=' } | ForEach-Object { ($_ -split '=')[1].Trim() })
+    if (-not $UserPyVersion) { $UserPyVersion = "3.12" }
+} else {
+    $UserPyVersion = "3.12"
+}
 if (Test-Path $helpers) { . $helpers } else { Write-Log "helpers.ps1 not found at $helpers" -Level 'WARN' }
 
 Write-Log ""

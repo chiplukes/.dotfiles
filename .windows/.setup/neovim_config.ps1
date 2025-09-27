@@ -54,41 +54,25 @@ if (Test-Path $dotfilesConfiguration) {
     Write-Log "Make sure you've run the dotfiles bootstrap script first"
 }
 
-# Create Python venv for Neovim if Python is available
-# Detect python executable: prefer `python`, fallback to `py -3` launcher
-$pythonCmdInfo = Get-Command python -ErrorAction SilentlyContinue
-$pyLauncherInfo = Get-Command py -ErrorAction SilentlyContinue
+# Create Python venv for Neovim using uv
+# Load Python version from central config
+$configFile = Join-Path (Split-Path -Parent $PSScriptRoot) 'python_config'
+if (Test-Path $configFile) {
+    $pythonVersion = (Get-Content $configFile | Where-Object { $_ -match '^PYTHON_VERSION=' } | ForEach-Object { ($_ -split '=')[1].Trim() })
+    if (-not $pythonVersion) { $pythonVersion = "3.12" }
+} else {
+    $pythonVersion = "3.12"
+}
 
-if ($pythonCmdInfo -or $pyLauncherInfo) {
-    if ($pythonCmdInfo) {
-        $pythonExe = $pythonCmdInfo.Source
-        $pythonArgs = @()
-    } else {
-        # Use the py launcher with -3 to prefer Python 3
-        $pythonExe = $pyLauncherInfo.Source
-        $pythonArgs = @('-3')
-    }
-
+# Check if uv is available
+if (Get-Command uv -ErrorAction SilentlyContinue) {
     $nvimVenv = Join-Path $env:LOCALAPPDATA 'nvim\.venv'
     if (-not (Test-Path $nvimVenv)) {
-        Write-Log "Creating Python venv for Neovim at $nvimVenv..."
-        New-DirectoryIfMissing -Path $nvimVenv | Out-Null
-        & $pythonExe @pythonArgs -m venv $nvimVenv
+        Write-Log "Creating Python venv for Neovim using uv (Python $pythonVersion) at $nvimVenv..."
+        New-DirectoryIfMissing -Path (Split-Path -Parent $nvimVenv) | Out-Null
+        uv venv --python $pythonVersion $nvimVenv
 
-        # Use the venv python to run pip (more reliable than calling pip.exe directly)
-        $venvPy = Join-Path $nvimVenv 'Scripts\python.exe'
-        if (Test-Path $venvPy) {
-            & $venvPy -m pip install --upgrade pip pynvim neovim
-            Write-Log "✓ Python provider configured (pynvim installed)"
-        } else {
-            Write-Log "Failed to create venv python at: $venvPy" -Level 'ERROR'
-        }
-    } else {
-        Write-Log "Python venv already exists at $nvimVenv" -Level 'WARN'
-    }
-} else {
-    Write-Log "Python not found - skipping Python provider setup" -Level 'WARN'
-}
+        # Install packages using uv pip\n        $venvPy = Join-Path $nvimVenv 'Scripts\\python.exe'\n        if (Test-Path $venvPy) {\n            uv pip install --python $venvPy pynvim neovim\n            Write-Log \"✓ Python provider configured (pynvim installed with uv)\"\n        } else {\n            Write-Log \"Failed to create venv python at: $venvPy\" -Level 'ERROR'\n        }\n    } else {\n        Write-Log \"Python venv already exists at $nvimVenv\" -Level 'WARN'\n    }\n} else {\n    Write-Log \"uv not found - please run install_python_uv.ps1 first\" -Level 'WARN'\n}
 
 Write-Log ""
 Write-Log "====== Neovim setup complete ======"

@@ -7,8 +7,13 @@ script_dir="$(dirname "${BASH_SOURCE[0]}")"
 source "$script_dir/helpers.sh"
 set_strict_mode
 
-# Configuration
-USER_PY_VERSION="3.12"
+# Load Python version from central config
+config_file="$(dirname "${BASH_SOURCE[0]}")/../python_config"
+if [[ -f "$config_file" ]]; then
+    USER_PY_VERSION=$(grep '^PYTHON_VERSION=' "$config_file" | cut -d'=' -f2 | tr -d ' ')
+else
+    USER_PY_VERSION="3.12"  # fallback
+fi
 
 log_header "Installing user Python with uv (${USER_PY_VERSION})"
 

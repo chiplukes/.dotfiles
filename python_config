@@ -1,0 +1,12 @@
+# Python Configuration for Dotfiles
+# This file defines the preferred Python version across all platforms
+
+# Preferred Python version for global installation
+PYTHON_VERSION=3.12
+
+# This version will be used by:
+# - Linux: install_python_uv.sh, all venv creation
+# - Windows: install_python_uv.ps1, neovim_config.ps1
+# - All scripts that need Python virtual environments
+
+# Update this single value to change Python version everywhere
