@@ -89,10 +89,10 @@ REM Auto-generated launcher
 "@ | Set-Content -Encoding ASCII $CmdPath
 }
 
-New-PythonWrapper -Name "python$MajMin" -TargetExe $PyExe
-New-PythonWrapper -Name "python$Patch" -TargetExe $PyExe
+#New-PythonWrapper -Name "python$MajMin" -TargetExe $PyExe
+#New-PythonWrapper -Name "python$Patch" -TargetExe $PyExe
 New-PythonWrapper -Name "python-user" -TargetExe $PyExe
-New-PythonWrapper -Name "python$MajMin-user" -TargetExe $PyExe
+#New-PythonWrapper -Name "python$MajMin-user" -TargetExe $PyExe
 
 function Test-RealPythonCommand {
   param([string]$CmdName)
@@ -134,3 +134,47 @@ USER_PYTHON_PATH=$PyExe
 USER_PYTHON_MAJOR_MINOR=$MajMin
 USER_PYTHON_PATCH=$Patch
 "@ | Set-Content -Encoding UTF8 "$env:USERPROFILE\.user_python_resolved"
+
+
+Write-Host "Disabling Windows Store Python aliases..." -ForegroundColor Yellow
+try {
+    # Remove the app execution aliases for python
+    $aliasPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
+
+    if (Test-Path "$aliasPath\python.exe") {
+        Remove-Item "$aliasPath\python.exe" -Force
+        Write-Host "✓ Removed python.exe alias" -ForegroundColor Green
+    }
+
+    if (Test-Path "$aliasPath\python3.exe") {
+        Remove-Item "$aliasPath\python3.exe" -Force
+        Write-Host "✓ Removed python3.exe alias" -ForegroundColor Green
+    }
+
+    # Alternative: Disable via registry (requires admin)
+    $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\microsoft.windowsstore_8wekyb3d8bbwe\AliasManager"
+
+    if (Test-Path $regPath) {
+        try {
+            Set-ItemProperty -Path $regPath -Name "python.exe" -Value 0 -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $regPath -Name "python3.exe" -Value 0 -ErrorAction SilentlyContinue
+            Write-Host "✓ Disabled aliases via registry" -ForegroundColor Green
+        } catch {
+            Write-Host "! Registry modification failed (may need admin rights)" -ForegroundColor Yellow
+        }
+    }
+
+    Write-Host ""
+    Write-Host "Python aliases disabled. Please:" -ForegroundColor Cyan
+    Write-Host "1. Close and reopen your PowerShell/Terminal" -ForegroundColor White
+    Write-Host "2. Test by typing 'python' - should show uv interceptor" -ForegroundColor White
+    Write-Host ""
+
+} catch {
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Manual steps:" -ForegroundColor Yellow
+    Write-Host "1. Go to Windows Settings → Apps → Advanced app settings → App execution aliases" -ForegroundColor White
+    Write-Host "2. Turn OFF toggles for python.exe and python3.exe" -ForegroundColor White
+}
+

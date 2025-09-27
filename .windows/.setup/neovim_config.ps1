@@ -1,14 +1,24 @@
 ﻿[CmdletBinding()]
 param()
 
+# Dot-source helpers first
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$helpers = Join-Path $ScriptRoot 'helpers.ps1'
+if (Test-Path $helpers) {
+    . $helpers
+} else {
+    Write-Host "helpers.ps1 not found at $helpers" -ForegroundColor Yellow
+    # Define a basic Write-Log function as fallback
+    function Write-Log {
+        param([string]$Message, [string]$Level = 'INFO')
+        $color = switch($Level) { 'ERROR' { 'Red' } 'WARN' { 'Yellow' } default { 'White' } }
+        Write-Host $Message -ForegroundColor $color
+    }
+}
+
 Write-Log ""
 Write-Log "====== Neovim Configuration Setup ======"
 Write-Log ""
-
-# Dot-source helpers
-$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$helpers = Join-Path $ScriptRoot 'helpers.ps1'
-if (Test-Path $helpers) { . $helpers } else { Write-Log "helpers.ps1 not found at $helpers" -Level 'WARN' }
 
 # Install NeoVim with WinGet, if not already present
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
@@ -72,7 +82,20 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
         New-DirectoryIfMissing -Path (Split-Path -Parent $nvimVenv) | Out-Null
         uv venv --python $pythonVersion $nvimVenv
 
-        # Install packages using uv pip\n        $venvPy = Join-Path $nvimVenv 'Scripts\\python.exe'\n        if (Test-Path $venvPy) {\n            uv pip install --python $venvPy pynvim neovim\n            Write-Log \"✓ Python provider configured (pynvim installed with uv)\"\n        } else {\n            Write-Log \"Failed to create venv python at: $venvPy\" -Level 'ERROR'\n        }\n    } else {\n        Write-Log \"Python venv already exists at $nvimVenv\" -Level 'WARN'\n    }\n} else {\n    Write-Log \"uv not found - please run install_python_uv.ps1 first\" -Level 'WARN'\n}
+        # Install packages using uv pip
+        $venvPy = Join-Path $nvimVenv 'Scripts\python.exe'
+        if (Test-Path $venvPy) {
+            uv pip install --python $venvPy pynvim neovim
+            Write-Log "✓ Python provider configured (pynvim installed with uv)"
+        } else {
+            Write-Log "Failed to create venv python at: $venvPy" -Level 'ERROR'
+        }
+    } else {
+        Write-Log "Python venv already exists at $nvimVenv" -Level 'WARN'
+    }
+} else {
+    Write-Log "uv not found - please run install_python_uv.ps1 first" -Level 'WARN'
+}
 
 Write-Log ""
 Write-Log "====== Neovim setup complete ======"

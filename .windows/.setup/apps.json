@@ -94,10 +94,10 @@
       "name": "Sandboxie.Plus",
       "category": "misc"
     },
-    {
-      "name": "SomePythonThings.WingetUIStore",
-      "category": "misc"
-    },
+    //{
+    //  "name": "SomePythonThings.WingetUIStore",
+    //  "category": "misc"
+    //},
     {
       "name": "JesseDuffield.lazygit",
       "category": "dev"
@@ -116,6 +116,10 @@
     },
     {
       "name": "wez.wezterm",
+      "category": "dev"
+    },
+    {
+      "name": "JGraph.Draw",
       "category": "dev"
     }
   ],

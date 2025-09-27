@@ -197,4 +197,4 @@ export PATH="$HOME/tools/lazygit:$PATH"
 export PATH="$HOME/tools/verible/bin:$PATH"
 
 # Add to ~/.bashrc
-source "$HOME/.linux/.scripts/spython_uv_interceptor.bash"
+source "$HOME/.linux/.scripts/python_uv_interceptor.bash"
