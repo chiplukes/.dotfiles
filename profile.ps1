@@ -4,6 +4,11 @@
 # Dotfiles management function
 function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }
 
-. "$env:USERPROFILE\.windows\.scripts\.python_uv_interceptor.ps1"
+# Load Python interceptor
+$interceptorPath = "$env:USERPROFILE\.windows\.scripts\.python_uv_interceptor.ps1"
+if (Test-Path $interceptorPath) {
+    . $interceptorPath
+    Write-Host "✓ Python → uv interceptor loaded" -ForegroundColor Green
+}
 
 # Add any other PowerShell customizations here
