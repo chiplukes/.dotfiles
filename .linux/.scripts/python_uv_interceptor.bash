@@ -95,10 +95,7 @@ venv() {
     fi
 }
 
-# Add alias for common python -m venv pattern
-alias pyvenv='python -m venv'
-
-# Override pyvenv to show uv suggestion
+# Override pyvenv function to show uv suggestion
 pyvenv() {
     suggest_uv "venv" "$*"
     if [[ $? -eq 0 ]]; then
