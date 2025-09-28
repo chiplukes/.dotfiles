@@ -82,16 +82,16 @@ pip() {
 }
 
 # Intercept python -m venv
-# This is trickier since it's a python subcommand, but we can create a venv alias
+# This is trickier since it's a python subcommand, but we can create a venv function
 venv() {
     if [[ $# -eq 0 ]]; then
-        suggest_uv "venv" ".venv"
+        if suggest_uv "venv" ".venv"; then
+            command python -m venv .venv
+        fi
     else
-        suggest_uv "venv" "$*"
-    fi
-
-    if [[ $? -eq 0 ]]; then
-        command python -m venv "$@"
+        if suggest_uv "venv" "$*"; then
+            command python -m venv "$@"
+        fi
     fi
 }
 
