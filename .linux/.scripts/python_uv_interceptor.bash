@@ -97,8 +97,7 @@ venv() {
 
 # Override pyvenv function to show uv suggestion
 pyvenv() {
-    suggest_uv "venv" "$*"
-    if [[ $? -eq 0 ]]; then
+    if suggest_uv "venv" "$*"; then
         command python -m venv "$@"
     fi
 }
