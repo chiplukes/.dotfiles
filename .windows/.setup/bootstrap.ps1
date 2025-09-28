@@ -154,6 +154,7 @@ foreach ($p in $ProfileObjects) {
         }
     } else {
         Write-Warning "Master profile not found at $MasterProfile - skipping symlink creation for $ProfileDesc"
+        Write-Host "Note: The profile.ps1 file should be checked out to $MasterProfile by the bare repo"
     }
 }
 
