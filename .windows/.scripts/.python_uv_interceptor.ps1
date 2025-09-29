@@ -63,14 +63,16 @@ function Show-UVAlternative {
 
 # Store original commands
 if (-not (Get-Command python-original -ErrorAction SilentlyContinue)) {
-    if (Get-Command python -ErrorAction SilentlyContinue) {
-        Set-Alias python-original (Get-Command python).Source -Force
+    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($pythonCmd -and $pythonCmd.Source) {
+        Set-Alias python-original $pythonCmd.Source -Force
     }
 }
 
 if (-not (Get-Command pip-original -ErrorAction SilentlyContinue)) {
-    if (Get-Command pip -ErrorAction SilentlyContinue) {
-        Set-Alias pip-original (Get-Command pip).Source -Force
+    $pipCmd = Get-Command pip -ErrorAction SilentlyContinue
+    if ($pipCmd -and $pipCmd.Source) {
+        Set-Alias pip-original $pipCmd.Source -Force
     }
 }
 
