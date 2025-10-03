@@ -22,8 +22,22 @@ return {
   -- Oil.nvim - file explorer
   {
     'stevearc/oil.nvim',
-    opts = {},
+    -- Configure Oil to show folders/hidden files and avoid taking over as the
+    -- default file explorer (so our Snacks VimEnter autocommand can control
+    -- which UI is shown when starting with a directory).
+    opts = {
+      -- don't force itself as the default file explorer
+      default_file_explorer = false,
+      -- show folders and hidden files in the view
+      view_options = { show_hidden = true },
+    },
     dependencies = { { 'echasnovski/mini.icons', opts = {} } },
+    config = function(_, opts)
+      local ok, oil = pcall(require, 'oil')
+      if ok and type(oil.setup) == 'function' then
+        oil.setup(opts or {})
+      end
+    end,
   },
 
   -- Gitsigns - git related signs to the gutter
