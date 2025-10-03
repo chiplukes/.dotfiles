@@ -87,7 +87,7 @@ vim.keymap.set('n', '<A-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<A-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- EasyMotion-style movement (matching VSCode 's' mapping) - Flash.nvim will override this
-vim.keymap.set('n', 's', function() require('flash').jump() end, { desc = 'Flash [S]earch and jump' })
+--vim.keymap.set('n', 'sj', function() require('flash').jump() end, { desc = 'Flash [S]earch and jump' })
 
 -- =============================================================================
 -- Completion keybindings (matching your VS Code custom setup)

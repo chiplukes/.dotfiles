@@ -34,6 +34,7 @@ return {
           end },
           { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
           { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+          { icon = " ", key = "e", desc = "Folder Explorer", action = ":lua Snacks.dashboard.pick('explorer')" },
           {
             icon = " ",
             key = "c",

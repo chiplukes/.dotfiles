@@ -18,10 +18,10 @@ return {
     'neovim/nvim-lspconfig',
     event = { 'BufReadPre', 'BufNewFile' }, -- Only load when opening files
     dependencies = {
-      { 
-        'mason-org/mason.nvim', 
+      {
+        'mason-org/mason.nvim',
         cmd = { 'Mason', 'MasonInstall', 'MasonUninstall', 'MasonUpdate' },
-        opts = {} 
+        opts = {}
       },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
@@ -55,7 +55,7 @@ return {
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>f',
+        '<leader>fb',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,

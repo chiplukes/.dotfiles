@@ -164,19 +164,19 @@ vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
 
 return M
 
--- Open Snacks file picker when Neovim is started with a single directory argument
-vim.api.nvim_create_autocmd('VimEnter', {
-  desc = 'Open Snacks picker when starting with directory (e.g. nvim .)',
-  callback = function()
-    -- Only act when exactly one argument is passed and it's a directory
-    if vim.fn.argc() == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-      local dir = vim.fn.fnamemodify(vim.fn.argv(0), ':p')
-      -- Move to the directory so relative operations work as expected
-      pcall(vim.cmd, 'cd ' .. vim.fn.fnameescape(dir))
-      -- Try to open the Snacks files picker; fall back silently if Snacks is not available
-      pcall(function()
-        require('snacks').picker.files({ cwd = dir })
-      end)
-    end
-  end,
-})
+-- -- Open Snacks file picker when Neovim is started with a single directory argument
+-- vim.api.nvim_create_autocmd('VimEnter', {
+--   desc = 'Open Snacks picker when starting with directory (e.g. nvim .)',
+--   callback = function()
+--     -- Only act when exactly one argument is passed and it's a directory
+--     if vim.fn.argc() == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+--       local dir = vim.fn.fnamemodify(vim.fn.argv(0), ':p')
+--       -- Move to the directory so relative operations work as expected
+--       pcall(vim.cmd, 'cd ' .. vim.fn.fnameescape(dir))
+--       -- Try to open the Snacks files picker; fall back silently if Snacks is not available
+--       pcall(function()
+--         require('snacks').picker.files({ cwd = dir })
+--       end)
+--     end
+--   end,
+-- })
