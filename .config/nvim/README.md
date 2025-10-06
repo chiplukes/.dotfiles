@@ -321,6 +321,7 @@ Some leader groups are declared for discovery via Which-Key:
 * Use `:verbose map <lhs>` to see where a mapping was last defined
 * Temporarily bypass a mapping with an initial `<C-v>` before the key
 * For conflicting plugin mappings, check lazy.nvim plugin specs or disable in opts
+* `verbose nmap` -see what normal mappings are
 
 ---
 If adding new mappings, keep them centralized in `lua/core/keymaps.lua` for maintainability.
