@@ -41,7 +41,48 @@ return {
             desc = "Config",
             action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
           },
-          { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+          { icon = " ", key = "s", desc = "Restore Session", action = function() require("persistence").load() end },
+          { icon = " ", key = "S", desc = "Pick Session", action = function()
+            local sessions_dir = vim.fn.stdpath('state') .. '/sessions/'
+
+            -- Debug: show the path being checked
+            print("Looking for sessions in: " .. sessions_dir)
+            print("Directory exists: " .. tostring(vim.fn.isdirectory(sessions_dir)))
+
+            if vim.fn.isdirectory(sessions_dir) == 0 then
+              vim.notify("No sessions directory found at:\n" .. sessions_dir .. "\n\nSessions will be created when you exit nvim from a project directory.", vim.log.levels.INFO)
+              return
+            end
+
+            -- List ALL files first
+            local all_files = vim.fn.readdir(sessions_dir)
+            print("All files in directory: " .. vim.inspect(all_files))
+
+            -- Filter for .vim or .lua files
+            -- Note: filenames contain % characters (URL-encoded paths), so we can't use patterns with %
+            local files = vim.tbl_filter(function(name)
+              return name:sub(-4) == ".vim" or name:sub(-4) == ".lua"
+            end, all_files)            -- Debug: show what files were found
+            print("Found " .. #files .. " session files matching pattern")
+            print("Session files: " .. vim.inspect(files))
+
+            if #files == 0 then
+              vim.notify("No sessions found in:\n" .. sessions_dir .. "\n\nTip: Sessions are auto-saved when you exit nvim.\nJust work in a directory and exit, then reopen nvim to see the session here.", vim.log.levels.INFO)
+              return
+            end
+            -- Use vim.ui.select to pick a session
+            vim.ui.select(files, {
+              prompt = "Select session to restore:",
+              format_item = function(item)
+                return item:gsub('%%', '/'):gsub('%.lua$', ''):gsub('%.vim$', '')
+              end,
+            }, function(choice)
+              if choice then
+                local full_path = sessions_dir .. choice
+                vim.cmd('source ' .. vim.fn.fnameescape(full_path))
+              end
+            end)
+          end },
           { icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
           { icon = " ", key = "q", desc = "Quit", action = ":qa" },
         },
@@ -84,6 +125,58 @@ return {
         { section = "keys", gap = 1, padding = 1 },
         { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
         { pane = 2, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
+        function()
+          local sessions_dir = vim.fn.stdpath('state') .. '/sessions/'
+          local sessions = {}
+
+          if vim.fn.isdirectory(sessions_dir) == 1 then
+            -- Get all files and filter for .vim or .lua extensions
+            -- Note: filenames contain % characters (URL-encoded paths), so we can't use Lua patterns with %
+            local all_files = vim.fn.readdir(sessions_dir)
+            local files = vim.tbl_filter(function(name)
+              return name:sub(-4) == ".vim" or name:sub(-4) == ".lua"
+            end, all_files)
+
+            -- Sort by modification time
+            table.sort(files, function(a, b)
+              local stat_a = vim.loop.fs_stat(sessions_dir .. a)
+              local stat_b = vim.loop.fs_stat(sessions_dir .. b)
+              if stat_a and stat_b then
+                return stat_a.mtime.sec > stat_b.mtime.sec
+              end
+              return false
+            end)
+
+            -- Create items for up to 5 sessions
+            for i = 1, math.min(5, #files) do
+              local file = files[i]
+              local display_name = file:gsub('%%', '/'):gsub('%.lua$', ''):gsub('%.vim$', '')
+              local full_path = sessions_dir .. file
+              table.insert(sessions, {
+                file = display_name,
+                icon = "file",
+                action = function()
+                  vim.cmd('source ' .. vim.fn.fnameescape(full_path))
+                end,
+                autokey = true,
+              })
+            end
+          end
+
+          -- Return nothing if no sessions, or return section with title and items
+          if #sessions == 0 then
+            return nil
+          end
+
+          return {
+            pane = 2,
+            icon = " ",
+            title = "Recent Sessions",
+            indent = 2,
+            padding = 1,
+            sessions,
+          }
+        end,
         {
           pane = 2,
           icon = " ",

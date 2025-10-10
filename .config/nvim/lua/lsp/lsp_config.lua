@@ -533,7 +533,8 @@ function M.setup()
     -- =============================================================================
 
     -- Lua tools
-    'stylua', -- Lua formatter
+    -- NOTE: stylua removed from Mason - conform.nvim will handle it directly
+    -- 'stylua', -- Lua formatter (causes LSP startup issues when managed by Mason)
 
     -- Python tools (Ruff-focused approach like hendrikmi)
     'ruff',          -- Primary Python linter and formatter

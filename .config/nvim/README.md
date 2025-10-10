@@ -323,6 +323,10 @@ Some leader groups are declared for discovery via Which-Key:
 * For conflicting plugin mappings, check lazy.nvim plugin specs or disable in opts
 * `verbose nmap` -see what normal mappings are
 
+
+# Todos:
 ---
 If adding new mappings, keep them centralized in `lua/core/keymaps.lua` for maintainability.
 
+after removing stylelua from mason, may need to add:
+If you want Lua formatting to still work, install stylua system-wide with: winget install JohnnyMorganz.StyLua
