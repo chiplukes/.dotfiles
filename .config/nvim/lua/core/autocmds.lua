@@ -130,9 +130,10 @@ vim.api.nvim_create_autocmd('BufEnter', {
     local venv_paths = {
       cwd .. '/.venv',
       cwd .. '/venv',
-      vim.fn.expand('~/.venv'),
     }
 
+    -- Only check for project venvs, don't fall back to ~/.venv
+    -- as it may conflict with Neovim's own python provider
     for _, path in ipairs(venv_paths) do
       if vim.fn.isdirectory(path) == 1 then
         vim.env.VIRTUAL_ENV = path
@@ -140,7 +141,7 @@ vim.api.nvim_create_autocmd('BufEnter', {
         if vim.fn.executable(python_path) == 1 then
           vim.g.python3_host_prog = python_path
           -- Notify user about detected virtual environment
-          vim.notify('Detected virtual environment: ' .. path, vim.log.levels.INFO)
+          vim.notify('Detected project virtual environment: ' .. path, vim.log.levels.INFO)
           break
         end
       end

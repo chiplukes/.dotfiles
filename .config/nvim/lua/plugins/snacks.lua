@@ -7,7 +7,7 @@ return {
   opts = {
     explorer = { enabled = true },
     picker = { enabled = true },
-    notifier = { enabled = true, timeout = 3000 },
+    notifier = { enabled = false }, -- Disabled to prevent interference with :messages
     quickfile = { enabled = true },
     words = { enabled = true },
     dashboard = {

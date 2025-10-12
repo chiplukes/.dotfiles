@@ -290,10 +290,10 @@ end
 function M.exec_current_line()
   local line = vim.api.nvim_get_current_line()
   local ok, result = pcall(loadstring('return ' .. line))
-  
+
   -- Force redraw to flush output
   vim.cmd('redraw')
-  
+
   if ok then
     vim.schedule(function()
       M.inspect(result, ' Result ')
@@ -302,7 +302,7 @@ function M.exec_current_line()
     -- Try without return
     ok, result = pcall(loadstring(line))
     vim.cmd('redraw')
-    
+
     vim.schedule(function()
       if ok then
         vim.notify('Executed successfully (check :messages for output)', vim.log.levels.INFO)
@@ -321,20 +321,20 @@ function M.exec_visual_selection()
   local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
 
   local code = table.concat(lines, '\n')
-  
+
   -- Try to load and execute the code
   local chunk, load_err = loadstring(code)
   if not chunk then
     vim.notify('Syntax error: ' .. tostring(load_err), vim.log.levels.ERROR)
     return
   end
-  
+
   -- Execute the code
   local ok, result = pcall(chunk)
-  
+
   -- Force a redraw to flush any print output to :messages
   vim.cmd('redraw')
-  
+
   -- Defer notification to ensure print output is fully processed
   vim.schedule(function()
     if ok then
@@ -346,6 +346,73 @@ function M.exec_visual_selection()
       end
     else
       vim.notify('Runtime error: ' .. tostring(result), vim.log.levels.ERROR)
+    end
+  end)
+end
+
+-- =============================================================================
+-- Python Execution Utilities
+-- =============================================================================
+
+--- Execute current line as Python code
+function M.exec_python_line()
+  local line = vim.api.nvim_get_current_line()
+
+  -- Get Python executable from Neovim's python3_host_prog or fallback to PATH
+  local python_cmd = vim.g.python3_host_prog or vim.fn.exepath('python3') or vim.fn.exepath('python')
+  if python_cmd == '' or python_cmd == vim.NIL then
+    vim.notify('Python executable not found. Set g:python3_host_prog or ensure python is in PATH', vim.log.levels.ERROR)
+    return
+  end
+
+  -- Execute the line (escape quotes for command line)
+  local escaped_line = line:gsub('"', '\\"'):gsub('\n', '\\n')
+  local output = vim.fn.system('"' .. python_cmd .. '" -c "' .. escaped_line .. '"')
+
+  vim.schedule(function()
+    if vim.v.shell_error == 0 then
+      if output ~= '' then
+        print(output)
+      end
+      vim.notify('Python executed successfully (check :messages for output)', vim.log.levels.INFO)
+    else
+      vim.notify('Python error: ' .. output, vim.log.levels.ERROR)
+    end
+  end)
+end
+
+--- Execute visual selection as Python code
+function M.exec_python_selection()
+  -- Get visual selection
+  local start_pos = vim.fn.getpos("'<")
+  local end_pos = vim.fn.getpos("'>")
+  local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
+
+  -- Get Python executable from Neovim's python3_host_prog or fallback to PATH
+  local python_cmd = vim.g.python3_host_prog or vim.fn.exepath('python3') or vim.fn.exepath('python')
+  if python_cmd == '' or python_cmd == vim.NIL then
+    vim.notify('Python executable not found. Set g:python3_host_prog or ensure python is in PATH', vim.log.levels.ERROR)
+    return
+  end
+
+  -- Write code to a temp file
+  local temp_file = vim.fn.tempname() .. '.py'
+  vim.fn.writefile(lines, temp_file)
+
+  -- Execute the file (quote the executable path for Windows paths with spaces)
+  local output = vim.fn.system('"' .. python_cmd .. '" "' .. temp_file .. '"')
+
+  -- Clean up temp file
+  vim.fn.delete(temp_file)
+
+  vim.schedule(function()
+    if vim.v.shell_error == 0 then
+      if output ~= '' then
+        print(output)
+      end
+      vim.notify('Python executed successfully (check :messages for output)', vim.log.levels.INFO)
+    else
+      vim.notify('Python error: ' .. output, vim.log.levels.ERROR)
     end
   end)
 end
@@ -422,23 +489,42 @@ function M.setup()
     M.open_dashboard()
   end, { desc = 'Open learning dashboard' })
 
-  vim.api.nvim_create_user_command('Playground', function()
-    local playground_path = vim.fn.stdpath('config') .. '/doc/playground.lua'
+  vim.api.nvim_create_user_command('Playground', function(opts)
+    -- Determine which playground to open based on argument or current buffer
+    local filetype = opts.args ~= '' and opts.args or vim.bo.filetype
+    local playground_path
+    local exec_key
+    local exec_line_fn
+    local exec_selection_fn
+
+    if filetype == 'python' or filetype == 'py' then
+      playground_path = vim.fn.stdpath('config') .. '/doc/playground.py'
+      exec_key = '<leader>px'
+      exec_line_fn = M.exec_python_line
+      exec_selection_fn = M.exec_python_selection
+    else
+      -- Default to Lua
+      playground_path = vim.fn.stdpath('config') .. '/doc/playground.lua'
+      exec_key = '<leader>lx'
+      exec_line_fn = M.exec_current_line
+      exec_selection_fn = M.exec_visual_selection
+    end
+
     vim.cmd('edit ' .. playground_path)
 
     -- Set up buffer-local keymaps for easy execution
     local bufnr = vim.api.nvim_get_current_buf()
-    vim.keymap.set('n', '<leader>lx', M.exec_current_line, {
+    vim.keymap.set('n', exec_key, exec_line_fn, {
       buffer = bufnr,
       desc = 'Execute current line'
     })
-    vim.keymap.set('v', '<leader>lx', M.exec_visual_selection, {
+    vim.keymap.set('v', exec_key, exec_selection_fn, {
       buffer = bufnr,
       desc = 'Execute selection'
     })
 
-    vim.notify('Playground loaded! Select code and press <leader>lx to execute.', vim.log.levels.INFO)
-  end, { desc = 'Open Lua playground' })
+    vim.notify('Playground loaded! Select code and press ' .. exec_key .. ' to execute.', vim.log.levels.INFO)
+  end, { nargs = '?', desc = 'Open playground (lua/python/py)' })
 
   vim.api.nvim_create_user_command('LearnInspect', function(opts)
     local arg = opts.args
@@ -487,6 +573,8 @@ function M.setup()
   vim.keymap.set('n', '<leader>lr', M.reload_module, { desc = '[L]earn: [R]eload current module' })
   vim.keymap.set('n', '<leader>lx', M.exec_current_line, { desc = '[L]earn: E[x]ec current line' })
   vim.keymap.set('v', '<leader>lx', M.exec_visual_selection, { desc = '[L]earn: E[x]ec selection' })
+  vim.keymap.set('n', '<leader>px', M.exec_python_line, { desc = '[P]ython: E[x]ec current line' })
+  vim.keymap.set('v', '<leader>px', M.exec_python_selection, { desc = '[P]ython: E[x]ec selection' })
 
   vim.notify('Learning utilities loaded! Press <leader>? for dashboard', vim.log.levels.INFO)
 end
