@@ -140,7 +140,7 @@ numbers.extend([7, 8, 9])
 print("Numbers:", numbers)
 print("First 3:", numbers[:3])
 print("Last 3:", numbers[-3:])
-print("Reversed:", numbers[::-1])
+print("Reverised:", numbers[::-1])
 
 # Sets
 unique = {1, 2, 2, 3, 3, 3}

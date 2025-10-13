@@ -315,7 +315,11 @@ end
 
 --- Execute visual selection as Lua code
 function M.exec_visual_selection()
-  -- Get visual selection
+  -- Exit visual mode to update marks, then get selection
+  local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
+  vim.api.nvim_feedkeys(esc, 'x', false)
+
+  -- Get visual selection marks (now updated after exiting visual mode)
   local start_pos = vim.fn.getpos("'<")
   local end_pos = vim.fn.getpos("'>")
   local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
@@ -342,7 +346,7 @@ function M.exec_visual_selection()
       if result ~= nil then
         M.inspect(result, ' Result ')
       else
-        vim.notify('Code executed successfully (check :messages for output)', vim.log.levels.INFO)
+        print('Code executed successfully')
       end
     else
       vim.notify('Runtime error: ' .. tostring(result), vim.log.levels.ERROR)
@@ -383,7 +387,11 @@ end
 
 --- Execute visual selection as Python code
 function M.exec_python_selection()
-  -- Get visual selection
+  -- Exit visual mode to update marks, then get selection
+  local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
+  vim.api.nvim_feedkeys(esc, 'x', false)
+
+  -- Get visual selection marks (now updated after exiting visual mode)
   local start_pos = vim.fn.getpos("'<")
   local end_pos = vim.fn.getpos("'>")
   local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
@@ -405,12 +413,15 @@ function M.exec_python_selection()
   -- Clean up temp file
   vim.fn.delete(temp_file)
 
+  -- Force a redraw to flush any output
+  vim.cmd('redraw')
+
   vim.schedule(function()
     if vim.v.shell_error == 0 then
       if output ~= '' then
         print(output)
       end
-      vim.notify('Python executed successfully (check :messages for output)', vim.log.levels.INFO)
+      print('Python executed successfully')
     else
       vim.notify('Python error: ' .. output, vim.log.levels.ERROR)
     end
