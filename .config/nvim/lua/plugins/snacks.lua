@@ -10,6 +10,11 @@ return {
     notifier = { enabled = false }, -- Disabled to prevent interference with :messages
     quickfile = { enabled = true },
     words = { enabled = true },
+    lazygit = {
+      -- your lazygit configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    },
     dashboard = {
       enabled = true,
       pane_gap = 20,
@@ -218,5 +223,6 @@ return {
     { '<leader>/', function() require('snacks').picker.lines() end, desc = '[/] Fuzzily search in current buffer' },
     { '<leader>s/', function() require('snacks').picker.search_history() end, desc = '[S]earch [/] in Open Files' },
     { '<leader>sn', function() require('snacks').picker.files({ cwd = vim.fn.stdpath('config') }) end, desc = '[S]earch [N]eovim files' },
-  },
+    { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
+},
 }

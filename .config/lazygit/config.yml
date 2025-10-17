@@ -1,0 +1,14 @@
+# Example config.yml
+git:
+  showIcons: true # Shows icons in the files panel
+  log:
+    order: 'top-order' # Changes how commits are ordered in the log
+gui:
+  theme:
+    activeBorderColor: [255, 114, 224] # A magenta-like color
+    inactiveBorderColor: [128, 128, 128] # A grey-like color
+  showFileTree: true
+editCommand: "nvim" # Sets your default editor
+editCommandTemplate: "{{editor}} \"{{filename}}\""
+paging:
+  useConfig: true # Uses the pager from your git config
