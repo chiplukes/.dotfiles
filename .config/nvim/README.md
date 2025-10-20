@@ -330,3 +330,13 @@ If adding new mappings, keep them centralized in `lua/core/keymaps.lua` for main
 
 after removing stylelua from mason, may need to add:
 If you want Lua formatting to still work, install stylua system-wide with: winget install JohnnyMorganz.StyLua
+
+figure out good way to work with a terminal
+
+bookmarks!
+
+wezterm config
+
+dashboards for most common things
+
+resie windows is annoying

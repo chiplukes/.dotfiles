@@ -224,5 +224,6 @@ return {
     { '<leader>s/', function() require('snacks').picker.search_history() end, desc = '[S]earch [/] in Open Files' },
     { '<leader>sn', function() require('snacks').picker.files({ cwd = vim.fn.stdpath('config') }) end, desc = '[S]earch [N]eovim files' },
     { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
-},
+    { '<leader>se', function() require('snacks').dashboard.pick('explorer') end, desc = '[S]how [E]xplorer' },
+    },
 }
