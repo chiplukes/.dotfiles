@@ -338,5 +338,18 @@ bookmarks!
 wezterm config
 
 dashboards for most common things
+* exit dashboard go back to session?
 
-resie windows is annoying
+resize windows is annoying
+
+better groups in which-key
+* organize code actions
+* leader c (code things)
+* leader s (search things)
+* leader m (marker things)
+* leader f (file things)
+* leader e (editor stuff, file explorer window)
+
+python formatter/linter ignore line length + other things
+
+helper function to print all keymaps to a file?

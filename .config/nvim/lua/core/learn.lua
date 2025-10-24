@@ -111,6 +111,45 @@ function M.profile(fn, ...)
   return result
 end
 
+--- Dump all keymaps to a file
+---@param filename? string Output filename (default: 'keymaps.txt')
+---@param modes? table List of modes to dump (default: all modes)
+function M.dump_keymaps(filename, modes)
+  filename = filename or 'keymaps.txt'
+  modes = modes or { 'n', 'i', 'v', 'x', 's', 'o', 'c', 't' }
+
+  local config_dir = vim.fn.stdpath('config')
+  local filepath = config_dir .. '/' .. filename
+
+  local output = {}
+  table.insert(output, string.rep('=', 80))
+  table.insert(output, 'Neovim Keymaps Dump')
+  table.insert(output, 'Generated: ' .. os.date('%Y-%m-%d %H:%M:%S'))
+  table.insert(output, string.rep('=', 80))
+  table.insert(output, '')
+
+  -- Capture output from :map command for each mode
+  for _, mode in ipairs(modes) do
+    local cmd = mode .. 'map'
+    local map_output = vim.fn.execute(cmd)
+
+    if map_output and map_output ~= '' then
+      table.insert(output, map_output)
+      table.insert(output, '')
+    end
+  end
+
+  -- Write to file
+  local file = io.open(filepath, 'w')
+  if file then
+    file:write(table.concat(output, '\n'))
+    file:close()
+    vim.notify('Keymaps dumped to: ' .. filepath, vim.log.levels.INFO)
+  else
+    vim.notify('Failed to write to: ' .. filepath, vim.log.levels.ERROR)
+  end
+end
+
 -- =============================================================================
 -- Neovim Information Utilities
 -- =============================================================================
@@ -477,6 +516,7 @@ function M.open_dashboard()
         { icon = ' ', key = 'L', desc = 'LSP Clients', action = function() M.show_lsp_clients() end },
         { icon = ' ', key = 'p', desc = 'Loaded Plugins', action = function() M.show_plugins() end },
         { icon = ' ', key = 'K', desc = 'Keymaps (normal)', action = function() M.show_keymaps('n') end },
+        { icon = ' ', key = 'D', desc = 'Keymaps (dump to file)', action = function() M.dump_keymaps() end },
         { icon = ' ', key = 'h', desc = 'Highlight Under Cursor', action = function() M.show_highlight() end },
         { icon = ' ', key = 'a', desc = 'Autocommands', action = function() M.show_autocmds() end },
         { icon = ' ', key = 'r', desc = 'Runtime Paths', action = function() M.show_runtimepath() end },
@@ -570,6 +610,11 @@ function M.setup()
   vim.api.nvim_create_user_command('LearnLog', function(opts)
     M.print_to_file('debug.log', opts.args)
   end, { nargs = '+', desc = 'Log message to debug.log' })
+
+  vim.api.nvim_create_user_command('LearnDumpKeymaps', function(opts)
+    local filename = opts.args ~= '' and opts.args or 'keymaps.txt'
+    M.dump_keymaps(filename)
+  end, { nargs = '?', desc = 'Dump all keymaps to file' })
 
   -- Create keymaps
   vim.keymap.set('n', '<leader>?', M.open_dashboard, { desc = 'Open learning dashboard' })
