@@ -3,8 +3,22 @@ Neovim Keymaps Dump
 Generated: 2025-10-22 22:49:33
 ================================================================================
 
+Tasks:
+* clean up this keymaps.txt file by making a new keymaps.md file
+* put keymap descriptions into form with tables for each category Ie: leader c is code (coding related keymaps).  I have designated a section group by # below.  Subgroups are defined by ## below
+* each table will need the following columns: subcategory,keymap (continuation from subgroup keymap), Description (what which-key would display), File (where keymap is located, no path needed), Notes (Other things I may add as part of this process)
+    * for example:
+        * leader c (get me into coding related keymaps)
+        * pr would match my python refactor (note the <Space> can be removed since <space>c was already pressed)
+* VIP section is for my most used stuff, these would be keymaps that bypass a category, for example leader gc instead of leader c(ode) gc
+* some of the keymaps may not be a natural fit for the category I listed, please recategorize if needed.
+* my eventual goal is to clean up the table and then have you update all of the keybindings to match what is in the table.
 
-# Code
+#VIP stuff - no which-key categories
+n  <Space>ff   * <Lua 75: ~\AppData\Local\nvim/lua/core/keymaps.lua:45>
+                 [F]ind in project (your VS Code mapping)
+
+# Code key-c
 n  <Space>     *@<Lua 609: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
                  which-key-trigger
 
@@ -56,18 +70,10 @@ n  grn         *@<Lua 719: C:/Program Files/Neovim/share/nvim/runtime/lua/vim/ls
                  LSP: [R]e[n]ame
 n  K           *@<Lua 683: ~/AppData/Local/nvim/lua/lsp/lsp_config.lua:199>
                  LSP: Hover Documentation
-n  <Space>bp   * <Lua 142: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
-                 Debug: Toggle Breakpoint
-n  <Space>B    * <Lua 136: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
-                 Debug: Set Breakpoint
-   <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
-                 [F]ormat buffer
-n  <Space>u    * <Cmd>lua vim.diagnostic.hide()<CR>
-                 [U]ndo/Hide suggestions/diagnostics
-n  <Space>y    * <Lua 86: ~\AppData\Local\nvim/lua/core/keymaps.lua:357>
-                 [Y]es/Accept suggestions
-n  <Space>rf   * <Lua 84: ~\AppData\Local\nvim/lua/core/keymaps.lua:347>
-                 [R]ecode [F]ormat document
+x  gra         * <Lua 18: vim/_defaults.lua:200>
+                 vim.lsp.buf.code_action()
+x  gc          * <Lua 13: vim/_defaults.lua:172>
+                 Toggle comment
 n  <Space>e    * <Lua 29: C:\Program Files\Neovim\share\nvim\runtime/lua/vim/diagnostic.lua:2156>
                  Show diagnostic [E]rror messages
 n  <Space>.    * <Cmd>lua vim.lsp.buf.code_action()<CR>
@@ -84,14 +90,35 @@ v  <Space>px   * <Lua 396: ~/AppData/Local/nvim/lua/core/learn.lua:428>
                  [P]ython: E[x]ec selection
 v  <Space>lx   * <Lua 394: ~/AppData/Local/nvim/lua/core/learn.lua:356>
                  [L]earn: E[x]ec selection
-v  <Space>ma   * <Lua 323: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
-                 Add marker
-   <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
+v  <Space>ca   * <Cmd>s/\%V\(\S\+\)/&/g<CR>
+                 [C]ursor [A]ll (select all in visual)
+
+## Debug d
+n  <Space>bp   * <Lua 142: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
+                 Debug: Toggle Breakpoint
+n  <Space>B    * <Lua 136: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
+                 Debug: Set Breakpoint
+
+## Format f
+n  <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
+                 [F]ormat buffer
+n  <Space>u    * <Cmd>lua vim.diagnostic.hide()<CR>
+                 [U]ndo/Hide suggestions/diagnostics
+n  <Space>rf   * <Lua 84: ~\AppData\Local\nvim/lua/core/keymaps.lua:347>
+                 [R]ecode [F]ormat document
                  [F]ormat buffer
 v  <Space>rf   * <Lua 85: ~\AppData\Local\nvim/lua/core/keymaps.lua:352>
                  [R]ecode [F]ormat selection
-v  <Space>ca   * <Cmd>s/\%V\(\S\+\)/&/g<CR>
-                 [C]ursor [A]ll (select all in visual)
+v
+  <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
+                 [F]ormat buffer
+v  <Space>rf   * <Lua 85: ~\AppData\Local\nvim/lua/core/keymaps.lua:352>
+                 [R]ecode [F]ormat selection
+v  <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
+                 [F]ormat buffer
+v  <Space>rf   * <Lua 85: ~\AppData\Local\nvim/lua/core/keymaps.lua:352>
+                 [R]ecode [F]ormat selection
+
 
 x  gra         *@<Lua 429: C:/Program Files/Neovim/share/nvim/runtime/lua/vim/lsp/buf.lua:1222>
                  LSP: [G]oto Code [A]ction
@@ -132,240 +159,11 @@ v  <Space>px   * <Lua 396: ~/AppData/Local/nvim/lua/core/learn.lua:428>
 v  <Space>lx   * <Lua 394: ~/AppData/Local/nvim/lua/core/learn.lua:356>
                  [L]earn: E[x]ec selection
    <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
-                 [F]ormat buffer
-v  <Space>rf   * <Lua 85: ~\AppData\Local\nvim/lua/core/keymaps.lua:352>
-                 [R]ecode [F]ormat selection
-v
-  <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
-                 [F]ormat buffer
-v  <Space>rf   * <Lua 85: ~\AppData\Local\nvim/lua/core/keymaps.lua:352>
-                 [R]ecode [F]ormat selection
-v  <Space>ca   * <Cmd>s/\%V\(\S\+\)/&/g<CR>
+  <Space>ca   * <Cmd>s/\%V\(\S\+\)/&/g<CR>
                  [C]ursor [A]ll (select all in visual)
 v  <C-.>       * <Cmd>lua vim.lsp.buf.code_action()<CR>
                  Quick fix selection
-
-
-
-# Which
-n  "           *@<Lua 544: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger registers
-n  '           *@<Lua 604: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger marks
-n  [           *@<Lua 611: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger
-n  ]           *@<Lua 612: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger
-n  `           *@<Lua 603: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger marks
-n  g           *@<Lua 608: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger
-n  g'          *@<Lua 606: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger marks
-n  g`          *@<Lua 605: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger marks
-n  z           *@<Lua 613: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger
-n  z=          *@<Lua 607: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger spelling
-n  <C-W>       *@<Lua 610: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
-                 which-key-trigger
-
-
-# Editor
-## Sessions
-n  <Space>qd   * <Lua 158: ~/AppData/Local/nvim/lua/plugins/persistence.lua:32>
-                 Don't Save Current Session
-n  <Space>ql   * <Lua 157: ~/AppData/Local/nvim/lua/plugins/persistence.lua:25>
-                 Restore Last Session
-n  <Space>qs   * <Lua 154: ~/AppData/Local/nvim/lua/plugins/persistence.lua:18>
-                 Restore Session
-## Markers
-n  <Space>mv   * <Lua 328: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Toggle drawer marker viewer
-n  <Space>me   * <Lua 327: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Edit marker at cursor
-n  <Space>md   * <Lua 326: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Delete marker at cursor
-n  <Space>mi   * <Lua 325: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Show marker at cursor
-n  <Space>ma   * <Lua 322: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
-                 Add marker
-n  <Space>mgb  * <Lua 321: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Create group from git branch
-n  <Space>mgi  * <Lua 320: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Show active group info
-n  <Space>mgd  * <Lua 319: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Delete marker group
-n  <Space>mgr  * <Lua 318: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Rename marker group
-n  <Space>mgl  * <Lua 317: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 List marker groups
-n  <Space>mgs  * <Lua 316: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Select marker group
-n  <Space>mgc  * <Lua 305: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 Create marker group
-n  <Space>mp   * <Lua 83: ~\AppData\Local\nvim/lua/core/keymaps.lua:338>
-                 [M]ark [P]revious bookmark
-n  <Space>mn   * <Lua 82: ~\AppData\Local\nvim/lua/core/keymaps.lua:333>
-                 [M]ark [N]ext bookmark
-n  <Space>ml   * <Lua 324: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
-                 List markers in buffer
-n  <Space>mm   * <Lua 81: ~\AppData\Local\nvim/lua/core/keymaps.lua:308>
-                 [M]ark/Bookmark toggle
-
-  <Space>ma   * <Lua 323: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
-                 Add marker
-
-v  gA          * <Lua 354: ~/AppData/Local/nvim/lua/plugins/utilities.lua:88>
-                 [G]o [A]lign by regex/string
-v  ga          * <Lua 353: ~/AppData/Local/nvim/lua/plugins/utilities.lua:80>
-                 [G]o [A]lign by character
-
-
-n  shn         * <Lua 278: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Highlight next surrounding
-n  sFn         * <Lua 277: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Find next left surrounding
-n  sfn         * <Lua 276: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Find next right surrounding
-n  srn         * <Lua 275: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Replace next surrounding
-n  sdn         * <Lua 274: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Delete next surrounding
-n  shl         * <Lua 273: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Highlight previous surrounding
-n  sFl         * <Lua 272: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Find previous left surrounding
-n  sfl         * <Lua 271: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Find previous right surrounding
-n  srl         * <Lua 270: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Replace previous surrounding
-n  sdl         * <Lua 269: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Delete previous surrounding
-n  sh          * <Lua 268: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Highlight surrounding
-n  sF          * <Lua 267: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Find left surrounding
-n  sf          * <Lua 266: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
-                 Find right surrounding
-n  sr          * <Lua 265: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Replace surrounding
-n  sd          * <Lua 264: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Delete surrounding
-n  sa          * <Lua 263: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
-                 Add surrounding
-
-n  g]            <Lua 243: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1230>
-                 Move to right "around"
-n  g[            <Lua 240: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1229>
-                 Move to left "around"
-x  al            <Lua 251: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Around last textobject
-x  an            <Lua 250: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Around next textobject
-x  a             <Lua 246: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Around textobject
-x  g%            <Plug>(MatchitVisualBackward)
-v  gA          * <Lua 354: ~/AppData/Local/nvim/lua/plugins/utilities.lua:88>
-                 [G]o [A]lign by regex/string
-v  ga          * <Lua 353: ~/AppData/Local/nvim/lua/plugins/utilities.lua:80>
-                 [G]o [A]lign by character
-x  g]            <Lua 244: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1230>
-                 Move to right "around"
-x  g[            <Lua 241: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1229>
-                 Move to left "around"
-x  gra         * <Lua 18: vim/_defaults.lua:200>
-                 vim.lsp.buf.code_action()
-x  gc          * <Lua 13: vim/_defaults.lua:172>
-                 Toggle comment
-x  gx          * <Lua 11: vim/_defaults.lua:157>
-                 Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
-x  il            <Lua 253: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Inside last textobject
-x  in            <Lua 252: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Inside next textobject
-x  i             <Lua 247: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Inside textobject
-x  sa          * :<C-U>lua MiniSurround.add('visual')<CR>
-                 Add surrounding to selection
-x  al            <Lua 251: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Around last textobject
-x  an            <Lua 250: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Around next textobject
-x  a             <Lua 246: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
-                 Around textobject
-x  g%            <Plug>(MatchitVisualBackward)
-v  gA          * <Lua 354: ~/AppData/Local/nvim/lua/plugins/utilities.lua:88>
-                 [G]o [A]lign by regex/string
-v  ga          * <Lua 353: ~/AppData/Local/nvim/lua/plugins/utilities.lua:80>
-                 [G]o [A]lign by character
-x  g]            <Lua 244: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1230>
-                 Move to right "around"
-x  g[            <Lua 241: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1229>
-                 Move to left "around"
-x
-
-# Motion
-n  sj          * <Lua 166: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
-                 [S] Flash jump (EasyMotion-style)
-x  ,           * <Lua 534: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  ;           * <Lua 531: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  @           * mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'
-                 :help v_@-default
-x  F           * <Lua 522: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  Q           * mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'
-                 :help v_Q-default
-x  R           * <Lua 165: ~/AppData/Local/nvim/lua/plugins/flash.lua:10>
-                 Flash treesitter search
-x  S           * <Lua 161: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
-                 [S] Flash treesitter
-x  T           * <Lua 528: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  f           * <Lua 519: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  sj          * <Lua 159: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
-                 [S] Flash jump (EasyMotion-style)
-x  t           * <Lua 525: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  ,           * <Lua 534: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  ;           * <Lua 531: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  @           * mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'
-                 :help v_@-default
-x  F           * <Lua 522: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  Q           * mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'
-                 :help v_Q-default
-x  R           * <Lua 165: ~/AppData/Local/nvim/lua/plugins/flash.lua:10>
-                 Flash treesitter search
-x  S           * <Lua 161: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
-                 [S] Flash treesitter
-x  T           * <Lua 528: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  f           * <Lua 519: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-x  sj          * <Lua 159: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
-                 [S] Flash jump (EasyMotion-style)
-x  t           * <Lua 525: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-o  ,           * <Lua 535: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-o  ;           * <Lua 532: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-o  F           * <Lua 523: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-o  R           * <Lua 164: ~/AppData/Local/nvim/lua/plugins/flash.lua:10>
-                 Flash treesitter search
-o  S           * <Lua 162: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
-                 [S] Flash treesitter
-o  T           * <Lua 529: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-o  f           * <Lua 520: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-o  r           * <Lua 163: ~/AppData/Local/nvim/lua/plugins/flash.lua:9>
-                 Remote flash
-o  sj          * <Lua 160: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
-                 [S] Flash jump (EasyMotion-style)
-o  t           * <Lua 526: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-n  ,           * <Lua 533: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-n  ;           * <Lua 530: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-n  F           * <Lua 521: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-n  S           * <Lua 167: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
-                 [S] Flash treesitter
-n  T           * <Lua 527: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-n  f           * <Lua 514: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-n  t           * <Lua 524: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
-
-
-## Snippets
+## Snippets s
 s  <Tab>       * <Lua 25: ~/AppData/Local/nvim/lua/plugins/luasnip.lua:18>
    <Plug>luasnip-expand-repeat * <Lua 218: ~/AppData/Local/nvim-data/lazy/LuaSnip/plugin/luasnip.lua:35>
                  LuaSnip: Repeat last node expansion
@@ -431,17 +229,71 @@ s  <Plug>luasnip-expand-or-jump * <Lua 220: ~/AppData/Local/nvim-data/lazy/LuaSn
 !  <Plug>luasnip-delete-check * <Lua 217: ~/AppData/Local/nvim-data/lazy/LuaSnip/plugin/luasnip.lua:31>
                  LuaSnip: Removes current snippet from jumplist
 
+# AI a
+n  <Space>y    * <Lua 86: ~\AppData\Local\nvim/lua/core/keymaps.lua:357>
+                 [Y]es/Accept suggestions
 
+
+
+# Which
+n  "           *@<Lua 544: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger registers
+n  '           *@<Lua 604: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger marks
+n  [           *@<Lua 611: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger
+n  ]           *@<Lua 612: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger
+n  `           *@<Lua 603: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger marks
+n  g           *@<Lua 608: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger
+n  g'          *@<Lua 606: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger marks
+n  g`          *@<Lua 605: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger marks
+n  z           *@<Lua 613: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger
+n  z=          *@<Lua 607: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger spelling
+n  <C-W>       *@<Lua 610: ~/AppData/Local/nvim-data/lazy/which-key.nvim/lua/which-key/triggers.lua:43>
+                 which-key-trigger
+
+
+# Editor e
+## Sessions
+n  <Space>qd   * <Lua 158: ~/AppData/Local/nvim/lua/plugins/persistence.lua:32>
+                 Don't Save Current Session
+n  <Space>ql   * <Lua 157: ~/AppData/Local/nvim/lua/plugins/persistence.lua:25>
+                 Restore Last Session
+n  <Space>qs   * <Lua 154: ~/AppData/Local/nvim/lua/plugins/persistence.lua:18>
+                 Restore Session
+## Align a
+v  gA          * <Lua 354: ~/AppData/Local/nvim/lua/plugins/utilities.lua:88>
+                 [G]o [A]lign by regex/string
+v  ga          * <Lua 353: ~/AppData/Local/nvim/lua/plugins/utilities.lua:80>
+                 [G]o [A]lign by character
+v  gA          * <Lua 354: ~/AppData/Local/nvim/lua/plugins/utilities.lua:88>
+                 [G]o [A]lign by regex/string
+v  ga          * <Lua 353: ~/AppData/Local/nvim/lua/plugins/utilities.lua:80>
+                 [G]o [A]lign by character
+v  gA          * <Lua 354: ~/AppData/Local/nvim/lua/plugins/utilities.lua:88>
+                 [G]o [A]lign by regex/string
+v  ga          * <Lua 353: ~/AppData/Local/nvim/lua/plugins/utilities.lua:80>
+                 [G]o [A]lign by character
+
+x  gx          * <Lua 11: vim/_defaults.lua:157>
+                 Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
 
 ## Show
-n  <Space>ff   * <Lua 75: ~\AppData\Local\nvim/lua/core/keymaps.lua:45>
-                 [F]ind in project (your VS Code mapping)
 n  <Space>of   * <Lua 74: ~\AppData\Local\nvim/lua/core/keymaps.lua:42>
                  [O]pen file picker
 n  <Space>cp   * <Lua 73: ~\AppData\Local\nvim/lua/core/keymaps.lua:39>
                  [C]ommand [P]alette
 n  <Space>q    * <Lua 80: C:\Program Files\Neovim\share\nvim\runtime/lua/vim/diagnostic.lua:2445>
                  Open diagnostic [Q]uickfix list
+n  <Space>se   * <Lua 177: ~/AppData/Local/nvim/lua/plugins/snacks.lua:227>
+                 [S]how [E]xplorer
 
 ## Search
 n  <Space>ss   * <Lua 182: ~/AppData/Local/nvim/lua/plugins/snacks.lua:216>
@@ -454,8 +306,6 @@ n  <Space>sh   * <Lua 179: ~/AppData/Local/nvim/lua/plugins/snacks.lua:213>
                  [S]earch [H]elp
 n  <Space><Space> * <Lua 178: ~/AppData/Local/nvim/lua/plugins/snacks.lua:222>
                  [ ] Find existing buffers
-n  <Space>se   * <Lua 177: ~/AppData/Local/nvim/lua/plugins/snacks.lua:227>
-                 [S]how [E]xplorer
 n  <Space>gg   * <Lua 176: ~/AppData/Local/nvim/lua/plugins/snacks.lua:226>
                  Lazygit
 n  <Space>sn   * <Lua 175: ~/AppData/Local/nvim/lua/plugins/snacks.lua:225>
@@ -476,7 +326,178 @@ n  <Space>sw   * <Lua 168: ~/AppData/Local/nvim/lua/plugins/snacks.lua:217>
                  [S]earch current [W]ord
 
 
-# Learning
+# Markers m
+n  <Space>mv   * <Lua 328: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Toggle drawer marker viewer
+n  <Space>me   * <Lua 327: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Edit marker at cursor
+n  <Space>md   * <Lua 326: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Delete marker at cursor
+n  <Space>mi   * <Lua 325: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Show marker at cursor
+n  <Space>ma   * <Lua 322: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
+                 Add marker
+n  <Space>mgb  * <Lua 321: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Create group from git branch
+n  <Space>mgi  * <Lua 320: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Show active group info
+n  <Space>mgd  * <Lua 319: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Delete marker group
+n  <Space>mgr  * <Lua 318: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Rename marker group
+n  <Space>mgl  * <Lua 317: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 List marker groups
+n  <Space>mgs  * <Lua 316: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Select marker group
+n  <Space>mgc  * <Lua 305: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 Create marker group
+n  <Space>mp   * <Lua 83: ~\AppData\Local\nvim/lua/core/keymaps.lua:338>
+                 [M]ark [P]revious bookmark
+n  <Space>mn   * <Lua 82: ~\AppData\Local\nvim/lua/core/keymaps.lua:333>
+                 [M]ark [N]ext bookmark
+n  <Space>ml   * <Lua 324: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:4>
+                 List markers in buffer
+n  <Space>mm   * <Lua 81: ~\AppData\Local\nvim/lua/core/keymaps.lua:308>
+                 [M]ark/Bookmark toggle
+n  <Space>ma   * <Lua 323: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
+                 Add marker
+v  <Space>ma   * <Lua 323: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
+                 Add marker
+v  <Space>ma   * <Lua 323: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
+                 Add marker
+
+
+# Other
+n  shn         * <Lua 278: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Highlight next surrounding
+n  sFn         * <Lua 277: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Find next left surrounding
+n  sfn         * <Lua 276: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Find next right surrounding
+n  srn         * <Lua 275: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Replace next surrounding
+n  sdn         * <Lua 274: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Delete next surrounding
+n  shl         * <Lua 273: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Highlight previous surrounding
+n  sFl         * <Lua 272: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Find previous left surrounding
+n  sfl         * <Lua 271: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Find previous right surrounding
+n  srl         * <Lua 270: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Replace previous surrounding
+n  sdl         * <Lua 269: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Delete previous surrounding
+n  sh          * <Lua 268: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Highlight surrounding
+n  sF          * <Lua 267: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Find left surrounding
+n  sf          * <Lua 266: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1286>
+                 Find right surrounding
+n  sr          * <Lua 265: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Replace surrounding
+n  sd          * <Lua 264: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Delete surrounding
+n  sa          * <Lua 263: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/surround.lua:1265>
+                 Add surrounding
+
+n  g]            <Lua 243: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1230>
+                 Move to right "around"
+n  g[            <Lua 240: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1229>
+                 Move to left "around"
+x  al            <Lua 251: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Around last textobject
+x  an            <Lua 250: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Around next textobject
+x  a             <Lua 246: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Around textobject
+x  g%            <Plug>(MatchitVisualBackward)
+x  g]            <Lua 244: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1230>
+                 Move to right "around"
+x  g[            <Lua 241: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1229>
+                 Move to left "around"
+x  il            <Lua 253: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Inside last textobject
+x  in            <Lua 252: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Inside next textobject
+x  i             <Lua 247: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Inside textobject
+x  sa          * :<C-U>lua MiniSurround.add('visual')<CR>
+                 Add surrounding to selection
+x  al            <Lua 251: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Around last textobject
+x  an            <Lua 250: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Around next textobject
+x  a             <Lua 246: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1233>
+                 Around textobject
+x  g%            <Plug>(MatchitVisualBackward)
+
+x  g]            <Lua 244: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1230>
+                 Move to right "around"
+x  g[            <Lua 241: ~/AppData/Local/nvim-data/lazy/mini.nvim/lua/mini/ai.lua:1229>
+                 Move to left "around"
+
+
+# Motion
+n  sj          * <Lua 166: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
+                 [S] Flash jump (EasyMotion-style)
+x  ,           * <Lua 534: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  ;           * <Lua 531: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  @           * mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'
+                 :help v_@-default
+x  F           * <Lua 522: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  Q           * mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'
+                 :help v_Q-default
+x  R           * <Lua 165: ~/AppData/Local/nvim/lua/plugins/flash.lua:10>
+                 Flash treesitter search
+x  S           * <Lua 161: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
+                 [S] Flash treesitter
+x  T           * <Lua 528: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  f           * <Lua 519: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  sj          * <Lua 159: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
+                 [S] Flash jump (EasyMotion-style)
+x  t           * <Lua 525: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  ,           * <Lua 534: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  ;           * <Lua 531: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  @           * mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'
+                 :help v_@-default
+x  F           * <Lua 522: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  Q           * mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'
+                 :help v_Q-default
+x  R           * <Lua 165: ~/AppData/Local/nvim/lua/plugins/flash.lua:10>
+                 Flash treesitter search
+x  S           * <Lua 161: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
+                 [S] Flash treesitter
+x  T           * <Lua 528: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  f           * <Lua 519: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+x  sj          * <Lua 159: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
+                 [S] Flash jump (EasyMotion-style)
+x  t           * <Lua 525: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+o  ,           * <Lua 535: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+o  ;           * <Lua 532: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+o  F           * <Lua 523: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+o  R           * <Lua 164: ~/AppData/Local/nvim/lua/plugins/flash.lua:10>
+                 Flash treesitter search
+o  S           * <Lua 162: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
+                 [S] Flash treesitter
+o  T           * <Lua 529: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+o  f           * <Lua 520: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+o  r           * <Lua 163: ~/AppData/Local/nvim/lua/plugins/flash.lua:9>
+                 Remote flash
+o  sj          * <Lua 160: ~/AppData/Local/nvim/lua/plugins/flash.lua:7>
+                 [S] Flash jump (EasyMotion-style)
+o  t           * <Lua 526: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+n  ,           * <Lua 533: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+n  ;           * <Lua 530: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+n  F           * <Lua 521: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+n  S           * <Lua 167: ~/AppData/Local/nvim/lua/plugins/flash.lua:8>
+                 [S] Flash treesitter
+n  T           * <Lua 527: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+n  f           * <Lua 514: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+n  t           * <Lua 524: ~/AppData/Local/nvim-data/lazy/flash.nvim/lua/flash/plugins/char.lua:118>
+
+
+# Learning l
 n  <Space>px   * <Lua 395: ~/AppData/Local/nvim/lua/core/learn.lua:401>
                  [P]ython: E[x]ec current line
 n  <Space>lx   * <Lua 393: ~/AppData/Local/nvim/lua/core/learn.lua:329>
@@ -525,7 +546,6 @@ n  <M-k>       * <C-W><C-K>
 n  <M-j>       * <C-W><NL>
                  Move focus to the lower window
 
-
 # Misc
 n  <Space>pr   * "0p
                  [P]aste from yank register
@@ -534,20 +554,7 @@ n  <C-Space>   *@<Lua 504: ~/AppData/Local/nvim-data/lazy/nvim-treesitter/lua/nv
 n  <Esc>       * <Cmd>nohlsearch<CR>
 
 
-
-
-
-
-n  [M          *@:<C-U>call <SNR>39_Python_jump('n', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>
-n  [m          *@:<C-U>call <SNR>39_Python_jump('n', '\v^\s*(class|def|async def)>', 'Wb', v:count1)<CR>
-n  []          *@:<C-U>call <SNR>39_Python_jump('n', '\v\S.*\n+(def|class)', 'Wb', v:count1, 0)<CR>
-n  [[          *@:<C-U>call <SNR>39_Python_jump('n', '\v^(class|def|async def)>', 'Wb', v:count1)<CR>
-n  ]M          *@:<C-U>call <SNR>39_Python_jump('n', '\v\S\n*(%$|^(\s*\n*)*(class|def|async def)|^\S)', 'W', v:count1, 0)<CR>
-n  ]m          *@:<C-U>call <SNR>39_Python_jump('n', '\v%$|^\s*(class|def|async def)>', 'W', v:count1)<CR>
-n  ][          *@:<C-U>call <SNR>39_Python_jump('n', '\v%$|\S.*\n+(def|class)', 'W', v:count1, 0)<CR>
-n  ]]          *@:<C-U>call <SNR>39_Python_jump('n', '\v%$|^(class|def|async def)>', 'W', v:count1)<CR>
-
-
+# Other defaults ignore this stuff for now
 
 n  %             <Plug>(MatchitNormalForward)
 n  &           * :&&<CR>
@@ -652,26 +659,12 @@ n  <C-W>d      * <Lua 33: vim/_defaults.lua:267>
 n  <C-L>       * <Cmd>nohlsearch|diffupdate|normal! <C-L><CR>
                  :help CTRL-L-default
 
-
-
-
 i  <C-W>       * <C-G>u<C-W>
                  :help i_CTRL-W-default
 i  <C-U>       * <C-G>u<C-U>
                  :help i_CTRL-U-default
 
 i  <Esc>       * <C-C>
-
-
-x  [M          *@:call <SNR>39_Python_jump('x', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>
-x  [m          *@:call <SNR>39_Python_jump('x', '\v^\s*(class|def|async def)>', 'Wb', v:count1)<CR>
-x  []          *@:call <SNR>39_Python_jump('x', '\v\S.*\n+(def|class)', 'Wb', v:count1, 0)<CR>
-x  [[          *@:call <SNR>39_Python_jump('x', '\v^(class|def|async def)>', 'Wb', v:count1)<CR>
-x  ]M          *@:call <SNR>39_Python_jump('x', '\v\S\n*(%$|^(\s*\n*)*(class|def|async def)|^\S)', 'W', v:count1, 0)<CR>
-x  ]m          *@:call <SNR>39_Python_jump('x', '\v%$|^\s*(class|def|async def)>', 'W', v:count1)<CR>
-x  ][          *@:call <SNR>39_Python_jump('x', '\v%$|\S.*\n+(def|class)', 'W', v:count1, 0)<CR>
-x  ]]          *@:call <SNR>39_Python_jump('x', '\v%$|^(class|def|async def)>', 'W', v:count1)<CR>
-
 
 x  #           * <Lua 9: vim/_defaults.lua:87>
                  :help v_#-default
@@ -686,21 +679,6 @@ x  <Plug>(MatchitVisualMultiForward) * :<C-U>call matchit#MultiMatch("W",  "n")<
 x  <Plug>(MatchitVisualMultiBackward) * :<C-U>call matchit#MultiMatch("bW", "n")<CR>m'gv``
 x  <Plug>(MatchitVisualBackward) * :<C-U>call matchit#Match_wrapper('',0,'v')<CR>m'gv``
 x  <Plug>(MatchitVisualForward) * :<C-U>call matchit#Match_wrapper('',1,'v')<CR>:if col("''") != col("$") | exe ":normal! m'" | endif<CR>gv``
-
-
-
-x  [M          *@:call <SNR>39_Python_jump('x', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>
-x  [m          *@:call <SNR>39_Python_jump('x', '\v^\s*(class|def|async def)>', 'Wb', v:count1)<CR>
-x  []          *@:call <SNR>39_Python_jump('x', '\v\S.*\n+(def|class)', 'Wb', v:count1, 0)<CR>
-x  [[          *@:call <SNR>39_Python_jump('x', '\v^(class|def|async def)>', 'Wb', v:count1)<CR>
-x  ]M          *@:call <SNR>39_Python_jump('x', '\v\S\n*(%$|^(\s*\n*)*(class|def|async def)|^\S)', 'W', v:count1, 0)<CR>
-x  ]m          *@:call <SNR>39_Python_jump('x', '\v%$|^\s*(class|def|async def)>', 'W', v:count1)<CR>
-x  ][          *@:call <SNR>39_Python_jump('x', '\v%$|\S.*\n+(def|class)', 'W', v:count1, 0)<CR>
-x  ]]          *@:call <SNR>39_Python_jump('x', '\v%$|^(class|def|async def)>', 'W', v:count1)<CR>
-
-
-v  <Space>ma   * <Lua 323: ~/AppData/Local/nvim-data/lazy/marker-groups.nvim/lua/marker-groups/keymaps.lua:157>
-                 Add marker
 
   <Space>ca   * <Cmd>s/\%V\(\S\+\)/&/g<CR>
                  [C]ursor [A]ll (select all in visual)
@@ -742,14 +720,6 @@ s  <C-S>       * <Lua 24: vim/_defaults.lua:220>
                  vim.lsp.buf.signature_help()
 
 
-o  [M          *@:call <SNR>39_Python_jump('o', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>
-o  [m          *@:call <SNR>39_Python_jump('o', '\v^\s*(class|def|async def)>', 'Wb', v:count1)<CR>
-o  []          *@:call <SNR>39_Python_jump('o', '\v\S.*\n+(def|class)', 'Wb', v:count1, 0)<CR>
-o  [[          *@:call <SNR>39_Python_jump('o', '\v^(class|def|async def)>', 'Wb', v:count1)<CR>
-o  ]M          *@:call <SNR>39_Python_jump('o', '\v\S\n*(%$|^(\s*\n*)*(class|def|async def)|^\S)', 'W', v:count1, 0)<CR>
-o  ]m          *@:call <SNR>39_Python_jump('o', '\v%$|^\s*(class|def|async def)>', 'W', v:count1)<CR>
-o  ][          *@:call <SNR>39_Python_jump('o', '\v%$|\S.*\n+(def|class)', 'W', v:count1, 0)<CR>
-o  ]]          *@:call <SNR>39_Python_jump('o', '\v%$|^(class|def|async def)>', 'W', v:count1)<CR>
    <Space>fb   * <Lua 133: ~/AppData/Local/nvim-data/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:121>
                  [F]ormat buffer
 o  %             <Plug>(MatchitOperationForward)
@@ -801,10 +771,8 @@ c  <End>       * <Lua 367: ~/AppData/Local/nvim-data/lazy/blink.cmp/lua/blink/cm
                  blink.cmp
 c  <Left>      * <Lua 237: ~/AppData/Local/nvim-data/lazy/blink.cmp/lua/blink/cmp/keymap/apply.lua:122>
                  blink.cmp
-
 c  <Tab>       * <Lua 355: ~/AppData/Local/nvim-data/lazy/blink.cmp/lua/blink/cmp/keymap/apply.lua:122>
                  blink.cmp
-
 
 
 t  <Esc><Esc>  * <C-\><C-N>

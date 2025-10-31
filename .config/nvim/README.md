@@ -353,3 +353,5 @@ better groups in which-key
 python formatter/linter ignore line length + other things
 
 helper function to print all keymaps to a file?
+
+space space repeat last leader sequence
