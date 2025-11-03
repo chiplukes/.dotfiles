@@ -26,8 +26,8 @@ return {
       { '<F1>', function() require('dap').step_into() end, desc = 'Debug: Step Into' },
       { '<F2>', function() require('dap').step_over() end, desc = 'Debug: Step Over' },
       { '<F3>', function() require('dap').step_out() end, desc = 'Debug: Step Out' },
-      { '<leader>bp', function() require('dap').toggle_breakpoint() end, desc = 'Debug: Toggle Breakpoint' },
-      { '<leader>B', function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = 'Debug: Set Breakpoint' },
+      -- Note: <leader>cdb (toggle breakpoint) is defined in keymaps.lua
+      -- Removed <leader>bp and <leader>B to avoid conflicts with new keymap structure
     },
 
     cmd = { 'DapUIToggle', 'DapToggleBreakpoint', 'DapContinue', 'DapStepOver', 'DapStepInto', 'DapStepOut' },

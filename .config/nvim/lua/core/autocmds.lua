@@ -48,8 +48,8 @@ vim.api.nvim_create_autocmd('FileType', {
   group = 'PythonEnhancements',
   pattern = 'python',
   callback = function()
-    -- Add keymap for docstring generation
-    vim.keymap.set('n', '<leader>pd', function()
+    -- Add keymap for docstring generation (under <leader>cp)
+    vim.keymap.set('n', '<leader>cpd', function()
       local line = vim.api.nvim_get_current_line()
       local row = vim.api.nvim_win_get_cursor(0)[1]
 
@@ -66,7 +66,7 @@ vim.api.nvim_create_autocmd('FileType', {
         -- Move cursor to docstring content
         vim.api.nvim_win_set_cursor(0, { row + 2, #indent + 4 })
       end
-    end, { desc = '[P]ython Add [D]ocstring', buffer = true })
+    end, { desc = 'Add docstring', buffer = true })
   end,
 })
 
@@ -87,7 +87,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
         bufnr = 0
       })
     else
-      vim.notify('File too large for auto-format. Use <leader>fb to format manually.', vim.log.levels.INFO)
+      vim.notify('File too large for auto-format. Use <leader>cfb to format manually.', vim.log.levels.INFO)
     end
   end,
 })

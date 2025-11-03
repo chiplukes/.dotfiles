@@ -7,6 +7,8 @@ return {
     -- delay between pressing a key and opening which-key (milliseconds)
     -- this setting is independent of vim.o.timeoutlen
     delay = 0,
+    -- Expand groups with only one keymap (show the actual keymaps instead of "+1 keymap")
+    expand = 1,
     icons = {
       -- set icon mappings to true if you have a Nerd Font
       mappings = vim.g.have_nerd_font,
@@ -46,9 +48,24 @@ return {
 
     -- Document existing key chains
     spec = {
-      { '<leader>s', group = '[S]earch' },
-      { '<leader>t', group = '[T]oggle' },
-      { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+      { '<leader>c', group = '📝 [C]ode' },
+      { '<leader>ca', group = 'LSP [A]ctions' },
+      { '<leader>cp', group = '[P]ython' },
+      { '<leader>cg', group = '[G]oto' },
+      { '<leader>c.', group = 'Diagnostics' },
+      { '<leader>cs', group = '[S]ymbols' },
+      { '<leader>cf', group = '[F]ormat' },
+      { '<leader>cd', group = '🐛 [D]ebug' },
+      { '<leader>s', group = '🔍 [S]earch' },
+      { '<leader>m', group = '📌 [M]arkers' },
+      { '<leader>mg', group = 'Marker [G]roups' },
+      { '<leader>w', group = '🪟 [W]indow' },
+      { '<leader>e', group = '📂 [E]xplorer' },
+      { '<leader>a', group = '💬 [A]I' },
+      { '<leader>l', group = '🎓 [L]earning' },
+      { '<leader>lx', group = 'E[x]ecute Code' },
+      { '<leader>q', group = '📋 Sessions' },
+      { '<leader>g', group = '✨ [G]it' },
     },
   },
 }

@@ -550,7 +550,7 @@ function M.setup()
 
     if filetype == 'python' or filetype == 'py' then
       playground_path = vim.fn.stdpath('config') .. '/doc/playground.py'
-      exec_key = '<leader>px'
+      exec_key = '<leader>cpx'
       exec_line_fn = M.exec_python_line
       exec_selection_fn = M.exec_python_selection
     else
@@ -629,8 +629,8 @@ function M.setup()
   vim.keymap.set('n', '<leader>lr', M.reload_module, { desc = '[L]earn: [R]eload current module' })
   vim.keymap.set('n', '<leader>lx', M.exec_current_line, { desc = '[L]earn: E[x]ec current line' })
   vim.keymap.set('v', '<leader>lx', M.exec_visual_selection, { desc = '[L]earn: E[x]ec selection' })
-  vim.keymap.set('n', '<leader>px', M.exec_python_line, { desc = '[P]ython: E[x]ec current line' })
-  vim.keymap.set('v', '<leader>px', M.exec_python_selection, { desc = '[P]ython: E[x]ec selection' })
+  vim.keymap.set('n', '<leader>cpx', M.exec_python_line, { desc = 'Python: execute line' })
+  vim.keymap.set('v', '<leader>cpx', M.exec_python_selection, { desc = 'Python: execute selection' })
 
   vim.notify('Learning utilities loaded! Press <leader>? for dashboard', vim.log.levels.INFO)
 end

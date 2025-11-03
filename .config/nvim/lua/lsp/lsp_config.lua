@@ -48,40 +48,40 @@ function M.setup()
 
       -- Rename the variable under your cursor.
       --  Most Language Servers support renaming across files, etc.
-      map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+      map('<leader>carn', vim.lsp.buf.rename, 'Rename')
 
       -- Execute a code action, usually your cursor needs to be on top of an error
       -- or a suggestion from your LSP for this to activate.
-      map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+      map('<leader>caa', vim.lsp.buf.code_action, 'Code actions', { 'n', 'x' })
 
       -- Find references for the word under your cursor.
-      map('grr', function() require('snacks').picker.lsp_references() end, '[G]oto [R]eferences')
+      map('<leader>cgr', function() require('snacks').picker.lsp_references() end, 'Goto references')
 
       -- Jump to the implementation of the word under your cursor.
       --  Useful when your language has ways of declaring types without an actual implementation.
-      map('gri', function() require('snacks').picker.lsp_implementations() end, '[G]oto [I]mplementation')
+      map('<leader>cgi', function() require('snacks').picker.lsp_implementations() end, 'Goto implementation')
 
       -- Jump to the definition of the word under your cursor.
       --  This is where a variable was first declared, or where a function is defined, etc.
       --  To jump back, press <C-t>.
-      map('grd', function() require('snacks').picker.lsp_definitions() end, '[G]oto [D]efinition')
+      map('<leader>cgd', function() require('snacks').picker.lsp_definitions() end, 'Goto definition')
 
       -- WARN: This is not Goto Definition, this is Goto Declaration.
       --  For example, in C this would take you to the header.
-      map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+      map('<leader>cgD', vim.lsp.buf.declaration, 'Goto declaration')
 
       -- Fuzzy find all the symbols in your current document.
       --  Symbols are things like variables, functions, types, etc.
-      map('gO', function() require('snacks').picker.lsp_symbols() end, 'Open Document Symbols')
+      map('<leader>csof', function() require('snacks').picker.lsp_symbols() end, 'Open document symbols')
 
       -- Fuzzy find all the symbols in your current workspace.
       --  Similar to document symbols, except searches over your entire project.
-      map('gW', function() require('snacks').picker.lsp_symbols({ workspace = true }) end, 'Open Workspace Symbols')
+      map('<leader>csow', function() require('snacks').picker.lsp_symbols({ workspace = true }) end, 'Open workspace symbols')
 
       -- Jump to the type of the word under your cursor.
       --  Useful when you're not sure what type a variable is and you want to see
       --  the definition of its *type*, not where it was *defined*.
-      map('grt', function() require('snacks').picker.lsp_type_definitions() end, '[G]oto [T]ype Definition')
+      map('<leader>cgt', function() require('snacks').picker.lsp_type_definitions() end, 'Goto type definition')
 
       -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
       ---@param client vim.lsp.Client
@@ -129,73 +129,44 @@ function M.setup()
       -- Enhanced LSP Keybindings (Phase 2)
       -- =============================================================================
 
-      -- Advanced diagnostic navigation
-      map('gdn', function()
-        vim.diagnostic.goto_next({ float = true })
-      end, '[G]oto [D]iagnostic [N]ext')
+      -- Advanced diagnostic navigation (now under <leader>c.)
+      -- These are defined in keymaps.lua as VIP and categorized versions
+      -- Keeping these here as LSP-specific alternatives if needed
 
-      map('gdp', function()
-        vim.diagnostic.goto_prev({ float = true })
-      end, '[G]oto [D]iagnostic [P]revious')
+      -- Format buffer (now <leader>cfb in keymaps.lua)
+      map('<leader>cfb', function()
+        vim.lsp.buf.format({ async = true })
+      end, 'Format buffer')
 
-      -- Show diagnostic in floating window
-      map('gdd', function()
-        vim.diagnostic.open_float(nil, { focusable = true, border = 'rounded' })
-      end, '[G]oto [D]iagnostic [D]etails')
+      -- Symbol search (now under <leader>cs)
+      map('<leader>cssf', function()
+        require('snacks').picker.lsp_symbols()
+      end, 'Search document symbols')
 
-      -- Workspace management
-      map('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-      map('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-      map('<leader>wl', function()
-        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-      end, '[W]orkspace [L]ist Folders')
+      map('<leader>cssw', function()
+        require('snacks').picker.lsp_symbols({ workspace = true })
+      end, 'Search workspace symbols')
 
-      -- Enhanced code actions with context
-      map('<leader>ca', function()
-        vim.lsp.buf.code_action({
-          context = {
-            only = { 'quickfix', 'refactor', 'source' },
-            diagnostics = vim.diagnostic.get(0)
-          }
-        })
-      end, '[C]ode [A]ctions (Enhanced)')
-
-      -- Organize imports (if supported)
+      -- Organize imports (now under <leader>cpi)
       if client and client_supports_method(client, 'textDocument/codeAction', event.buf) then
-        map('<leader>oi', function()
+        map('<leader>cpi', function()
           vim.lsp.buf.code_action({
             context = { only = { 'source.organizeImports' } },
             apply = true
           })
-        end, '[O]rganize [I]mports')
+        end, 'Organize imports')
       end
 
-      -- Format current buffer or selection
-      map('<leader>fb', function()
-        vim.lsp.buf.format({
-          async = true,
-          filter = function(format_client)
-            -- Prefer specific formatters over LSP formatting
-            local preferred_formatters = {
-              python = { 'black', 'autopep8' },
-              verilog = { 'verible' },
-              systemverilog = { 'verible' },
-            }
-            local ft = vim.bo.filetype
-            if preferred_formatters[ft] then
-              return vim.tbl_contains(preferred_formatters[ft], format_client.name)
-            end
-            return true
-          end
-        })
-      end, '[B]uffer [F]ormat')
+      -- Format current buffer or selection (now <leader>cfb)
+      -- Already defined above in the keybindings section
 
       -- Enhanced signature help with better positioning
       map('<C-k>', function()
         vim.lsp.buf.signature_help()
       end, 'Signature Help', 'i')
 
-      -- Hover with enhanced formatting
+      -- Hover with enhanced formatting (K is VIP keymap in keymaps.lua)
+      -- Keeping this LSP-specific version here
       map('K', function()
         -- Try LSP hover first, fallback to vim's default K
         local params = vim.lsp.util.make_position_params()
@@ -215,32 +186,32 @@ function M.setup()
         end)
       end, 'Hover Documentation')
 
-      -- Enhanced symbol search
-      map('<leader>ss', function()
+      -- Enhanced symbol search (now under <leader>cs)
+      map('<leader>cssf', function()
         require('snacks').picker.lsp_symbols()
-      end, '[S]earch Document [S]ymbols')
+      end, 'Search document symbols')
 
-      map('<leader>sS', function()
+      map('<leader>cssw', function()
         require('snacks').picker.lsp_symbols({ workspace = true })
-      end, '[S]earch Workspace [S]ymbols')
+      end, 'Search workspace symbols')
 
       -- Language-specific enhancements
       local filetype = vim.bo[event.buf].filetype
 
-      -- Python-specific keybindings
+      -- Python-specific keybindings (now under <leader>cp)
       if filetype == 'python' then
-        map('<leader>pi', function()
+        map('<leader>cpi', function()
           vim.lsp.buf.code_action({
             context = { only = { 'source.addMissingImports' } },
             apply = true
           })
-        end, '[P]ython Add Missing [I]mports')
+        end, 'Add missing imports')
 
-        map('<leader>pr', function()
+        map('<leader>cpr', function()
           vim.lsp.buf.code_action({
             context = { only = { 'refactor.extract' } }
           })
-        end, '[P]ython [R]efactor Extract')
+        end, 'Refactor extract')
       end
 
       -- Verilog-specific keybindings

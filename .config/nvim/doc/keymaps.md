@@ -11,6 +11,7 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 
 | Keymap | Description | File | Notes |
 |--------|-------------|------|-------|
+| `<leader><leader>` | Repeat last command | keymaps.lua | Repeat Previous command |
 | `<leader>ff` | Find files in project | keymaps.lua | VS Code-style file search |
 | `<leader>gc` | Toggle comment | (default) | Line/block commenting |
 | `ge` | Go to next error | (default) | VS Code-style error navigation |
@@ -24,6 +25,13 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 | `<Alt-j>` | Window down | keymaps.lua | Navigate to lower window |
 | `<Alt-k>` | Window up | keymaps.lua | Navigate to upper window |
 | `<Esc>` | Clear search highlight | keymaps.lua | Clear search results |
+| `<Alt-h>` | Left/prev buffer/tab | keymaps.lua | With wrap-around |
+| `<Alt-l>` | Right/next buffer/tab | keymaps.lua | With wrap-around |
+| `<Alt-k>` | Window up | keymaps.lua | Move to upper |
+| `<Alt-j>` | Window down | keymaps.lua | Move to lower |
+|  `se` | Show explorer | snacks.lua | File tree view |
+|  `y` | Accept suggestion | keymaps.lua | Accept AI completion |
+| Misc | `pr` | Paste from yank | keymaps.lua | Paste register 0 |
 
 ---
 
@@ -31,17 +39,29 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 
 Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 
-### LSP Actions
+### LSP Actions (`a` prefix)
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
 | Actions | `a` | Code actions (enhanced) | lsp_config.lua | Context menu |
 | Actions | `m` | Context menu | keymaps.lua | Alternative to `.` |
 | Refactor | `pr` | Python refactor extract | lsp_config.lua | Python-specific |
-| Imports | `pi` | Python add missing imports | lsp_config.lua | Python-specific |
-| Imports | `oi` | Organize imports | lsp_config.lua | General import cleanup |
+| Goto | `a` | Code action at cursor | (default) | Quick action |
+| Goto | `rn` | Rename symbol | (default) | LSP rename |
 
-### Goto Navigation (`g`)
+
+### Python Specific (`p` prefix)
+
+| Subcategory | Keymap | Description | File | Notes |
+|-------------|--------|-------------|------|-------|
+| Refactor | `r` | Python refactor extract | lsp_config.lua | Python-specific |
+| Imports | `i` | Python add missing imports | lsp_config.lua | Python-specific |
+| Imports | `i` | Organize imports | lsp_config.lua | General import cleanup |
+| Python | `d` | Add docstring | autocmds.lua | Generate docstring |
+| Execute | `x` (n) | Execute Python line | learn.lua | Run current line |
+
+
+### Goto Navigation (`g` prefix)
 
 | Subcategory -g | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
@@ -50,67 +70,62 @@ Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 | Goto | `i` | Go to implementation | lsp_config.lua | Jump to implementation |
 | Goto | `D` | Go to declaration | lsp_config.lua | Jump to declaration |
 | Goto | `t` | Go to type definition | lsp_config.lua | Jump to type def |
-| Goto | `a` | Code action at cursor | (default) | Quick action |
-| Goto | `rn` | Rename symbol | (default) | LSP rename |
 
-### Diagnostics (gd* prefix)
+### Diagnostics (`.` prefix)
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Diagnostic | `gdn` | Go to next diagnostic | lsp_config.lua | Next issue |
-| Diagnostic | `gdp` | Go to previous diagnostic | lsp_config.lua | Previous issue |
-| Diagnostic | `gdd` | Diagnostic details | lsp_config.lua | Show full details |
-| Diagnostic | `]d` | Next diagnostic | (default) | Alternative binding |
-| Diagnostic | `[d` | Previous diagnostic | (default) | Alternative binding |
+| Diagnostic | `n` | next diagnostic | lsp_config.lua | Next issue |
+| Diagnostic | `p` | previous diagnostic | lsp_config.lua | Previous issue |
+| Diagnostic | `d` | Diagnostic details | lsp_config.lua | Show full details |
+| Diagnostic | `]` | Next diagnostic | (default) | Alternative binding |
+| Diagnostic | `[` | Previous diagnostic | (default) | Alternative binding |
 | Diagnostic | `e` | Show error messages | (default) | Diagnostic float |
 | Diagnostic | `q` | Diagnostic quickfix | (default) | Quickfix list |
 | Diagnostic | `u` | Hide diagnostics | keymaps.lua | Undo/hide suggestions |
 
-### Symbols & Search
+### Symbols & Search (`s` prefix)
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Symbols | `ss` | Search document symbols | lsp_config.lua | Current file symbols |
-| Symbols | `sS` | Search workspace symbols | lsp_config.lua | Project-wide symbols |
-| Symbols | `gO` | Open document symbols | lsp_config.lua | Symbol outline |
-| Symbols | `gW` | Open workspace symbols | lsp_config.lua | Workspace outline |
+| Symbols | `sf` | Search document symbols | lsp_config.lua | Current file symbols |
+| Symbols | `sw` | Search workspace symbols | lsp_config.lua | Project-wide symbols |
+| Symbols | `of` | Open document symbols | lsp_config.lua | Symbol outline |
+| Symbols | `ow` | Open workspace symbols | lsp_config.lua | Workspace outline |
 
-### Formatting
-
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Format | `fb` | Format buffer | lsp_config.lua | Format entire file |
-| Format | `rf` (n) | Format document | keymaps.lua | Recode format |
-| Format | `rf` (v) | Format selection | keymaps.lua | Format visual selection |
-
-### Workspace
+### Formatting (`f` prefix)
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Workspace | `wa` | Add folder | (default) | Add to workspace |
-| Workspace | `wr` | Remove folder | (default) | Remove from workspace |
-| Workspace | `wl` | List folders | lsp_config.lua | Show workspace folders |
+| Format | `b` | Format buffer | lsp_config.lua | Format entire file |
+| Format | `rf` (n) | Format document | keymaps.lua | Recode format | (remove_this)
+| Format | `s` (v) | Format selection | keymaps.lua | Format visual selection |
 
-### Python-Specific
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Python | `pd` | Add docstring | autocmds.lua | Generate docstring |
-
----
-
-## 🐛 Debug (`d`)
+### 🐛 Debug (`d`)
 
 Debugging operations and breakpoint management.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
 | Breakpoint | `b` | Toggle breakpoint | (lazy) | Toggle BP at line |
-| Breakpoint | `B` | Set breakpoint | (lazy) | Set conditional BP |
+| Breakpoint | `B` | Set breakpoint | (lazy) | Set conditional BP | (remove_this)
 | Control | `<F5>` | Start/Continue | (lazy) | Begin/resume debugging |
 | Control | `<F1>` | Step into | (lazy) | Step into function |
 | Control | `<F2>` | Step over | (lazy) | Step over line |
 | Control | `<F3>` | Step out | (lazy) | Step out of function |
+
+
+### Workspace
+
+| Subcategory | Keymap | Description | File | Notes |
+|-------------|--------|-------------|------|-------|
+| Workspace | `wa` | Add folder | (default) | Add to workspace | (remove_this)
+| Workspace | `wr` | Remove folder | (default) | Remove from workspace | (remove_this)
+| Workspace | `wl` | List folders | lsp_config.lua | Show workspace folders | (remove_this)
+
+---
+
 
 ---
 
@@ -120,19 +135,20 @@ File search, grep, and fuzzy finding operations.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Files | `sf` | Search files | snacks.lua | Find by filename |
-| Files | `s.` | Recent files | snacks.lua | Recently opened |
-| Files | `sn` | Neovim config files | snacks.lua | Search config dir |
-| Content | `sg` | Search by grep | snacks.lua | Live grep content |
-| Content | `sw` | Search current word | snacks.lua | Grep word under cursor |
+| Files | `f` | Search files | snacks.lua | Find by filename |
+| Files | `r` | Recent files | snacks.lua | Recently opened |
+| Files | `c` | Neovim config files | snacks.lua | Search config dir |
+| Content | `g` | Search by grep | snacks.lua | Live grep content |
+| Content | `w` | Search current word | snacks.lua | Grep word under cursor |
 | Content | `/` | Search in buffer | snacks.lua | Fuzzy search current file |
-| Content | `s/` | Search in open files | snacks.lua | Search across buffers |
-| Smart | `ss` | Smart search | snacks.lua | Context-aware search |
-| Other | `sk` | Search keymaps | snacks.lua | Find keybindings |
-| Other | `sh` | Search help | snacks.lua | Neovim help tags |
-| Other | `sd` | Search diagnostics | snacks.lua | Find diagnostics |
-| Other | `sr` | Resume search | snacks.lua | Resume last picker |
-| Other | `<leader><leader>` | Find buffers | snacks.lua | Open buffer list |
+| Content | `of` | Search in open files | snacks.lua | Search across buffers |
+| Smart | `s` | Smart search | snacks.lua | Context-aware search |
+| Other | `k` | Search keymaps | snacks.lua | Find keybindings |
+| Other | `h` | Search help | snacks.lua | Neovim help tags |
+| Other | `d` | Search diagnostics | snacks.lua | Find diagnostics |
+| Other | `r` | Resume search | snacks.lua | Resume last picker |
+| Other | `bl` | Find buffers | snacks.lua | Open buffer list |
+| Command | `p` | Command palette | keymaps.lua | VS Code-style palette |
 
 ---
 
@@ -144,27 +160,27 @@ Bookmark and marker management.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Basic | `mm` | Toggle bookmark | keymaps.lua | Mark current line |
-| Basic | `mn` | Next bookmark | keymaps.lua | Jump to next |
-| Basic | `mp` | Previous bookmark | keymaps.lua | Jump to previous |
-| Basic | `ma` | Add marker | marker-groups.nvim | Add with description |
-| Basic | `ml` | List markers | marker-groups.nvim | Show buffer markers |
-| Basic | `mi` | Show marker info | marker-groups.nvim | Details at cursor |
-| Basic | `md` | Delete marker | marker-groups.nvim | Remove at cursor |
-| Basic | `me` | Edit marker | marker-groups.nvim | Modify marker |
-| Basic | `mv` | Toggle marker viewer | marker-groups.nvim | Drawer view |
+| Basic | `m` | Toggle bookmark | keymaps.lua | Mark current line |
+| Basic | `n` | Next bookmark | keymaps.lua | Jump to next |
+| Basic | `p` | Previous bookmark | keymaps.lua | Jump to previous |
+| Basic | `a` | Add marker | marker-groups.nvim | Add with description |
+| Basic | `l` | List markers | marker-groups.nvim | Show buffer markers |
+| Basic | `i` | Show marker info | marker-groups.nvim | Details at cursor |
+| Basic | `d` | Delete marker | marker-groups.nvim | Remove at cursor |
+| Basic | `e` | Edit marker | marker-groups.nvim | Modify marker |
+| Basic | `v` | Toggle marker viewer | marker-groups.nvim | Drawer view |
 
-### Marker Groups
+### Marker Groups (`g` prefix)
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Groups | `mgc` | Create group | marker-groups.nvim | New marker group |
-| Groups | `mgs` | Select group | marker-groups.nvim | Switch active group |
-| Groups | `mgl` | List groups | marker-groups.nvim | Show all groups |
-| Groups | `mgr` | Rename group | marker-groups.nvim | Rename active group |
-| Groups | `mgd` | Delete group | marker-groups.nvim | Remove group |
-| Groups | `mgi` | Group info | marker-groups.nvim | Show group details |
-| Groups | `mgb` | Create from branch | marker-groups.nvim | Git branch group |
+| Groups | `c` | Create group | marker-groups.nvim | New marker group |
+| Groups | `s` | Select group | marker-groups.nvim | Switch active group |
+| Groups | `l` | List groups | marker-groups.nvim | Show all groups |
+| Groups | `r` | Rename group | marker-groups.nvim | Rename active group |
+| Groups | `d` | Delete group | marker-groups.nvim | Remove group |
+| Groups | `i` | Group info | marker-groups.nvim | Show group details |
+| Groups | `b` | Create from branch | marker-groups.nvim | Git branch group |
 
 ---
 
@@ -174,14 +190,10 @@ Window splitting, navigation, and layout management.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Split | `wv` | Split vertical | keymaps.lua | Vertical split |
-| Split | `wc` | Close window | keymaps.lua | Close current |
-| Split | `wf` | Fullscreen | keymaps.lua | Close other windows |
-| Navigation | `<M-h>` | Left/prev buffer/tab | keymaps.lua | With wrap-around |
-| Navigation | `<M-l>` | Right/next buffer/tab | keymaps.lua | With wrap-around |
-| Navigation | `<M-k>` | Window up | keymaps.lua | Move to upper |
-| Navigation | `<M-j>` | Window down | keymaps.lua | Move to lower |
-| Other | `we` | Explorer (netrw) | keymaps.lua | File browser |
+| Split | `v` | Split vertical | keymaps.lua | Vertical split |
+| Split | `c` | Close window | keymaps.lua | Close current |
+| Split | `f` | Fullscreen | keymaps.lua | Close other windows |
+| Other | `we` | Explorer (netrw) | keymaps.lua | File browser | (remove_this)
 
 ---
 
@@ -191,9 +203,9 @@ File exploration and project navigation.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Explorer | `se` | Show explorer | snacks.lua | File tree view |
-| Explorer | `of` | Open file picker | keymaps.lua | Quick file open |
-| Explorer | `we` | Window explorer | keymaps.lua | Netrw explorer |
+| Explorer | `f` | Open file picker | keymaps.lua | Quick file open |
+| Explorer | `w` | Window explorer | keymaps.lua | Netrw explorer |
+| Explorer | `t` | Show explorer | snacks.lua | File tree view |
 
 ---
 
@@ -215,25 +227,25 @@ Learning utilities and config debugging tools.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Inspect | `li` | Inspect word | learn.lua | Inspect value at cursor |
-| Info | `lb` | Buffer info | learn.lua | Show buffer details |
-| Info | `lw` | Window info | learn.lua | Show window details |
-| Info | `ll` | LSP clients | learn.lua | Active LSP servers |
-| Info | `lp` | Plugins | learn.lua | Loaded plugins |
-| Info | `lk` | Keymaps | learn.lua | Show keymaps for mode |
-| Info | `lh` | Highlight groups | learn.lua | Treesitter highlights |
-| Info | `lo` | Options | learn.lua | Vim option values |
+| Inspect | `i` | Inspect word | learn.lua | Inspect value at cursor |
+| Info | `b` | Buffer info | learn.lua | Show buffer details |
+| Info | `w` | Window info | learn.lua | Show window details |
+| Info | `l` | LSP clients | learn.lua | Active LSP servers |
+| Info | `p` | Plugins | learn.lua | Loaded plugins |
+| Info | `k` | Keymaps | learn.lua | Show keymaps for mode |
+| Info | `h` | Highlight groups | learn.lua | Treesitter highlights |
+| Info | `o` | Options | learn.lua | Vim option values |
 | Info | `?` | Learning dashboard | learn.lua | Open help dashboard |
+| Module | `hr` | Reload module | learn.lua | Hot reload config |
 
-### Code Execution
+### Code Execution (`x` prefix)
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Execute | `lx` (n) | Execute Lua line | learn.lua | Run current line |
-| Execute | `lx` (v) | Execute Lua selection | learn.lua | Run selected code |
-| Execute | `px` (n) | Execute Python line | learn.lua | Run current line |
-| Execute | `px` (v) | Execute Python selection | learn.lua | Run selected code |
-| Module | `lr` | Reload module | learn.lua | Hot reload config |
+| Execute | `l` (n) | Execute Lua line | learn.lua | Run current line |
+| Execute | `l` (v) | Execute Lua selection | learn.lua | Run selected code |
+| Execute | `p` (n) | Execute Python line | learn.lua | Run current line |
+| Execute | `p` (v) | Execute Python selection | learn.lua | Run selected code |
 
 ---
 
@@ -249,16 +261,13 @@ Session management and persistence.
 
 ---
 
-## ✨ Editor Features (`<leader>o`)
+## ✨ Git Stuff (`<leader>g`)
 
-Other editor operations.
+Git Stuff
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Command | `cp` | Command palette | keymaps.lua | VS Code-style palette |
-| Misc | `gg` | Lazygit | snacks.lua | Git interface |
-| Misc | `pr` | Paste from yank | keymaps.lua | Paste register 0 |
-
+| Misc | `g` | Lazygit | snacks.lua | Git interface |
 
 ---
 

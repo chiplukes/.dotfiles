@@ -55,12 +55,12 @@ return {
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>fb',
+        '<leader>cfb',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
         mode = '',
-        desc = '[F]ormat buffer',
+        desc = 'Format buffer',
       },
     },
     opts = {
