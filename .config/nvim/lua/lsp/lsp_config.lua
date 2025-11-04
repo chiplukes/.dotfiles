@@ -397,7 +397,11 @@ function M.setup()
       init_options = {
         settings = {
           -- Configure Ruff to be the primary Python tool
-          args = { '--extend-select', 'I' }, -- Enable import sorting
+          args = { 
+            '--extend-select', 'I',     -- Enable import sorting
+            '--ignore', 'E501',         -- Ignore line-too-long warnings
+            '--line-length', '88'       -- Set max line length to 88 (Black's default)
+          },
         },
       },
     },

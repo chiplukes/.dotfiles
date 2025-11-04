@@ -135,12 +135,13 @@ vim.keymap.set('n', '<A-h>', function()
   end
   -- No window to the left: build a flattened (tab,buf) list and move to the previous entry
   local function prev_in_flat_list()
-    local tabs = vim.fn.tabpagenr('$')
+    local tabpages = vim.api.nvim_list_tabpages()
     local entries = {}
-    for t = 1, tabs do
-      local wins = vim.api.nvim_tabpage_list_wins(t)
+    for _, tab_handle in ipairs(tabpages) do
+      local tab_nr = vim.api.nvim_tabpage_get_number(tab_handle)
+      local wins = vim.api.nvim_tabpage_list_wins(tab_handle)
       for _, w in ipairs(wins) do
-        table.insert(entries, { tab = t, win = w })
+        table.insert(entries, { tab = tab_nr, win = w })
       end
     end
     if #entries == 0 then return end
@@ -218,12 +219,13 @@ vim.keymap.set('n', '<A-l>', function()
   end
   -- No window to the right: build a flattened (tab,buf) list and move to the next entry
   local function next_in_flat_list()
-    local tabs = vim.fn.tabpagenr('$')
+    local tabpages = vim.api.nvim_list_tabpages()
     local entries = {}
-    for t = 1, tabs do
-      local wins = vim.api.nvim_tabpage_list_wins(t)
+    for _, tab_handle in ipairs(tabpages) do
+      local tab_nr = vim.api.nvim_tabpage_get_number(tab_handle)
+      local wins = vim.api.nvim_tabpage_list_wins(tab_handle)
       for _, w in ipairs(wins) do
-        table.insert(entries, { tab = t, win = w })
+        table.insert(entries, { tab = tab_nr, win = w })
       end
     end
     if #entries == 0 then return end
@@ -369,6 +371,9 @@ end, { desc = 'Command palette' })
 
 -- Split vertical
 vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = 'Split vertical' })
+
+-- New Tab
+vim.keymap.set('n', '<leader>wt', '<cmd>tabnew<CR>', { desc = 'New Tab' })
 
 -- Close window
 vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = 'Close window' })
@@ -695,6 +700,55 @@ end, { desc = 'Dashboard' })
 vim.keymap.set('n', '<leader>lhr', function()
   require('core.learn').reload_config()
 end, { desc = 'Reload config' })
+
+-- File path info commands
+vim.keymap.set('n', '<leader>lf', function()
+  local full_path = vim.fn.expand('%:p')
+  local relative_path = vim.fn.expand('%')
+  local filename = vim.fn.expand('%:t')
+
+  if full_path == '' then
+    vim.notify('No file in current buffer', vim.log.levels.WARN)
+    return
+  end
+
+  local lines = {
+    'File Information:',
+    '  Filename: ' .. filename,
+    '  Relative: ' .. relative_path,
+    '  Full path: ' .. full_path,
+    '  Directory: ' .. vim.fn.expand('%:p:h'),
+    '  Extension: ' .. vim.fn.expand('%:e'),
+    '  Size: ' .. vim.fn.getfsize(full_path) .. ' bytes'
+  }
+
+  vim.notify(table.concat(lines, '\n'), vim.log.levels.INFO)
+  print(full_path)  -- Also print to command line for easy copying
+end, { desc = 'File path info' })
+
+vim.keymap.set('n', '<leader>lfc', function()
+  local full_path = vim.fn.expand('%:p')
+  if full_path == '' then
+    vim.notify('No file in current buffer', vim.log.levels.WARN)
+    return
+  end
+
+  vim.fn.setreg('+', full_path)  -- Copy to system clipboard
+  vim.fn.setreg('"', full_path)  -- Copy to default register
+  vim.notify('Full path copied to clipboard: ' .. full_path, vim.log.levels.INFO)
+end, { desc = 'Copy full path' })
+
+vim.keymap.set('n', '<leader>lfr', function()
+  local relative_path = vim.fn.expand('%')
+  if relative_path == '' then
+    vim.notify('No file in current buffer', vim.log.levels.WARN)
+    return
+  end
+
+  vim.fn.setreg('+', relative_path)  -- Copy to system clipboard
+  vim.fn.setreg('"', relative_path)  -- Copy to default register
+  vim.notify('Relative path copied: ' .. relative_path, vim.log.levels.INFO)
+end, { desc = 'Copy relative path' })
 
 -- Execute (lx) - Execution commands don't need repeat either
 vim.keymap.set('n', '<leader>lxl', function()

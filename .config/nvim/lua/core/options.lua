@@ -72,4 +72,93 @@ vim.o.smoothscroll = true  -- Enable smooth scrolling
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- Enable tabline and show full paths in tabs
+vim.o.showtabline = 2  -- Always show tabline (0=never, 1=only if multiple tabs, 2=always)
+
+-- Custom tabline function to show full paths with enhanced active tab highlighting
+function _G.custom_tabline()
+  -- Define custom highlight groups for better active tab visibility
+  vim.api.nvim_set_hl(0, 'TabLineActive', {
+    fg = '#ffffff', bg = '#0078d4', bold = true
+  })
+  vim.api.nvim_set_hl(0, 'TabLineInactive', {
+    fg = '#888888', bg = '#2d2d2d'
+  })
+
+  local s = ''
+  local current_tab = vim.fn.tabpagenr()
+
+  for i = 1, vim.fn.tabpagenr('$') do
+    local is_active = (i == current_tab)
+
+    -- Enhanced highlighting for active vs inactive tabs
+    if is_active then
+      s = s .. '%#TabLineActive#'
+    else
+      s = s .. '%#TabLineInactive#'
+    end
+
+    -- Set the tab page number for mouse clicks
+    s = s .. '%' .. i .. 'T'
+
+    -- Get the buffer name for this tab
+    local buflist = vim.fn.tabpagebuflist(i)
+    local winnr = vim.fn.tabpagewinnr(i)
+    local bufname = vim.fn.bufname(buflist[winnr])
+
+    -- Format the tab label with full path and enhanced active tab styling
+    local label
+    if bufname == '' then
+      if is_active then
+        label = ' ▶ [No Name] ◀ '
+      else
+        label = ' [No Name] '
+      end
+    else
+      -- Show full path but make it more readable
+      local full_path = vim.fn.fnamemodify(bufname, ':p')
+      local home = vim.fn.expand('~')
+
+      -- Replace home directory with ~ for readability
+      local path_display
+      if full_path:sub(1, #home) == home then
+        path_display = '~' .. full_path:sub(#home + 1)
+      else
+        path_display = full_path
+      end
+
+      -- Add visual indicators and spacing for active tab
+      if is_active then
+        label = ' ▶ ' .. path_display .. ' ◀ '
+      else
+        label = ' ' .. path_display .. ' '
+      end
+
+      -- Add modified indicator
+      if vim.fn.getbufvar(buflist[winnr], '&modified') == 1 then
+        if is_active then
+          label = label .. '[●] '
+        else
+          label = label .. '[+] '
+        end
+      end
+    end
+
+    s = s .. label
+  end
+
+  -- Fill the rest of the tabline
+  s = s .. '%#TabLineFill#%T'
+
+  -- Add close button on the right
+  if vim.fn.tabpagenr('$') > 1 then
+    s = s .. '%=%#TabLine#%999XX'
+  end
+
+  return s
+end
+
+-- Set the custom tabline
+vim.o.tabline = '%!v:lua.custom_tabline()'
+
 return M

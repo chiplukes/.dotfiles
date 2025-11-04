@@ -194,6 +194,7 @@ Window splitting, navigation, and layout management.
 | Split | `c` | Close window | keymaps.lua | Close current |
 | Split | `f` | Fullscreen | keymaps.lua | Close other windows |
 | Other | `we` | Explorer (netrw) | keymaps.lua | File browser | (remove_this)
+| Split | `t` | move to tab | keymaps.lua | Move to New Tab |
 
 ---
 
