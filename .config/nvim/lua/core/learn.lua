@@ -204,6 +204,128 @@ function M.show_lsp_clients()
   M.inspect(info, ' LSP Clients ')
 end
 
+--- Debug LSP configuration in detail (comprehensive LSP diagnostics)
+function M.debug_lsp_config()
+  local active_clients = vim.lsp.get_active_clients()
+
+  if #active_clients == 0 then
+    vim.notify('No active LSP clients found', vim.log.levels.WARN)
+    return
+  end
+
+  local debug_info = {
+    total_clients = #active_clients,
+    clients = {}
+  }
+
+  for _, client in ipairs(active_clients) do
+    local client_info = {
+      id = client.id,
+      name = client.name,
+      root_dir = client.config.root_dir,
+      filetypes = client.config.filetypes,
+      settings = client.config.settings or {},
+      capabilities = {
+        has_completion = client.server_capabilities.completionProvider ~= nil,
+        has_hover = client.server_capabilities.hoverProvider ~= nil,
+        has_signature_help = client.server_capabilities.signatureHelpProvider ~= nil,
+        has_definition = client.server_capabilities.definitionProvider ~= nil,
+        has_references = client.server_capabilities.referencesProvider ~= nil,
+        has_rename = client.server_capabilities.renameProvider ~= nil,
+      },
+      attached_buffers = client.attached_buffers and vim.tbl_keys(client.attached_buffers) or {},
+      workspace_folders = client.workspace_folders,
+    }
+
+    -- Add special handling for pylsp to show plugin configuration
+    if client.name == 'pylsp' and client.config.settings.pylsp then
+      client_info.pylsp_plugins = client.config.settings.pylsp.plugins or {}
+    end
+
+    table.insert(debug_info.clients, client_info)
+  end
+
+  M.inspect(debug_info, ' LSP Configuration Debug ')
+
+  -- Also print to command line for easy copying
+  print("=== LSP Debug Info ===")
+  print(vim.inspect(debug_info))
+end
+
+--- Print active LSP clients (command-line version for easy copying)
+function M.print_lsp_clients()
+  local active_clients = vim.lsp.get_active_clients()
+  print("=== Active LSP Clients ===")
+  print(vim.inspect(active_clients))
+  return active_clients
+end
+
+--- Debug specific LSP client by name
+---@param client_name string Name of the LSP client to debug (e.g., 'pylsp', 'ruff')
+function M.debug_lsp_client(client_name)
+  local clients = vim.lsp.get_active_clients({ name = client_name })
+
+  if #clients == 0 then
+    vim.notify(string.format('No active client named "%s" found', client_name), vim.log.levels.WARN)
+    return
+  end
+
+  local client = clients[1]  -- Take the first match
+  local detailed_info = {
+    basic = {
+      id = client.id,
+      name = client.name,
+      root_dir = client.config.root_dir,
+      cmd = client.config.cmd,
+      filetypes = client.config.filetypes,
+    },
+    settings = client.config.settings or {},
+    server_capabilities = client.server_capabilities,
+    attached_buffers = client.attached_buffers and vim.tbl_keys(client.attached_buffers) or {},
+    workspace_folders = client.workspace_folders,
+    handlers = client.handlers and vim.tbl_keys(client.handlers) or {},
+  }
+
+  M.inspect(detailed_info, string.format(' %s LSP Client Details ', client_name))
+
+  -- Also print to command line
+  print(string.format("=== %s Client Details ===", client_name))
+  print(vim.inspect(detailed_info))
+
+  return detailed_info
+end
+
+--- Show LSP log messages (last 20 entries)
+function M.show_lsp_log()
+  local log_path = vim.lsp.get_log_path()
+  if not log_path or not vim.fn.filereadable(log_path) then
+    vim.notify('LSP log file not found or not readable', vim.log.levels.WARN)
+    return
+  end
+
+  -- Read last 20 lines of the log file
+  local lines = {}
+  local file = io.open(log_path, 'r')
+  if file then
+    local content = file:read('*all')
+    file:close()
+
+    local all_lines = vim.split(content, '\n')
+    local start = math.max(1, #all_lines - 20)
+    for i = start, #all_lines do
+      if all_lines[i] and all_lines[i] ~= '' then
+        table.insert(lines, all_lines[i])
+      end
+    end
+  end
+
+  if #lines > 0 then
+    M.inspect(lines, ' LSP Log (Last 20 entries) ')
+  else
+    vim.notify('No recent LSP log entries found', vim.log.levels.INFO)
+  end
+end
+
 --- Show all loaded plugins
 function M.show_plugins()
   local ok, lazy = pcall(require, 'lazy')
@@ -514,6 +636,9 @@ function M.open_dashboard()
         { icon = ' ', key = 'b', desc = 'Buffer Info', action = function() M.show_buffer_info() end },
         { icon = ' ', key = 'w', desc = 'Window Info', action = function() M.show_window_info() end },
         { icon = ' ', key = 'L', desc = 'LSP Clients', action = function() M.show_lsp_clients() end },
+        { icon = '🔍', key = 'd', desc = 'LSP Debug Config', action = function() M.debug_lsp_config() end },
+        { icon = '🖨️ ', key = 'l', desc = 'LSP Print Clients', action = function() M.print_lsp_clients() end },
+        { icon = '📋', key = 'g', desc = 'LSP Log', action = function() M.show_lsp_log() end },
         { icon = ' ', key = 'p', desc = 'Loaded Plugins', action = function() M.show_plugins() end },
         { icon = ' ', key = 'K', desc = 'Keymaps (normal)', action = function() M.show_keymaps('n') end },
         { icon = ' ', key = 'D', desc = 'Keymaps (dump to file)', action = function() M.dump_keymaps() end },
@@ -622,6 +747,13 @@ function M.setup()
   vim.keymap.set('n', '<leader>lb', M.show_buffer_info, { desc = '[L]earn: [B]uffer info' })
   vim.keymap.set('n', '<leader>lw', M.show_window_info, { desc = '[L]earn: [W]indow info' })
   vim.keymap.set('n', '<leader>ll', M.show_lsp_clients, { desc = '[L]earn: [L]SP clients' })
+  vim.keymap.set('n', '<leader>lld', M.debug_lsp_config, { desc = '[L]earn: [L]SP [D]ebug config' })
+  vim.keymap.set('n', '<leader>llp', M.print_lsp_clients, { desc = '[L]earn: [L]SP [P]rint clients' })
+  vim.keymap.set('n', '<leader>llc', function()
+    local client_name = vim.fn.input('Client name: ')
+    if client_name ~= '' then M.debug_lsp_client(client_name) end
+  end, { desc = '[L]earn: [L]SP [C]lient debug' })
+  vim.keymap.set('n', '<leader>llg', M.show_lsp_log, { desc = '[L]earn: [L]SP lo[G]' })
   vim.keymap.set('n', '<leader>lp', M.show_plugins, { desc = '[L]earn: [P]lugins' })
   vim.keymap.set('n', '<leader>lk', M.show_keymaps, { desc = '[L]earn: [K]eymaps' })
   vim.keymap.set('n', '<leader>lh', M.show_highlight, { desc = '[L]earn: [H]ighlight groups' })

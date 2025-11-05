@@ -372,8 +372,8 @@ end, { desc = 'Command palette' })
 -- Split vertical
 vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = 'Split vertical' })
 
--- New Tab
-vim.keymap.set('n', '<leader>wt', '<cmd>tabnew<CR>', { desc = 'New Tab' })
+-- Move window to new tab (using built-in Vim command)
+vim.keymap.set('n', '<leader>wt', '<C-w>T', { desc = 'Move window to new tab' })
 
 -- Close window
 vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = 'Close window' })
