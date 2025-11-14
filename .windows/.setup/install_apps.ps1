@@ -213,35 +213,44 @@ function Install-UvApp {
 
     Write-Log "Checking/Installing UV tool: $appName (category: $($app.category))"
 
+    # Preserve error action preference
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    
     try {
         # Check if this is a local file path or a package name
-        $isLocalFile = $false
         if ($app.path) {
             # Handle local Python file installations
             $localPath = $ExecutionContext.InvokeCommand.ExpandString($app.path)
             if (Test-Path $localPath) {
-                $isLocalFile = $true
                 Write-Log "Installing local tool from: $localPath"
-                $installOutput = & uv tool install $localPath 2>&1 | Out-String
+                $installOutput = & uv tool install --force $localPath 2>&1
+                $exitCode = $LASTEXITCODE
             } else {
                 Write-Log "Local path not found: $localPath" -Level 'ERROR'
                 return
             }
         } else {
             # Standard UV package installation
-            # Check if already installed
-            $listOutput = & uv tool list 2>&1 | Out-String
+            # Check if already installed (uv tool list may return non-zero if no tools installed)
+            $listOutput = & uv tool list 2>&1
+            $listExitCode = $LASTEXITCODE
+            
             Write-Log "UV tool list output:" -Level 'DEBUG'
-            $listOutput -split "`n" | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
+            $listOutput | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
 
+            # Check if tool is already in the list (ignore exit code - it's 0 even with no tools in recent UV versions)
             $isInstalled = $false
-            if ($listOutput -and $listOutput -match [regex]::Escape($appName)) {
+            $listString = $listOutput | Out-String
+            if ($listString -and $listString -match [regex]::Escape($appName)) {
                 $isInstalled = $true
             }
 
             if (-not $isInstalled) {
                 Write-Log "Installing: $appName"
-                $installOutput = & uv tool install $appName 2>&1 | Out-String
+                # Use --force to overwrite if executable already exists
+                $installOutput = & uv tool install --force $appName 2>&1
+                $exitCode = $LASTEXITCODE
             } else {
                 Write-Log "Already installed: $appName" -Level 'DEBUG'
                 return
@@ -249,15 +258,27 @@ function Install-UvApp {
         }
 
         # Log installation output
-        $installOutput -split "`n" | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
+        Write-Log "UV tool install output:" -Level 'DEBUG'
+        $installOutput | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
 
-        if ($LASTEXITCODE -ne 0) {
-            Write-Log "UV tool install reported exit code $LASTEXITCODE for $appName. See output above." -Level 'WARN'
+        # Check exit code
+        if ($exitCode -ne 0) {
+            Write-Log "UV tool install failed for $appName (exit code: $exitCode)" -Level 'ERROR'
+            $outputStr = $installOutput | Out-String
+            Write-Log "Output: $outputStr" -Level 'ERROR'
+            
+            # Check for common file-in-use error on Windows
+            if ($outputStr -match "process cannot access the file|being used by another process") {
+                Write-Log "The tool executable is locked by another process (possibly VS Code or other editor)." -Level 'WARN'
+                Write-Log "Try closing your editor/IDE and running the installation again." -Level 'WARN'
+            }
         } else {
             Write-Log "  [OK] Successfully installed $appName"
         }
     } catch {
         Write-Log "UV tool install failed for $appName`: $($_.Exception.Message)" -Level 'ERROR'
+    } finally {
+        $ErrorActionPreference = $prevEAP
     }
 }
 

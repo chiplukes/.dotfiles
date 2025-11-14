@@ -7,7 +7,7 @@ function Show-UVAlternative {
         [string]$Arguments
     )
 
-    Write-Host "⚠️  Consider using uv instead of $Command :" -ForegroundColor Yellow
+    Write-Host "[!] Consider using uv instead of $Command :" -ForegroundColor Yellow
     Write-Host ""
 
     switch ($Command) {
@@ -54,7 +54,7 @@ function Show-UVAlternative {
     Write-Host "uv pip install <pkg> # Install package globally"
     Write-Host "uv tool install <pkg># Install CLI tool globally"
     Write-Host ""
-    Write-Host "💡 To proceed with the original command anyway, use: & $Command $Arguments" -ForegroundColor Yellow
+    Write-Host "[i] To proceed with the original command anyway, use: & $Command $Arguments" -ForegroundColor Yellow
     Write-Host ""
 
     $response = Read-Host "Continue with original command? [y/N]"
@@ -110,5 +110,5 @@ function pyvenv {
     }
 }
 
-Write-Host "✓ Python → uv interceptor loaded" -ForegroundColor Green
+Write-Host "[OK] Python -> uv interceptor loaded" -ForegroundColor Green
 Write-Host "  Use python-original, pip-original to bypass suggestions" -ForegroundColor Yellow

@@ -517,7 +517,7 @@ install_uv_tool() {
     fi
 
     # Install the tool
-    if uv tool install "$tool_name"; then
+    if uv tool install --force "$tool_name"; then
         log_success "$tool_name installed successfully"
         log_to_file "$tool_name" "Installed (UV tool)"
         return 0
@@ -536,6 +536,31 @@ install_uv_tool_from_path() {
     # Ensure UV is available
     if ! has_command uv; then
         log_error "UV not found! Please run install_python_uv.sh first."
+        return 1
+    fi
+
+    log_info "Installing local UV tool: $tool_name from $tool_path ($description)"
+
+    # Expand tilde and environment variables
+    tool_path="${tool_path/#\~/$HOME}"
+    tool_path=$(eval echo "$tool_path")
+
+    # Check if path exists
+    if [[ ! -f "$tool_path" ]]; then
+        log_error "Tool path not found: $tool_path"
+        log_to_file "$tool_name" "FAILED TO INSTALL (path not found)!!!"
+        return 1
+    fi
+
+    # Check if already installed
+    if uv tool list 2>/dev/null | grep -q "^$tool_name "; then
+        log_info "$tool_name already installed via UV"
+        log_to_file "$tool_name" "Already installed (UV tool from path)"
+        return 0
+    fi
+
+    # Install the tool from path
+    if uv tool install --force "$tool_path"; then
         return 1
     fi
 

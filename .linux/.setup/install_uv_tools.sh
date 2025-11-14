@@ -41,7 +41,7 @@ install_uv_tool() {
     fi
 
     # Install the tool
-    if uv tool install "$tool_name"; then
+    if uv tool install --force "$tool_name"; then
         log_success "$tool_name installed successfully"
         log_to_file "$tool_name" "Installed (UV tool)"
 
@@ -86,7 +86,7 @@ install_uv_tool_from_path() {
     fi
 
     # Install the tool from path
-    if uv tool install "$tool_path"; then
+    if uv tool install --force "$tool_path"; then
         log_success "$tool_name installed successfully from $tool_path"
         log_to_file "$tool_name" "Installed (UV tool from path)"
         return 0
