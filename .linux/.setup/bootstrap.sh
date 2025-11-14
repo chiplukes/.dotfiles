@@ -11,7 +11,7 @@ ensure_dir() { mkdir -p "$1" || die "Failed to create directory: $1"; }
 set_strict_mode
 
 # Configuration
-BRANCH="main"
+BRANCH="master"
 REPO_URL="https://github.com/chiplukes/.dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles-bare"
 DOTFILES_BACKUP="$HOME/.config-backup"
@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             echo "Usage: $0 [options]"
             echo "Options:"
-            echo "  -b, --branch BRANCH    Git branch to clone (default: main)"
+            echo "  -b, --branch BRANCH    Git branch to clone (default: master)"
             echo "  -r, --repo URL         Repository URL (default: https://github.com/chiplukes/.dotfiles.git)"
             echo "  -h, --help             Show this help message"
             exit 0

@@ -200,6 +200,68 @@ function Install-UrlApp {
     }
 }
 
+function Install-UvApp {
+    param($app)
+
+    $appName = $app.name
+
+    # Ensure UV is available
+    if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+        Write-Log "UV not found. Please install UV first using install_python_uv.ps1" -Level 'ERROR'
+        return
+    }
+
+    Write-Log "Checking/Installing UV tool: $appName (category: $($app.category))"
+
+    try {
+        # Check if this is a local file path or a package name
+        $isLocalFile = $false
+        if ($app.path) {
+            # Handle local Python file installations
+            $localPath = $ExecutionContext.InvokeCommand.ExpandString($app.path)
+            if (Test-Path $localPath) {
+                $isLocalFile = $true
+                Write-Log "Installing local tool from: $localPath"
+                $installOutput = & uv tool install $localPath 2>&1 | Out-String
+            } else {
+                Write-Log "Local path not found: $localPath" -Level 'ERROR'
+                return
+            }
+        } else {
+            # Standard UV package installation
+            # Check if already installed
+            $listOutput = & uv tool list 2>&1 | Out-String
+            Write-Log "UV tool list output:" -Level 'DEBUG'
+            $listOutput -split "`n" | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
+
+            $isInstalled = $false
+            if ($listOutput -and $listOutput -match [regex]::Escape($appName)) {
+                $isInstalled = $true
+            }
+
+            if (-not $isInstalled) {
+                Write-Log "Installing: $appName"
+                $installOutput = & uv tool install $appName 2>&1 | Out-String
+            } else {
+                Write-Log "Already installed: $appName" -Level 'DEBUG'
+                return
+            }
+        }
+
+        # Log installation output
+        $installOutput -split "`n" | ForEach-Object { if ($_ -ne '') { Write-Log $_ -Level 'DEBUG' } }
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Log "UV tool install reported exit code $LASTEXITCODE for $appName. See output above." -Level 'WARN'
+        } else {
+            Write-Log "  [OK] Successfully installed $appName"
+        }
+    } catch {
+        Write-Log "UV tool install failed for $appName`: $($_.Exception.Message)" -Level 'ERROR'
+    }
+}
+
+
 # Load configs
 Write-Log "`n====== Installing Applications ======`n"
 try { $baseConfig = Import-JsonConfig -Path $ConfigFile -AllowLeadingLineCommentsOnly } catch { Write-Log $_.Exception.Message -Level 'ERROR'; exit 1 }
@@ -212,6 +274,7 @@ Write-Log "Total apps to consider:"
 Write-Log "  Winget: $($config.winget_apps.Count)"
 Write-Log "  Chocolatey: $($config.choco_apps.Count)"
 Write-Log "  URL-based: $($config.url_apps.Count)"
+Write-Log "  UV tools: $($config.uv_apps.Count)"
 
 Write-Log "`nConfiguring winget..."
 $settingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json"
@@ -234,6 +297,13 @@ Write-Log "`nInstalling URL-based Apps..."
 $urlApps = $config.url_apps
 if ($Categories.Count -gt 0) { $urlApps = $urlApps | Where-Object { $_.category -in $Categories } }
 foreach ($app in $urlApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install url-app: $($app.name) -> $($app.url) (category: $($app.category))" } else { Install-UrlApp $app } }
+
+Refresh-Path
+
+Write-Log "`nInstalling UV Tools..."
+$uvApps = $config.uv_apps
+if ($Categories.Count -gt 0) { $uvApps = $uvApps | Where-Object { $_.category -in $Categories } }
+foreach ($app in $uvApps) { if ($DryRun) { Write-Log "[DRY RUN] Would install uv-tool: $($app.name) (category: $($app.category))" } else { Install-UvApp $app } }
 
 Refresh-Path
 

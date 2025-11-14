@@ -13,6 +13,7 @@ log_header "Work PC Setup"
 scripts=(
     "install_base.sh"
     "install_python_uv.sh"
+    "install_uv_tools.sh"
     "install_neovim.sh"
     "install_hdl_tools.sh"
 )
@@ -26,12 +27,12 @@ fi
 # Run each script
 for script in "${scripts[@]}"; do
     log_info "Starting $script..."
-    
+
     # Refresh PATH between scripts in case symlinks were created
     if [[ -d "$HOME/bin" ]] && ! echo "$PATH" | grep -q "$HOME/bin"; then
         export PATH="$HOME/bin:$PATH"
     fi
-    
+
     if source_script "$script"; then
         log_success "$script completed"
     else

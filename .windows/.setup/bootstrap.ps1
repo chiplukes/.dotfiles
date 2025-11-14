@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Branch = "main"  # Add branch parameter
+    [string]$Branch = "master"  # Add branch parameter
 )
 
 Write-Host ""

@@ -78,7 +78,7 @@ function Merge-AppConfigsGeneric {
     param(
         [Parameter(Mandatory)][psobject]$Base,
         [psobject]$Local,
-        [string[]]$ArrayKeys = @('winget_apps','choco_apps','url_apps','optional_apps')
+        [string[]]$ArrayKeys = @('winget_apps','choco_apps','url_apps','uv_apps','optional_apps')
     )
     $merged = @{}
     foreach ($k in $ArrayKeys) { $merged[$k] = @() }

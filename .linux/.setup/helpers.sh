@@ -284,15 +284,15 @@ get_python_cmd() {
     if ! has_command uv; then
         die "uv not found! Run install_python_uv.sh first."
     fi
-    
+
     local python_version
     python_version=$(get_python_version)
-    
+
     # Verify uv can find this Python version
     if ! uv python find "$python_version" >/dev/null 2>&1; then
         die "Python $python_version not found via uv! Run install_python_uv.sh first."
     fi
-    
+
     # Return the uv python path for compatibility
     uv python find "$python_version"
 }
@@ -319,7 +319,7 @@ verify_python() {
 ensure_python() {
     local python_version
     python_version=$(get_python_version)
-    
+
     if ! has_command uv; then
         log_info "uv not found, installing..."
         local script_dir
@@ -355,7 +355,7 @@ setup_build_dir() {
 git_clone_or_update() {
     local repo_url="$1"
     local target_dir="$2"
-    local branch="${3:-main}"
+    local branch="${3:-master}"
 
     if [[ -d "$target_dir/.git" ]]; then
         log_info "Updating existing repository: $(basename "$target_dir")"
@@ -495,6 +495,82 @@ install_pip_packages() {
     safe_cd "$current_dir"
     log_success "Python packages installed successfully with uv: ${packages[*]}"
 }
+
+# UV tool installation helpers
+install_uv_tool() {
+    local tool_name="$1"
+    local description="${2:-Python tool}"
+
+    # Ensure UV is available
+    if ! has_command uv; then
+        log_error "UV not found! Please run install_python_uv.sh first."
+        return 1
+    fi
+
+    log_info "Installing UV tool: $tool_name ($description)"
+
+    # Check if already installed
+    if uv tool list 2>/dev/null | grep -q "^$tool_name "; then
+        log_info "$tool_name already installed via UV"
+        log_to_file "$tool_name" "Already installed (UV tool)"
+        return 0
+    fi
+
+    # Install the tool
+    if uv tool install "$tool_name"; then
+        log_success "$tool_name installed successfully"
+        log_to_file "$tool_name" "Installed (UV tool)"
+        return 0
+    else
+        log_error "Failed to install $tool_name"
+        log_to_file "$tool_name" "FAILED TO INSTALL (UV tool)!!!"
+        return 1
+    fi
+}
+
+install_uv_tool_from_path() {
+    local tool_name="$1"
+    local tool_path="$2"
+    local description="${3:-Local Python tool}"
+
+    # Ensure UV is available
+    if ! has_command uv; then
+        log_error "UV not found! Please run install_python_uv.sh first."
+        return 1
+    fi
+
+    log_info "Installing local UV tool: $tool_name from $tool_path ($description)"
+
+    # Expand tilde and environment variables
+    tool_path="${tool_path/#\~/$HOME}"
+    tool_path=$(eval echo "$tool_path")
+
+    # Check if path exists
+    if [[ ! -f "$tool_path" ]]; then
+        log_error "Tool path not found: $tool_path"
+        log_to_file "$tool_name" "FAILED TO INSTALL (path not found)!!!"
+        return 1
+    fi
+
+    # Check if already installed
+    if uv tool list 2>/dev/null | grep -q "^$tool_name "; then
+        log_info "$tool_name already installed via UV"
+        log_to_file "$tool_name" "Already installed (UV tool from path)"
+        return 0
+    fi
+
+    # Install the tool from path
+    if uv tool install "$tool_path"; then
+        log_success "$tool_name installed successfully from $tool_path"
+        log_to_file "$tool_name" "Installed (UV tool from path)"
+        return 0
+    else
+        log_error "Failed to install $tool_name from $tool_path"
+        log_to_file "$tool_name" "FAILED TO INSTALL (UV tool from path)!!!"
+        return 1
+    fi
+}
+
 
 # Path management
 add_to_bashrc() {

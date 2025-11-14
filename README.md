@@ -18,9 +18,9 @@ Cross-platform dotfiles management using bare git repository.
 
 ## Linux
 
-**Default (main branch):**
+**Default (master branch):**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chiplukes/.dotfiles/main/.linux/.setup/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/chiplukes/.dotfiles/master/.linux/.setup/bootstrap.sh | bash
 ```
 
 **From specific branch:**
@@ -42,9 +42,9 @@ chmod +x bootstrap.sh
 **Open Admin PowerShell with Bypass:**
 - **Win + R** → `powershell -ExecutionPolicy Bypass` → **Ctrl + Shift + Enter**
 
-**Default (main branch):**
+**Default (master branch):**
 ```powershell
-Invoke-Expression (Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/chiplukes/.dotfiles/main/.windows/.setup/bootstrap.ps1").Content
+Invoke-Expression (Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/chiplukes/.dotfiles/master/.windows/.setup/bootstrap.ps1").Content
 ```
 
 **From specific branch:**
@@ -139,6 +139,40 @@ notepad apps.local.json
 .\install_apps.ps1 -IncludeOptional
 ```
 
+### App installation methods
+
+The installer supports four installation methods:
+
+1. **Winget apps** - Windows Package Manager
+2. **Chocolatey apps** - Chocolatey package manager
+3. **URL-based apps** - Direct downloads from URLs
+4. **UV tools** - Python tools via UV package manager
+
+#### UV Tools (Python ecosystem)
+
+UV tools can be installed in two ways:
+
+**Standard UV packages:**
+```json
+{
+  "name": "ruff",
+  "category": "dev",
+  "description": "Python linter and formatter"
+}
+```
+
+**Local Python files:**
+```json
+{
+  "name": "my-tool",
+  "path": "$env:USERPROFILE\\.python\\scripts\\tool.py",
+  "category": "dev",
+  "description": "Custom Python CLI tool"
+}
+```
+
+Add UV tools to `apps.json` or `apps.local.json` under the `uv_apps` array.
+
 ### Update apps
 ```powershell
 # Update all apps
@@ -157,6 +191,12 @@ notepad apps.local.json
 ```bash
 # Base tools and utilities
 ./install_base.sh
+
+# Python environment with UV
+./install_python_uv.sh
+
+# Python CLI tools via UV
+./install_uv_tools.sh
 
 # Neovim with Python integration
 ./install_neovim.sh
@@ -179,16 +219,38 @@ notepad apps.local.json
 cd ~/.linux/.setup
 chmod +x *.sh
 ./install_base.sh
+./install_python_uv.sh
+./install_uv_tools.sh  # Python CLI tools (ruff, mypy, etc.)
 ./install_neovim.sh
 # etc.
 ```
+
+### Installing UV Tools on Linux
+
+The `install_uv_tools.sh` script installs Python CLI tools via UV. Edit the script to customize which tools are installed:
+
+**Default tools installed:**
+- `ruff` - Fast Python linter and formatter
+- `mypy` - Static type checker
+- `uv` - UV tool itself (latest version)
+
+**To add more tools, edit the script:**
+```bash
+# Standard UV packages
+install_uv_tool "black" "Python code formatter"
+install_uv_tool "pytest" "Python testing framework"
+
+# Local Python scripts
+install_uv_tool_from_path "my-tool" "$HOME/.python/scripts/my_tool.py" "Custom tool"
+```
+
+UV tools are installed to `~/.local/bin` (automatically added to PATH by UV).
 
 # TODOS
 
 * cleanup keymaps in vscode (see snacks.nvim for good ideas)
 * remove init.vim file so that there are not dueling neovim configs
 * https://github.com/scottmckendry/ps-color-scripts (make alias that can be called from the shell that has the same name as https://gitlab.com/dwt1/shell-color-scripts)
-* add ruff install
 
 
 # kemap issues

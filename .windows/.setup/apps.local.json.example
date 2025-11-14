@@ -1,0 +1,44 @@
+// Example local configuration file
+// Copy this to apps.local.json and customize for your machine
+{
+  "winget_apps": [
+    // Add machine-specific winget apps here
+    // {
+    //   "name": "SomeApp.Name",
+    //   "category": "misc"
+    // }
+  ],
+  "choco_apps": [
+    // Add machine-specific chocolatey apps here
+  ],
+  "url_apps": [
+    // Add machine-specific URL-based apps here
+  ],
+  "uv_apps": [
+    // UV ecosystem tools (installed via 'uv tool install <name>')
+    // {
+    //   "name": "black",
+    //   "category": "dev",
+    //   "description": "Python code formatter"
+    // },
+    // {
+    //   "name": "pytest",
+    //   "category": "dev",
+    //   "description": "Python testing framework"
+    // },
+    
+    // Local Python tools (installed via 'uv tool install <path>')
+    // {
+    //   "name": "my-custom-tool",
+    //   "path": "$env:USERPROFILE\\.python\\tools\\my_tool.py",
+    //   "category": "dev",
+    //   "description": "My custom Python CLI tool"
+    // },
+    // {
+    //   "name": "project-helper",
+    //   "path": "C:\\projects\\scripts\\helper.py",
+    //   "category": "work",
+    //   "description": "Project-specific helper script"
+    // }
+  ]
+}
