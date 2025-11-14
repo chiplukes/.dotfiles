@@ -1,4 +1,3 @@
-
 local M = {}
 
 
@@ -49,6 +48,7 @@ function M.setup()
       -- Rename the variable under your cursor.
       --  Most Language Servers support renaming across files, etc.
       map('<leader>carn', vim.lsp.buf.rename, 'Rename')
+
 
       -- Execute a code action, usually your cursor needs to be on top of an error
       -- or a suggestion from your LSP for this to activate.
@@ -331,79 +331,35 @@ function M.setup()
   --  - settings (table): Override the default settings passed when initializing the server.
   --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
   local servers = {
-    -- clangd = {},
-    -- gopls = {},
-    -- pyright = {},
-    -- rust_analyzer = {},
-    -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-    --
-    -- Some languages (like typescript) have entire language plugins that can be useful:
-    --    https://github.com/pmizio/typescript-tools.nvim
-    --
-    -- But for many setups, the LSP (`ts_ls`) will work just fine
-    -- ts_ls = {},
-    --
-
-    -- =============================================================================
-    -- Python LSP Configuration (hendrikmi approach - Ruff-focused)
-    -- =============================================================================
-    pylsp = {
+    -- Python: Use pyright for language features (completion, hover, etc.)
+    -- and Ruff for linting/formatting
+    pyright = {
       settings = {
-        pylsp = {
-          plugins = {
-            -- Disable ALL linting/formatting plugins to avoid conflicts with Ruff
-            pyflakes = { enabled = false },
-            pycodestyle = { enabled = false },
-            autopep8 = { enabled = false },
-            yapf = { enabled = false },
-            mccabe = { enabled = false },
-            pylsp_mypy = { enabled = false },
-            pylsp_black = { enabled = false },
-            pylsp_isort = { enabled = false },
-            -- Additional plugins that might cause issues
-            pydocstyle = { enabled = false },
-            pylint = { enabled = false },
-            flake8 = { enabled = false },
-            rope_autoimport = { enabled = false },
-            rope_completion = { enabled = false },
-            -- Keep only basic language server functionality
-            jedi_completion = { enabled = true },
-            jedi_hover = { enabled = true },
-            jedi_references = { enabled = true },
-            jedi_signature_help = { enabled = true },
-            jedi_symbols = { enabled = true },
+        python = {
+          analysis = {
+            -- Disable all type checking diagnostics (let Ruff handle linting)
+            typeCheckingMode = "off",
+            diagnosticMode = "openFilesOnly",
+            -- Disable diagnostic rules
+            diagnosticSeverityOverrides = {
+              reportMissingImports = "none",
+              reportUndefinedVariable = "none",
+            },
           },
         },
       },
-      -- Keep virtual environment auto-detection as requested
-      on_init = function(client, initialize_result)
-        -- Detect virtual environment
-        local venv_path = vim.fn.getenv('VIRTUAL_ENV')
-        if venv_path then
-          client.config.settings.python.pythonPath = venv_path .. '/bin/python'
-        else
-          -- Try to find local .venv
-          local local_venv = vim.fn.getcwd() .. '/.venv'
-          if vim.fn.isdirectory(local_venv) == 1 then
-            client.config.settings.python.pythonPath = local_venv .. '/bin/python'
-          end
-        end
-        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
-      end,
     },
 
-    -- Ruff LSP for fast Python linting and formatting
+    -- Ruff: use the new built-in LSP server (ruff server)
     ruff = {
-      init_options = {
-        settings = {
-          -- Configure Ruff to be the primary Python tool
-          args = { 
-            '--extend-select', 'I',     -- Enable import sorting
-            '--ignore', 'E501',         -- Ignore line-too-long warnings
-            '--line-length', '88'       -- Set max line length to 88 (Black's default)
-          },
-        },
-      },
+      -- Cross-platform ruff path - will use .exe on Windows, no extension on Linux
+      cmd = (function()
+        local ruff_path = vim.fn.expand('~/.local/bin/ruff')
+        if vim.fn.has('win32') == 1 then
+          ruff_path = ruff_path .. '.exe'
+        end
+        return { ruff_path, 'server' }
+      end)(),
     },
 
     -- =============================================================================
@@ -512,9 +468,9 @@ function M.setup()
     -- 'stylua', -- Lua formatter (causes LSP startup issues when managed by Mason)
 
     -- Python tools (Ruff-focused approach like hendrikmi)
-    'ruff',          -- Primary Python linter and formatter
-    'ruff-lsp',      -- Ruff LSP server
+    'pyright',       -- Python LSP for language features (completion, hover, references)
     'debugpy',       -- Python debugger for nvim-dap
+    -- Note: ruff installed manually at ~/.local/bin/ruff
     -- Note: Most Python tools removed to avoid conflicts with Ruff
 
     -- C/C++ tools (Phase 5: C/C++ Support)
@@ -539,19 +495,22 @@ function M.setup()
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
   require('mason-lspconfig').setup {
-    ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+    ensure_installed = {}, -- Kickstart uses mason-tool-installer instead
     automatic_installation = false,
     handlers = {
+      -- Default handler for all servers managed by mason-lspconfig
       function(server_name)
         local server = servers[server_name] or {}
-        -- This handles overriding only values explicitly passed
-        -- by the server configuration above. Useful when disabling
-        -- certain features of an LSP (for example, turning off formatting for ts_ls)
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
         require('lspconfig')[server_name].setup(server)
       end,
     },
   }
+
+  -- Manually setup ruff since it's not managed by Mason
+  local ruff_config = servers.ruff or {}
+  ruff_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, ruff_config.capabilities or {})
+  require('lspconfig').ruff.setup(ruff_config)
 end
 
 return M
