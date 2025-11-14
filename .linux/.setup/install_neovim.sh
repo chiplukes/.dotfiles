@@ -142,6 +142,13 @@ setup_neovim_python() {
     local nvim_init_lua="$HOME/.config/nvim/init.lua"
     ensure_dir "$(dirname "$nvim_init_lua")"
 
+    # Remove init.vim if it exists (conflicts with init.lua)
+    local nvim_init_vim="$HOME/.config/nvim/init.vim"
+    if [[ -f "$nvim_init_vim" ]]; then
+        log_info "Removing conflicting init.vim (using init.lua instead)"
+        rm -f "$nvim_init_vim"
+    fi
+
     if [[ -f "$nvim_init_lua" ]] && grep -q "python3_host_prog" "$nvim_init_lua"; then
         log_info "Python host prog already configured in init.lua"
     else

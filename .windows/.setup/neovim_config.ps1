@@ -64,6 +64,13 @@ if (Test-Path $dotfilesConfiguration) {
     Write-Log "Make sure you've run the dotfiles bootstrap script first"
 }
 
+# Remove init.vim if it exists (conflicts with init.lua)
+$initVim = Join-Path $dotfilesConfiguration 'init.vim'
+if (Test-Path $initVim) {
+    Write-Log "Removing conflicting init.vim (using init.lua instead)..." -Level 'WARN'
+    Remove-Item $initVim -Force
+}
+
 # Create Python venv for Neovim using uv
 # Load Python version from central config
 $configFile = Join-Path (Split-Path -Parent $PSScriptRoot) 'python_config'

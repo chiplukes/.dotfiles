@@ -20,12 +20,19 @@ return {
     dependencies = {
       {
         'mason-org/mason.nvim',
+        lazy = false, -- Load immediately
         config = function()
           require('mason').setup()
         end,
       },
-      'mason-org/mason-lspconfig.nvim',
-      'WhoIsSethDaniel/mason-tool-installer.nvim',
+      {
+        'mason-org/mason-lspconfig.nvim',
+        lazy = false, -- Load immediately
+      },
+      {
+        'WhoIsSethDaniel/mason-tool-installer.nvim',
+        lazy = false, -- Load immediately
+      },
       {
         'j-hui/fidget.nvim',
         opts = {

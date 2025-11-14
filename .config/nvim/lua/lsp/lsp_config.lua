@@ -495,8 +495,6 @@ function M.setup()
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
   require('mason-lspconfig').setup {
-    ensure_installed = {}, -- Kickstart uses mason-tool-installer instead
-    automatic_installation = false,
     handlers = {
       -- Default handler for all servers managed by mason-lspconfig
       function(server_name)
