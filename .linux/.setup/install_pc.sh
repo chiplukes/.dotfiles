@@ -24,13 +24,22 @@ if [[ -d "$HOME/bin" ]] && ! echo "$PATH" | grep -q "$HOME/bin"; then
     log_info "Added ~/bin to PATH for current session"
 fi
 
+# Ensure ~/.local/bin is in PATH for uv and other tools
+if [[ -d "$HOME/.local/bin" ]] && ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+    export PATH="$HOME/.local/bin:$PATH"
+    log_info "Added ~/.local/bin to PATH for current session"
+fi
+
 # Run each script
 for script in "${scripts[@]}"; do
     log_info "Starting $script..."
 
-    # Refresh PATH between scripts in case symlinks were created
+    # Refresh PATH between scripts in case new tools/symlinks were created
     if [[ -d "$HOME/bin" ]] && ! echo "$PATH" | grep -q "$HOME/bin"; then
         export PATH="$HOME/bin:$PATH"
+    fi
+    if [[ -d "$HOME/.local/bin" ]] && ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+        export PATH="$HOME/.local/bin:$PATH"
     fi
 
     if source_script "$script"; then

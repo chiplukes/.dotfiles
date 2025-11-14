@@ -20,8 +20,9 @@ return {
     dependencies = {
       {
         'mason-org/mason.nvim',
-        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall', 'MasonUpdate' },
-        opts = {}
+        config = function()
+          require('mason').setup()
+        end,
       },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',

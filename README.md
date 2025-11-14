@@ -210,8 +210,8 @@ Add UV tools to `apps.json` or `apps.local.json` under the `uv_apps` array.
 # RISC-V development toolchain
 ./install_risc_dev_tools.sh
 
-# Complete work environment setup
-./install_desktop_work.sh
+# Complete pc environment setup
+./install_pc.sh
 ```
 
 **Run individual scripts as needed:**
