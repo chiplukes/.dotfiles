@@ -13,26 +13,33 @@ return {
       },
     },
   },
+  -- Mason and related plugins (load immediately, independent of lspconfig)
+  {
+    'mason-org/mason.nvim',
+    lazy = false, -- Load immediately on startup
+    priority = 1000, -- Load before other plugins
+    config = function()
+      require('mason').setup()
+    end,
+  },
+  {
+    'mason-org/mason-lspconfig.nvim',
+    lazy = false, -- Load immediately on startup
+    dependencies = { 'mason-org/mason.nvim' },
+  },
+  {
+    'WhoIsSethDaniel/mason-tool-installer.nvim',
+    lazy = false, -- Load immediately on startup
+    dependencies = { 'mason-org/mason.nvim' },
+  },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     event = { 'BufReadPre', 'BufNewFile' }, -- Only load when opening files
     dependencies = {
-      {
-        'mason-org/mason.nvim',
-        lazy = false, -- Load immediately
-        config = function()
-          require('mason').setup()
-        end,
-      },
-      {
-        'mason-org/mason-lspconfig.nvim',
-        lazy = false, -- Load immediately
-      },
-      {
-        'WhoIsSethDaniel/mason-tool-installer.nvim',
-        lazy = false, -- Load immediately
-      },
+      'mason-org/mason.nvim',
+      'mason-org/mason-lspconfig.nvim',
+      'WhoIsSethDaniel/mason-tool-installer.nvim',
       {
         'j-hui/fidget.nvim',
         opts = {
