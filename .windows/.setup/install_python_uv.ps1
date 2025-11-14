@@ -143,12 +143,12 @@ try {
 
     if (Test-Path "$aliasPath\python.exe") {
         Remove-Item "$aliasPath\python.exe" -Force
-        Write-Host "✓ Removed python.exe alias" -ForegroundColor Green
+        Write-Host "[OK] Removed python.exe alias" -ForegroundColor Green
     }
 
     if (Test-Path "$aliasPath\python3.exe") {
         Remove-Item "$aliasPath\python3.exe" -Force
-        Write-Host "✓ Removed python3.exe alias" -ForegroundColor Green
+        Write-Host "[OK] Removed python3.exe alias" -ForegroundColor Green
     }
 
     # Alternative: Disable via registry (requires admin)
@@ -158,9 +158,9 @@ try {
         try {
             Set-ItemProperty -Path $regPath -Name "python.exe" -Value 0 -ErrorAction SilentlyContinue
             Set-ItemProperty -Path $regPath -Name "python3.exe" -Value 0 -ErrorAction SilentlyContinue
-            Write-Host "✓ Disabled aliases via registry" -ForegroundColor Green
+            Write-Host "[OK] Disabled aliases via registry" -ForegroundColor Green
         } catch {
-            Write-Host "! Registry modification failed (may need admin rights)" -ForegroundColor Yellow
+            Write-Host "[!] Registry modification failed (may need admin rights)" -ForegroundColor Yellow
         }
     }
 
@@ -174,7 +174,7 @@ try {
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host ""
     Write-Host "Manual steps:" -ForegroundColor Yellow
-    Write-Host "1. Go to Windows Settings → Apps → Advanced app settings → App execution aliases" -ForegroundColor White
+    Write-Host "1. Go to Windows Settings -> Apps -> Advanced app settings -> App execution aliases" -ForegroundColor White
     Write-Host "2. Turn OFF toggles for python.exe and python3.exe" -ForegroundColor White
 }
 
