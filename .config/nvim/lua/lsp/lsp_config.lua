@@ -334,6 +334,14 @@ function M.setup()
     -- Python: Use pyright for language features (completion, hover, etc.)
     -- and Ruff for linting/formatting
     pyright = {
+      -- Cross-platform pyright path - will use .exe on Windows, no extension on Linux
+      cmd = (function()
+        local pyright_path = vim.fn.expand('~/.local/bin/pyright-langserver')
+        if vim.fn.has('win32') == 1 then
+          pyright_path = pyright_path .. '.exe'
+        end
+        return { pyright_path, '--stdio' }
+      end)(),
       settings = {
         python = {
           analysis = {
@@ -466,7 +474,12 @@ function M.setup()
     },
   }
 
-  -- Manually setup ruff since it's not managed by Mason
+  -- Manually setup pyright since it's installed via UV, not Mason
+  local pyright_config = servers.pyright or {}
+  pyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, pyright_config.capabilities or {})
+  require('lspconfig').pyright.setup(pyright_config)
+
+  -- Manually setup ruff since it's installed via UV, not Mason
   local ruff_config = servers.ruff or {}
   ruff_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, ruff_config.capabilities or {})
   require('lspconfig').ruff.setup(ruff_config)

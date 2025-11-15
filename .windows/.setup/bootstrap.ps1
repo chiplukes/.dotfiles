@@ -39,6 +39,11 @@ Write-Host "Configuring dotfiles repository..."
 dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree $env:USERPROFILE
 
+# Set up branch tracking so 'dotfiles pull' works without specifying remote/branch
+Write-Host "Setting up branch tracking for $Branch..."
+dotfiles config branch.$Branch.remote origin
+dotfiles config branch.$Branch.merge refs/heads/$Branch
+
 # Detect and back up conflicting files after all git operations
 Write-Host "Checking for conflicting files during checkout..."
 # Try checkout, capture error output
