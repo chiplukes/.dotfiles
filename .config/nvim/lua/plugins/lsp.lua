@@ -33,26 +33,26 @@ return {
     dependencies = { 'mason-org/mason.nvim' },
     opts = {
       ensure_installed = {
-        -- LSP servers
-        'pyright',
-        'clangd',
-        'verible',
-        'lua_ls',
+        -- LSP servers (only those that don't require npm/pip)
+        -- Note: pyright requires npm, so it won't install via Mason
+        -- Note: Use UV to install pyright: uv tool install pyright
+        'clangd',        -- C/C++ LSP (builds from source)
+        'verible',       -- Verilog/SystemVerilog LSP
+        'lua_ls',        -- Lua LSP
 
-        -- Formatters
-        'clang-format',
-        'prettier',
-        'fixjson',
-        'shfmt',
+        -- Formatters (only those that don't require npm)
+        'clang-format',  -- C/C++ formatter
+        'shfmt',         -- Shell formatter
 
-        -- Linters
-        'yamllint',
-        'shellcheck',
-        'codespell',
-        'gitlint',
+        -- Linters (only those that don't require npm/pip)
+        'shellcheck',    -- Shell script linter
+        'yamllint',      -- YAML linter (might need pip on some systems)
 
-        -- Python tools
-        'debugpy',
+        -- Note: The following require npm and won't install without Node.js:
+        -- 'pyright', 'prettier', 'fixjson'
+
+        -- Note: The following require pip and won't install without system Python pip:
+        -- 'debugpy', 'codespell', 'gitlint'
       },
       auto_update = false,
       run_on_start = true,

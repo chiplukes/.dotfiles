@@ -187,6 +187,16 @@
       "description": "Static type checker for Python"
     },
     {
+      "name": "pyright",
+      "category": "dev",
+      "description": "Python LSP server for code intelligence"
+    },
+    {
+      "name": "debugpy",
+      "category": "dev",
+      "description": "Python debugger for nvim-dap"
+    },
+    {
       "name": "uv",
       "category": "dev",
       "description": "UV tool itself (ensuring latest version)"

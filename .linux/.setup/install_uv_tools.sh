@@ -102,6 +102,8 @@ log_header "Installing Core UV Tools"
 
 install_uv_tool "ruff" "Extremely fast Python linter and formatter"
 install_uv_tool "mypy" "Static type checker for Python"
+install_uv_tool "pyright" "Python LSP server for code intelligence"
+install_uv_tool "debugpy" "Python debugger for nvim-dap"
 install_uv_tool "uv" "UV tool itself (ensuring latest version)"
 
 # Optional UV tools (uncomment to install)
