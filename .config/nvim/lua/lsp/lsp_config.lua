@@ -452,52 +452,8 @@ function M.setup()
   --
   -- You can press `g?` for help in this menu.
   --
-  -- `mason` had to be setup earlier: to configure its options see the
-  -- `dependencies` table for `nvim-lspconfig` above.
-  --
-  -- You can add other tools here that you want Mason to install
-  -- for you, so that they are available from within Neovim.
-  local ensure_installed = vim.tbl_keys(servers or {})
-  vim.list_extend(ensure_installed, {
-    -- =============================================================================
-    -- Enhanced Tools for Phase 2 Development
-    -- =============================================================================
-
-    -- Lua tools
-    -- NOTE: stylua removed from Mason - conform.nvim will handle it directly
-    -- 'stylua', -- Lua formatter (causes LSP startup issues when managed by Mason)
-
-    -- Python tools (Ruff-focused approach like hendrikmi)
-    'pyright',       -- Python LSP for language features (completion, hover, references)
-    'debugpy',       -- Python debugger for nvim-dap
-    -- Note: ruff installed manually at ~/.local/bin/ruff
-    -- Note: Most Python tools removed to avoid conflicts with Ruff
-
-    -- C/C++ tools (Phase 5: C/C++ Support)
-    'clangd',        -- C/C++ LSP server for code navigation and linting (includes clang-tidy)
-    'clang-format',  -- C/C++ code formatter
-    -- Note: cppcheck not available in Mason, but clangd provides excellent linting via clang-tidy
-
-    -- Verilog/SystemVerilog tools
-    'verible',       -- SystemVerilog formatter and linter (includes verible-verilog-ls)
-
-    -- General development tools
-    'prettier',      -- Multi-language formatter
-    'fixjson',       -- JSON formatter
-    'yamllint',      -- YAML linter
-    'shellcheck',    -- Shell script linter
-    'shfmt',         -- Shell script formatter
-
-    -- Additional useful tools
-    'codespell',     -- Spell checker for code
-    'gitlint',       -- Git commit message linter
-  })
-  require('mason-tool-installer').setup {
-    ensure_installed = ensure_installed,
-    auto_update = false,
-    run_on_start = true, -- Ensure it runs on startup
-    start_delay = 3000, -- Wait 3 seconds after startup before checking
-  }
+  -- Note: mason-tool-installer is configured in lua/plugins/lsp.lua
+  -- and will automatically install the tools listed there on startup.
 
   require('mason-lspconfig').setup {
     handlers = {

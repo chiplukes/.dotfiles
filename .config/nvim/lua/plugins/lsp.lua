@@ -31,6 +31,33 @@ return {
     'WhoIsSethDaniel/mason-tool-installer.nvim',
     lazy = false, -- Load immediately on startup
     dependencies = { 'mason-org/mason.nvim' },
+    opts = {
+      ensure_installed = {
+        -- LSP servers
+        'pyright',
+        'clangd',
+        'verible',
+        'lua_ls',
+
+        -- Formatters
+        'clang-format',
+        'prettier',
+        'fixjson',
+        'shfmt',
+
+        -- Linters
+        'yamllint',
+        'shellcheck',
+        'codespell',
+        'gitlint',
+
+        -- Python tools
+        'debugpy',
+      },
+      auto_update = false,
+      run_on_start = true,
+      start_delay = 3000, -- 3 seconds delay after startup
+    },
   },
   {
     -- Main LSP Configuration
