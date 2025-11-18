@@ -469,7 +469,14 @@ function M.setup()
       function(server_name)
         local server = servers[server_name] or {}
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-        require('lspconfig')[server_name].setup(server)
+        
+        -- Use the new vim.lsp.config API (nvim 0.11+)
+        if vim.lsp.config then
+          vim.lsp.config(server_name, server)
+        else
+          -- Fallback for nvim < 0.11
+          require('lspconfig')[server_name].setup(server)
+        end
       end,
     },
   }
@@ -477,12 +484,22 @@ function M.setup()
   -- Manually setup basedpyright since it's installed via UV, not Mason
   local basedpyright_config = servers.basedpyright or {}
   basedpyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, basedpyright_config.capabilities or {})
-  require('lspconfig').basedpyright.setup(basedpyright_config)
+  
+  if vim.lsp.config then
+    vim.lsp.config('basedpyright', basedpyright_config)
+  else
+    require('lspconfig').basedpyright.setup(basedpyright_config)
+  end
 
   -- Manually setup ruff since it's installed via UV, not Mason
   local ruff_config = servers.ruff or {}
   ruff_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, ruff_config.capabilities or {})
-  require('lspconfig').ruff.setup(ruff_config)
+  
+  if vim.lsp.config then
+    vim.lsp.config('ruff', ruff_config)
+  else
+    require('lspconfig').ruff.setup(ruff_config)
+  end
 end
 
 return M
