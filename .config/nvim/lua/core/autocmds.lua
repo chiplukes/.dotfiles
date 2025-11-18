@@ -31,7 +31,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     -- Only organize imports if isort or ruff is available
     local clients = vim.lsp.get_active_clients({ bufnr = 0 })
     for _, client in ipairs(clients) do
-      if client.name == 'pyright' or client.name == 'pylsp' then
+      if client.name == 'basedpyright' or client.name == 'pyright' then
         -- Try to organize imports via LSP code action
         vim.lsp.buf.code_action({
           context = { only = { 'source.organizeImports' } },

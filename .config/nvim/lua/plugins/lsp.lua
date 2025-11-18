@@ -34,8 +34,8 @@ return {
     opts = {
       ensure_installed = {
         -- LSP servers (only those that don't require npm/pip)
-        -- Note: pyright requires npm, so it won't install via Mason
-        -- Note: Use UV to install pyright: uv tool install pyright
+        -- Note: basedpyright requires npm, so it won't install via Mason
+        -- Note: Use UV to install basedpyright: uv tool install basedpyright
         'clangd',        -- C/C++ LSP (builds from source)
         'verible',       -- Verilog/SystemVerilog LSP
         'lua_ls',        -- Lua LSP

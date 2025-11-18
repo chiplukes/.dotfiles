@@ -331,19 +331,19 @@ function M.setup()
   --  - settings (table): Override the default settings passed when initializing the server.
   --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
   local servers = {
-    -- Python: Use pyright for language features (completion, hover, etc.)
+    -- Python: Use basedpyright for language features (completion, hover, etc.)
     -- and Ruff for linting/formatting
-    pyright = {
-      -- Cross-platform pyright path - will use .exe on Windows, no extension on Linux
+    basedpyright = {
+      -- Cross-platform basedpyright path - will use .exe on Windows, no extension on Linux
       cmd = (function()
-        local pyright_path = vim.fn.expand('~/.local/bin/pyright-langserver')
+        local basedpyright_path = vim.fn.expand('~/.local/bin/basedpyright-langserver')
         if vim.fn.has('win32') == 1 then
-          pyright_path = pyright_path .. '.exe'
+          basedpyright_path = basedpyright_path .. '.exe'
         end
-        return { pyright_path, '--stdio' }
+        return { basedpyright_path, '--stdio' }
       end)(),
       settings = {
-        python = {
+        basedpyright = {
           analysis = {
             -- Disable all type checking diagnostics (let Ruff handle linting)
             typeCheckingMode = "off",
@@ -474,10 +474,10 @@ function M.setup()
     },
   }
 
-  -- Manually setup pyright since it's installed via UV, not Mason
-  local pyright_config = servers.pyright or {}
-  pyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, pyright_config.capabilities or {})
-  require('lspconfig').pyright.setup(pyright_config)
+  -- Manually setup basedpyright since it's installed via UV, not Mason
+  local basedpyright_config = servers.basedpyright or {}
+  basedpyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, basedpyright_config.capabilities or {})
+  require('lspconfig').basedpyright.setup(basedpyright_config)
 
   -- Manually setup ruff since it's installed via UV, not Mason
   local ruff_config = servers.ruff or {}

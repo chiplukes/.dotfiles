@@ -187,7 +187,7 @@
       "description": "Static type checker for Python"
     },
     {
-      "name": "pyright",
+      "name": "basedpyright",
       "category": "dev",
       "description": "Python LSP server for code intelligence"
     },
