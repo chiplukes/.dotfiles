@@ -13,7 +13,7 @@ return {
       if vim.fn['copilot#Accept']('') ~= '' then
         return vim.fn['copilot#Accept']('')
       else
-        return '<Tab>'
+        return vim.api.nvim_replace_termcodes('<Tab>', true, true, true)
       end
     end, { expr = true, replace_keycodes = false, desc = 'Accept Copilot suggestion or Tab' })
 

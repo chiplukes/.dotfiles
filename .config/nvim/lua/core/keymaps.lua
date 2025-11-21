@@ -408,10 +408,19 @@ end, { desc = 'Lazygit' })
 -- VIP Diagnostics and Code Actions (No prefix)
 -- =============================================================================
 
--- Context menu equivalent
-vim.keymap.set('n', '<leader>cm', function()
-  vim.lsp.buf.code_action()
-end, { desc = 'Context menu' })
+-- equivalent (attempt Ruff fix for current line)
+vim.keymap.set('n', '<leader>c.f', function()
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+  local line_length = #vim.api.nvim_buf_get_lines(0, line-1, line, false)[1] or 1
+  require('conform').format({
+    async = true,
+    lsp_format = 'fallback',
+    range = {
+      start = { line, 1 },
+      ['end'] = { line, line_length + 1 },
+    },
+  })
+end, { desc = 'Ruff fix @ cursor' })
 
 -- Quick fix keybindings (VIP - VS Code style)
 vim.keymap.set('n', '<C-.>', function()
@@ -533,11 +542,11 @@ end, { desc = 'Hide diagnostics' })
 
 -- Format (cf) - One-time action
 vim.keymap.set('n', '<leader>cfb', function()
-  vim.lsp.buf.format({ async = true })
+  require('conform').format({ async = true, lsp_format = 'fallback' })
 end, { desc = 'Format buffer' })
 
 vim.keymap.set('v', '<leader>cfs', function()
-  vim.lsp.buf.format({ async = true })
+  require('conform').format({ async = true, lsp_format = 'fallback' })
 end, { desc = 'Format selection' })
 
 -- Debug (cd)

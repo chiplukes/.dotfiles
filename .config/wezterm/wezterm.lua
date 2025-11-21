@@ -62,6 +62,9 @@ config.inactive_pane_hsb = {
   brightness = 0.8,
 }
 
+-- Disable default key assignments that might interfere with terminal apps
+config.disable_default_key_bindings = false
+
 -- Configure keybindings
 config.keys = {
   -- Example: Spawn a new tab with Ctrl+Shift+T
@@ -99,6 +102,7 @@ config.keys = {
   -- Copy/Paste
   { key = "c", mods = "CTRL|SHIFT", action = wezterm.action.CopyTo("Clipboard") },
   { key = "v", mods = "CTRL|SHIFT", action = wezterm.action.PasteFrom("Clipboard") },
+  { key = "v", mods = "CTRL", action = wezterm.action.PasteFrom("Clipboard") },
 
 --   -- Search
 --   { key = "f", mods = "CTRL|SHIFT", action = wezterm.action.Search("CurrentSelectionOrEmptyString") },
