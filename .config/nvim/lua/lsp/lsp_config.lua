@@ -165,26 +165,9 @@ function M.setup()
         vim.lsp.buf.signature_help()
       end, 'Signature Help', 'i')
 
-      -- Hover with enhanced formatting (K is VIP keymap in keymaps.lua)
-      -- Keeping this LSP-specific version here
-      map('K', function()
-        -- Try LSP hover first, fallback to vim's default K
-        local params = vim.lsp.util.make_position_params()
-        vim.lsp.buf_request(0, 'textDocument/hover', params, function(err, result)
-          if err or not result or not result.contents then
-            -- Fallback to default K behavior
-            local word = vim.fn.expand('<cword>')
-            vim.cmd('help ' .. word)
-          else
-            vim.lsp.util.open_floating_preview(result.contents, 'markdown', {
-              border = 'rounded',
-              max_width = 80,
-              max_height = 20,
-              focusable = true,
-            })
-          end
-        end)
-      end, 'Hover Documentation')
+      -- Hover documentation (K is VIP keymap in keymaps.lua)
+      -- Using standard LSP hover which handles all edge cases properly
+      map('K', vim.lsp.buf.hover, 'Hover Documentation')
 
       -- Enhanced symbol search (now under <leader>cs)
       map('<leader>cssf', function()
@@ -469,7 +452,7 @@ function M.setup()
       function(server_name)
         local server = servers[server_name] or {}
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-        
+
         -- Use the new vim.lsp.config API (nvim 0.11+)
         if vim.lsp.config then
           vim.lsp.config(server_name, server)
@@ -484,7 +467,7 @@ function M.setup()
   -- Manually setup basedpyright since it's installed via UV, not Mason
   local basedpyright_config = servers.basedpyright or {}
   basedpyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, basedpyright_config.capabilities or {})
-  
+
   if vim.lsp.config then
     vim.lsp.config('basedpyright', basedpyright_config)
   else
@@ -494,7 +477,7 @@ function M.setup()
   -- Manually setup ruff since it's installed via UV, not Mason
   local ruff_config = servers.ruff or {}
   ruff_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, ruff_config.capabilities or {})
-  
+
   if vim.lsp.config then
     vim.lsp.config('ruff', ruff_config)
   else

@@ -77,8 +77,12 @@ vim.keymap.set('n', '<leader>y', function()
   vim.lsp.buf.code_action()
 end, { desc = 'Accept suggestion' })
 
--- Paste from yank register (VIP)
-vim.keymap.set('n', '<leader>pr', '"0p', { desc = 'Paste from yank register' })
+-- Paste from yank register (VIP - repeatable)
+vim.keymap.set('n', '<leader>pr', function()
+  run_and_remember(function()
+    vim.cmd('normal! "0p')
+  end)
+end, { desc = 'Paste from yank register' })
 
 -- =============================================================================
 -- Window Management (VIP - Alt keys)
@@ -427,8 +431,6 @@ vim.keymap.set('n', '<C-.>', function()
   vim.lsp.buf.code_action()
 end, { desc = 'Quick fix' })
 
-vim.keymap.set('v', '<C-.>', '<cmd>lua vim.lsp.buf.code_action()<CR>', { desc = 'Quick fix selection' })
-
 -- Diagnostic navigation (VIP) - Keep run_and_remember for next error (repeatable)
 vim.keymap.set('n', 'ge', function()
   run_and_remember(function() vim.diagnostic.goto_next() end)
@@ -436,11 +438,6 @@ end, { desc = 'Go to next error' })
 
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous diagnostic' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
-
--- Hover information (VIP)
-vim.keymap.set('n', 'gh', function()
-  vim.lsp.buf.hover()
-end, { desc = 'Hover info' })
 
 -- Go to symbol/outline (VIP) - Remove run_and_remember from info display
 vim.keymap.set('n', 'go', function()

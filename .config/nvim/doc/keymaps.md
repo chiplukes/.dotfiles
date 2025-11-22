@@ -9,29 +9,20 @@
 
 These are frequently-used shortcuts that bypass category prefixes for quick access.
 
-| Keymap | Description | File | Notes |
-|--------|-------------|------|-------|
-| `<leader><leader>` | Repeat last command | keymaps.lua | Repeat Previous command |
-| `<leader>ff` | Find files in project | keymaps.lua | VS Code-style file search |
-| `<leader>gc` | Toggle comment | (default) | Line/block commenting |
-| `ge` | Go to next error | (default) | VS Code-style error navigation |
-| `gh` | Hover info | keymaps.lua | Quick hover documentation |
-| `go` | Go to outline/symbols | keymaps.lua | Document symbol outline |
-| `K` | Hover documentation | lsp_config.lua | LSP hover info |
-| `sj` | Flash jump (EasyMotion) | flash.lua | Quick cursor navigation |
-| `<C-.>` | Quick fix | keymaps.lua | VS Code-style code action |
-| `<Alt-h>` | Window/buffer left (with wrap) | keymaps.lua | Navigate left or previous tab |
-| `<Alt-l>` | Window/buffer right (with wrap) | keymaps.lua | Navigate right or next tab |
-| `<Alt-j>` | Window down | keymaps.lua | Navigate to lower window |
-| `<Alt-k>` | Window up | keymaps.lua | Navigate to upper window |
-| `<Esc>` | Clear search highlight | keymaps.lua | Clear search results |
-| `<Alt-h>` | Left/prev buffer/tab | keymaps.lua | With wrap-around |
-| `<Alt-l>` | Right/next buffer/tab | keymaps.lua | With wrap-around |
-| `<Alt-k>` | Window up | keymaps.lua | Move to upper |
-| `<Alt-j>` | Window down | keymaps.lua | Move to lower |
-|  `se` | Show explorer | snacks.lua | File tree view |
-|  `y` | Accept suggestion | keymaps.lua | Accept AI completion |
-| Misc | `pr` | Paste from yank | keymaps.lua | Paste register 0 |
+| Keymap | Description | File | Repeatable | Notes |
+|--------|-------------|------|-------|-------|
+| `<leader><leader>` | Repeat last command |n| keymaps.lua | Repeat Previous command |
+| `<leader>ff` | Find files in project | keymaps.lua |n| VS Code-style file search |
+| `gc` | Toggle comment | |n | Line/block commenting |
+| `ge` | Go to next error | |y| VS Code-style error navigation |
+| `go` | Go to outline/symbols | keymaps.lua |n| Document symbol outline |
+| `K` | goto documentation | lsp_config.lua | n| LSP hover info |
+| `sj` | Flash jump (EasyMotion) | flash.lua |n| Quick cursor navigation |
+| `<Alt-h>` | Window/buffer left (with wrap) | keymaps.lua |n| Navigate left or previous tab |
+| `<Alt-l>` | Window/buffer right (with wrap) | keymaps.lua | n| Navigate right or next tab |
+| `<Alt-j>` | Window down | keymaps.lua |n| Navigate to lower window |
+| `<Alt-k>` | Window up | keymaps.lua |n| Navigate to upper window |
+| `<leader>pr` | Paste from yank register | keymaps.lua | y| Paste last yank (ignores deletes) |
 
 ---
 
