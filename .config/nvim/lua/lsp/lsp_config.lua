@@ -45,14 +45,9 @@ function M.setup()
         vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
       end
 
-      -- Rename the variable under your cursor.
-      --  Most Language Servers support renaming across files, etc.
-      map('<leader>carn', vim.lsp.buf.rename, 'Rename')
-
-
-      -- Execute a code action, usually your cursor needs to be on top of an error
-      -- or a suggestion from your LSP for this to activate.
-      map('<leader>caa', vim.lsp.buf.code_action, 'Code actions', { 'n', 'x' })
+      -- Note: Rename and code actions are defined globally in keymaps.lua as:
+      --   <leader>cr - Rename symbol
+      --   <leader>ca - Code action / Quick fix
 
       -- Find references for the word under your cursor.
       map('<leader>cgr', function() require('snacks').picker.lsp_references() end, 'Goto references')
@@ -147,19 +142,6 @@ function M.setup()
         require('snacks').picker.lsp_symbols({ workspace = true })
       end, 'Search workspace symbols')
 
-      -- Organize imports (now under <leader>cpi)
-      if client and client_supports_method(client, 'textDocument/codeAction', event.buf) then
-        map('<leader>cpi', function()
-          vim.lsp.buf.code_action({
-            context = { only = { 'source.organizeImports' } },
-            apply = true
-          })
-        end, 'Organize imports')
-      end
-
-      -- Format current buffer or selection (now <leader>cfb)
-      -- Already defined above in the keybindings section
-
       -- Enhanced signature help with better positioning
       map('<C-k>', function()
         vim.lsp.buf.signature_help()
@@ -181,21 +163,8 @@ function M.setup()
       -- Language-specific enhancements
       local filetype = vim.bo[event.buf].filetype
 
-      -- Python-specific keybindings (now under <leader>cp)
-      if filetype == 'python' then
-        map('<leader>cpi', function()
-          vim.lsp.buf.code_action({
-            context = { only = { 'source.addMissingImports' } },
-            apply = true
-          })
-        end, 'Add missing imports')
-
-        map('<leader>cpr', function()
-          vim.lsp.buf.code_action({
-            context = { only = { 'refactor.extract' } }
-          })
-        end, 'Refactor extract')
-      end
+      -- Python-specific keybindings - Note: cpd and cpx are in autocmds.lua
+      -- (no additional Python-specific keymaps needed here)
 
       -- Verilog-specific keybindings
       if filetype == 'verilog' or filetype == 'systemverilog' then

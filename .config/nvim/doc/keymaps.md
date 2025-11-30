@@ -30,27 +30,23 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 
 Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 
-### LSP Actions (`a` prefix)
+### Direct Code Actions (no prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Actions | `a` | Code actions (enhanced) | lsp_config.lua | Context menu |
-| Actions | `m` | Context menu | keymaps.lua | Alternative to `.` |
-| Refactor | `pr` | Python refactor extract | lsp_config.lua | Python-specific |
-| Goto | `a` | Code action at cursor | (default) | Quick action |
-| Goto | `rn` | Rename symbol | (default) | LSP rename |
-
+| Keymap | Mode | Description | File | Repeatable | Notes |
+|--------|------|-------------|------|-------|-------|
+| `r` | n | Rename symbol | keymaps.lua | n | LSP rename across project |
+| `a` | n | Code action / Quick fix | keymaps.lua | n | Context-sensitive fixes |
+| `a` | v | Multi-cursor on all | keymaps.lua | n | Multi-cursor simulation |
 
 ### Python Specific (`p` prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Refactor | `r` | Python refactor extract | lsp_config.lua | Python-specific |
-| Imports | `i` | Python add missing imports | lsp_config.lua | Python-specific |
-| Imports | `i` | Organize imports | lsp_config.lua | General import cleanup |
-| Python | `d` | Add docstring | autocmds.lua | Generate docstring |
-| Execute | `x` (n) | Execute Python line | learn.lua | Run current line |
+| Keymap | Mode | Description | File | Notes |
+|--------|------|-------------|------|-------|
+| `d` | n | Add docstring | autocmds.lua | Generate Python docstring |
+| `x` | n | Execute Python line | autocmds.lua | Run current line |
+| `x` | v | Execute Python selection | autocmds.lua | Run selected code |
 
+**Note:** For formatting Python code (including selections), use `<leader>cfb` (buffer) or `<leader>cfs` (visual selection).
 
 ### Goto Navigation (`g` prefix)
 
@@ -86,11 +82,10 @@ Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 
 ### Formatting (`f` prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Format | `b` | Format buffer | lsp_config.lua | Format entire file |
-| Format | `rf` (n) | Format document | keymaps.lua | Recode format | (remove_this)
-| Format | `s` (v) | Format selection | keymaps.lua | Format visual selection |
+| Keymap | Mode | Description | File | Notes |
+|--------|------|-------------|------|-------|
+| `b` | n | Format buffer | lsp_config.lua | Format entire file |
+| `s` | v | Format selection | keymaps.lua | Format visual selection |
 
 
 ### 🐛 Debug (`d`)
@@ -232,12 +227,12 @@ Learning utilities and config debugging tools.
 
 ### Code Execution (`x` prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Execute | `l` (n) | Execute Lua line | learn.lua | Run current line |
-| Execute | `l` (v) | Execute Lua selection | learn.lua | Run selected code |
-| Execute | `p` (n) | Execute Python line | learn.lua | Run current line |
-| Execute | `p` (v) | Execute Python selection | learn.lua | Run selected code |
+| Keymap | Mode | Description | File | Notes |
+|--------|------|-------------|------|-------|
+| `l` | n | Execute Lua line | learn.lua | Run current line |
+| `l` | v | Execute Lua selection | learn.lua | Run selected code |
+| `p` | n | Execute Python line | learn.lua | Run current line |
+| `p` | v | Execute Python selection | learn.lua | Run selected code |
 
 ---
 

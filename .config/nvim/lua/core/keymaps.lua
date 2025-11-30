@@ -470,33 +470,18 @@ vim.keymap.set('v', '<leader>ca', '<cmd>s/\\%V\\(\\S\\+\\)/&/g<CR>', { desc = 'C
 -- Code Category (<leader>c)
 -- =============================================================================
 
--- Code Actions (ca) - One-time actions, no need for run_and_remember
-vim.keymap.set('n', '<leader>caa', function()
-  vim.lsp.buf.code_action()
-end, { desc = 'Code actions' })
-
-vim.keymap.set('n', '<leader>cam', function()
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.lsp.buf.code_action({
-    context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() },
-    range = { start = {row, col}, ['end'] = {row, col} }
-  })
-end, { desc = 'Context menu' })
-
-vim.keymap.set('n', '<leader>carn', function()
+-- Rename symbol (direct under <leader>c)
+vim.keymap.set('n', '<leader>cr', function()
   vim.lsp.buf.rename()
 end, { desc = 'Rename symbol' })
 
--- Python (cp) - One-time refactoring actions
-vim.keymap.set('n', '<leader>cpr', function()
-  vim.lsp.buf.code_action({ context = { only = { 'refactor' } } })
-end, { desc = 'Python refactor' })
+-- Quick fix / code actions (direct under <leader>c)
+vim.keymap.set('n', '<leader>ca', function()
+  vim.lsp.buf.code_action()
+end, { desc = 'Code action / Quick fix' })
 
-vim.keymap.set('n', '<leader>cpi', function()
-  vim.lsp.buf.code_action({ context = { only = { 'source.organizeImports' } } })
-end, { desc = 'Organize imports' })
-
--- cpd (docstring) and cpx (execute) are defined in autocmds.lua and learn.lua
+-- Note: <C-.> also triggers code actions (VIP keymap above)
+-- Note: cpd (docstring) and cpx (execute) are defined in autocmds.lua and learn.lua
 
 -- Goto (cg) - Will be defined in lsp_config.lua
 -- cgr (references), cgd (definition), cgi (implementation), cgD (declaration), cgt (type definition)
