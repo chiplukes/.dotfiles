@@ -60,25 +60,21 @@ Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 
 ### Diagnostics (`.` prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
+| Subcategory | Keymap | Description | File | Repeatable | Notes |
 |-------------|--------|-------------|------|-------|
-| Diagnostic | `n` | next diagnostic | lsp_config.lua | Next issue |
-| Diagnostic | `p` | previous diagnostic | lsp_config.lua | Previous issue |
-| Diagnostic | `d` | Diagnostic details | lsp_config.lua | Show full details |
-| Diagnostic | `]` | Next diagnostic | (default) | Alternative binding |
-| Diagnostic | `[` | Previous diagnostic | (default) | Alternative binding |
-| Diagnostic | `e` | Show error messages | (default) | Diagnostic float |
-| Diagnostic | `q` | Diagnostic quickfix | (default) | Quickfix list |
-| Diagnostic | `u` | Hide diagnostics | keymaps.lua | Undo/hide suggestions |
+| Diagnostic | `n` | next diagnostic | lsp_config.lua | y | Next issue |
+| Diagnostic | `p` | previous diagnostic | lsp_config.lua | y | Previous issue |
+| Diagnostic | `d` | Diagnostic details | lsp_config.lua | y | Show full details |
+| Diagnostic | `e` | Show error messages | (default) | n | Diagnostic float |
+| Diagnostic | `q` | Diagnostic quickfix | (default) | n | Quickfix list |
+| Diagnostic | `u` | Hide diagnostics | keymaps.lua | n | Undo/hide suggestions |
 
-### Symbols & Search (`s` prefix)
+### Symbols (`s` prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Symbols | `sf` | Search document symbols | lsp_config.lua | Current file symbols |
-| Symbols | `sw` | Search workspace symbols | lsp_config.lua | Project-wide symbols |
-| Symbols | `of` | Open document symbols | lsp_config.lua | Symbol outline |
-| Symbols | `ow` | Open workspace symbols | lsp_config.lua | Workspace outline |
+| Keymap | Description | File | Notes |
+|--------|-------------|------|-------|
+| `d` | Document symbols | lsp_config.lua | Symbol picker for current file |
+| `w` | Workspace symbols | lsp_config.lua | Symbol picker for entire project |
 
 ### Formatting (`f` prefix)
 

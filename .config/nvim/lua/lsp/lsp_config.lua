@@ -67,11 +67,11 @@ function M.setup()
 
       -- Fuzzy find all the symbols in your current document.
       --  Symbols are things like variables, functions, types, etc.
-      map('<leader>csof', function() require('snacks').picker.lsp_symbols() end, 'Open document symbols')
+      map('<leader>csd', function() require('snacks').picker.lsp_symbols() end, 'Document symbols')
 
       -- Fuzzy find all the symbols in your current workspace.
       --  Similar to document symbols, except searches over your entire project.
-      map('<leader>csow', function() require('snacks').picker.lsp_symbols({ workspace = true }) end, 'Open workspace symbols')
+      map('<leader>csw', function() require('snacks').picker.lsp_workspace_symbols() end, 'Workspace symbols')
 
       -- Jump to the type of the word under your cursor.
       --  Useful when you're not sure what type a variable is and you want to see
@@ -133,15 +133,6 @@ function M.setup()
         vim.lsp.buf.format({ async = true })
       end, 'Format buffer')
 
-      -- Symbol search (now under <leader>cs)
-      map('<leader>cssf', function()
-        require('snacks').picker.lsp_symbols()
-      end, 'Search document symbols')
-
-      map('<leader>cssw', function()
-        require('snacks').picker.lsp_symbols({ workspace = true })
-      end, 'Search workspace symbols')
-
       -- Enhanced signature help with better positioning
       map('<C-k>', function()
         vim.lsp.buf.signature_help()
@@ -150,15 +141,6 @@ function M.setup()
       -- Hover documentation (K is VIP keymap in keymaps.lua)
       -- Using standard LSP hover which handles all edge cases properly
       map('K', vim.lsp.buf.hover, 'Hover Documentation')
-
-      -- Enhanced symbol search (now under <leader>cs)
-      map('<leader>cssf', function()
-        require('snacks').picker.lsp_symbols()
-      end, 'Search document symbols')
-
-      map('<leader>cssw', function()
-        require('snacks').picker.lsp_symbols({ workspace = true })
-      end, 'Search workspace symbols')
 
       -- Language-specific enhancements
       local filetype = vim.bo[event.buf].filetype

@@ -495,14 +495,6 @@ vim.keymap.set('n', '<leader>c.p', function()
   run_and_remember(function() vim.diagnostic.goto_prev() end)
 end, { desc = 'Previous diagnostic' })
 
-vim.keymap.set('n', '<leader>c.]', function()
-  run_and_remember(function() vim.diagnostic.goto_next() end)
-end, { desc = 'Next diagnostic (alt)' })
-
-vim.keymap.set('n', '<leader>c.[', function()
-  run_and_remember(function() vim.diagnostic.goto_prev() end)
-end, { desc = 'Previous diagnostic (alt)' })
-
 vim.keymap.set('n', '<leader>c.d', function()
   vim.diagnostic.open_float()
 end, { desc = 'Diagnostic details' })
