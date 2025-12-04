@@ -423,6 +423,13 @@ function M.setup()
 
   if vim.lsp.config then
     vim.lsp.config('basedpyright', basedpyright_config)
+    -- Enable basedpyright for Python files
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'python',
+      callback = function(args)
+        vim.lsp.enable('basedpyright', args.buf)
+      end,
+    })
   else
     require('lspconfig').basedpyright.setup(basedpyright_config)
   end
@@ -433,6 +440,13 @@ function M.setup()
 
   if vim.lsp.config then
     vim.lsp.config('ruff', ruff_config)
+    -- Enable ruff for Python files
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'python',
+      callback = function(args)
+        vim.lsp.enable('ruff', args.buf)
+      end,
+    })
   else
     require('lspconfig').ruff.setup(ruff_config)
   end
