@@ -198,3 +198,5 @@ export PATH="$HOME/tools/verible/bin:$PATH"
 
 # Add to ~/.bashrc
 source "$HOME/.linux/.scripts/python_uv_interceptor.bash"
+
+alias lazydot='lazygit --use-config-file "~/.config/config.yml" --work-tree ~ --git-dir ~/.dotfiles-bare'

@@ -92,12 +92,50 @@ return {
       -- }
 
       -- Python DAP configuration
-      require('dap-python').setup('python') -- Uses system python by default
+      -- Automatically detect and use virtual environment Python
+      -- Works with uv, venv, virtualenv, etc.
+      local function get_python_path()
+        -- Find project root by looking for common project markers
+        local function find_project_root()
+          local markers = { '.git', '.venv', 'venv', 'pyproject.toml', 'setup.py', 'requirements.txt' }
+          local current_file = vim.fn.expand('%:p:h')
+          local current_dir = current_file ~= '' and current_file or vim.fn.getcwd()
 
-      -- Configure Python debugging for virtual environments
-      if vim.fn.executable('python') == 1 then
-        require('dap-python').setup('python')
+          -- Search upward from current file directory
+          local root = vim.fs.find(markers, {
+            upward = true,
+            path = current_dir,
+          })[1]
+
+          if root then
+            return vim.fs.dirname(root)
+          end
+
+          -- Fallback to cwd if no markers found
+          return vim.fn.getcwd()
+        end
+
+        local project_root = find_project_root()
+
+        -- Check for .venv and venv in project root (Windows paths first)
+        local venv_paths = {
+          project_root .. '/.venv/Scripts/python.exe',
+          project_root .. '/venv/Scripts/python.exe',
+          project_root .. '/.venv/bin/python',
+          project_root .. '/venv/bin/python',
+        }
+
+        for _, path in ipairs(venv_paths) do
+          if vim.fn.executable(path) == 1 then
+            return path
+          end
+        end
+
+        -- Fallback to system python
+        return 'python'
       end
+
+      require('dap-python').setup(get_python_path())
 
       -- Add Python configuration for debugging
       dap.configurations.python = {

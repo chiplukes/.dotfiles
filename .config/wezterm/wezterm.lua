@@ -106,6 +106,10 @@ config.keys = {
 
 --   -- Search
 --   { key = "f", mods = "CTRL|SHIFT", action = wezterm.action.Search("CurrentSelectionOrEmptyString") },
+
+    -- Disable default assignment for Ctrl+R to avoid conflicts
+  { key = "r", mods = "CTRL", action = wezterm.action.DisableDefaultAssignment},
+
 }
 
 -- Finally, return the configuration to wezterm
