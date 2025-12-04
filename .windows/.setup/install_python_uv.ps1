@@ -13,16 +13,16 @@ if (Test-Path $configFile) {
 } else {
     $UserPyVersion = "3.12"
 }
-if (Test-Path $helpers) { . $helpers } else { Write-Log "helpers.ps1 not found at $helpers" -Level 'WARN' }
+if (Test-Path $helpers) { . $helpers } else { Write-Log -Message "helpers.ps1 not found at $helpers" -Level 'WARN' }
 
-Write-Log ""
-Write-Log "====== Installing user Python with uv ($UserPyVersion) ======"
-Write-Log ""
+Write-Log -Message ""
+Write-Log -Message "====== Installing user Python with uv ($UserPyVersion) ======"
+Write-Log -Message ""
 $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
 function Ensure-Curl {
   if (Test-CommandExists -CmdName 'curl') { return }
-  Write-Log "curl not found; attempting install..." -Level 'INFO'
+  Write-Log -Message "curl not found; attempting install..." -Level 'INFO'
   if (Test-CommandExists -CmdName 'winget') {
     try {
       winget install --id cURL.cURL -e --accept-package-agreements --accept-source-agreements -h
@@ -36,7 +36,7 @@ function Ensure-Curl {
     try { choco install curl -y --no-progress } catch { }
     if (Get-Command curl -ErrorAction SilentlyContinue) { return }
   }
-  Write-Log "Could not install curl automatically (continuing with Invoke-WebRequest)." -Level 'WARN'
+  Write-Log -Message "Could not install curl automatically (continuing with Invoke-WebRequest)." -Level 'WARN'
 }
 
 # Ensure uv
@@ -108,16 +108,16 @@ function Test-RealPythonCommand {
 
 # Create plain 'python' and 'python3' wrappers only if a usable system python isn't present
 if (-not (Test-RealPythonCommand 'python')) {
-  Write-Log "No usable 'python' command found — creating 'python' wrapper pointing to user Python."
+  Write-Log -Message "No usable 'python' command found - creating 'python' wrapper pointing to user Python."
   New-PythonWrapper -Name "python" -TargetExe $PyExe
 } else {
-  Write-Log "Usable 'python' command already exists in PATH; not creating wrapper." -Level 'WARN'
+  Write-Log -Message "Usable 'python' command already exists in PATH; not creating wrapper." -Level 'WARN'
 }
 if (-not (Test-RealPythonCommand 'python3')) {
-  Write-Log "No usable 'python3' command found — creating 'python3' wrapper pointing to user Python."
+  Write-Log -Message "No usable 'python3' command found - creating 'python3' wrapper pointing to user Python."
   New-PythonWrapper -Name "python3" -TargetExe $PyExe
 } else {
-  Write-Log "Usable 'python3' command already exists in PATH; not creating wrapper." -Level 'WARN'
+  Write-Log -Message "Usable 'python3' command already exists in PATH; not creating wrapper." -Level 'WARN'
 }
 
 $UserPath = [Environment]::GetEnvironmentVariable("Path","User")

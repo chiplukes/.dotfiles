@@ -16,16 +16,16 @@ if (Test-Path $helpers) {
     }
 }
 
-Write-Log ""
-Write-Log "====== Neovim Configuration Setup ======"
-Write-Log ""
+Write-Log -Message ""
+Write-Log -Message "====== Neovim Configuration Setup ======"
+Write-Log -Message ""
 
 # Install NeoVim with WinGet, if not already present
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
-    Write-Log "Installing Neovim..."
-    winget install Neovim.Neovim --accept-package-agreements --accept-source-agreements
+    Write-Log -Message "Installing Neovim..."
+    winget install Neovim.Neovim -e --accept-source-agreements --accept-package-agreements
 } else {
-    Write-Log "Neovim already installed" -Level 'INFO'
+    Write-Log -Message "Neovim already installed" -Level 'INFO'
 }
 
 # Create .config directory if it doesn't exist (for cross-platform config)
@@ -52,22 +52,22 @@ if (Test-Path $localConfiguration -PathType Container) {
 
 # Create the symbolic link (requires elevation)
 if (Test-Path $dotfilesConfiguration) {
-    Write-Log "Creating symbolic link for Neovim config..."
+    Write-Log -Message "Creating symbolic link for Neovim config..."
     if (New-Symlink-Elevated -Link $localConfiguration -Target $dotfilesConfiguration) {
-        Write-Log "✓ Neovim config linked successfully"
+        Write-Log -Message "✓ Neovim config linked successfully"
     } else {
-        Write-Log "Failed to create symbolic link: $localConfiguration -> $dotfilesConfiguration" -Level 'ERROR'
-        Write-Log "Manual step required: Create symlink from $localConfiguration to $dotfilesConfiguration" -Level 'WARN'
+        Write-Log -Message "Failed to create symbolic link: $localConfiguration -> $dotfilesConfiguration" -Level 'ERROR'
+        Write-Log -Message "Manual step required: Create symlink from $localConfiguration to $dotfilesConfiguration" -Level 'WARN'
     }
 } else {
-    Write-Log "Dotfiles Neovim config not found at: $dotfilesConfiguration" -Level 'WARN'
-    Write-Log "Make sure you've run the dotfiles bootstrap script first"
+    Write-Log -Message "Dotfiles Neovim config not found at: $dotfilesConfiguration" -Level 'WARN'
+    Write-Log -Message "Make sure you've run the dotfiles bootstrap script first"
 }
 
 # Remove init.vim if it exists (conflicts with init.lua)
 $initVim = Join-Path $dotfilesConfiguration 'init.vim'
 if (Test-Path $initVim) {
-    Write-Log "Removing conflicting init.vim (using init.lua instead)..." -Level 'WARN'
+    Write-Log -Message "Removing conflicting init.vim (using init.lua instead)..." -Level 'WARN'
     Remove-Item $initVim -Force
 }
 
@@ -85,7 +85,7 @@ if (Test-Path $configFile) {
 if (Get-Command uv -ErrorAction SilentlyContinue) {
     $nvimVenv = Join-Path $env:LOCALAPPDATA 'nvim\.venv'
     if (-not (Test-Path $nvimVenv)) {
-        Write-Log "Creating Python venv for Neovim using uv (Python $pythonVersion) at $nvimVenv..."
+        Write-Log -Message "Creating Python venv for Neovim using uv (Python $pythonVersion) at $nvimVenv..."
         New-DirectoryIfMissing -Path (Split-Path -Parent $nvimVenv) | Out-Null
         uv venv --python $pythonVersion $nvimVenv
 
@@ -93,17 +93,17 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
         $venvPy = Join-Path $nvimVenv 'Scripts\python.exe'
         if (Test-Path $venvPy) {
             uv pip install --python $venvPy pynvim neovim
-            Write-Log "✓ Python provider configured (pynvim installed with uv)"
+            Write-Log -Message "✓ Python provider configured (pynvim installed with uv)"
         } else {
             Write-Log "Failed to create venv python at: $venvPy" -Level 'ERROR'
         }
     } else {
-        Write-Log "Python venv already exists at $nvimVenv" -Level 'WARN'
+        Write-Log -Message "Python venv already exists at $nvimVenv" -Level 'WARN'
     }
 } else {
-    Write-Log "uv not found - please run install_python_uv.ps1 first" -Level 'WARN'
+    Write-Log -Message "uv not found - please run install_python_uv.ps1 first" -Level 'WARN'
 }
 
-Write-Log ""
-Write-Log "====== Neovim setup complete ======"
-Write-Log ""
+Write-Log -Message ""
+Write-Log -Message "====== Neovim setup complete ======"
+Write-Log -Message ""

@@ -148,17 +148,22 @@ foreach ($p in $ProfileObjects) {
         New-Item -Path $ProfileDir -ItemType Directory -Force | Out-Null
     }
 
-    # Create symlink to master profile if it exists
+    # Create hard link to master profile if it exists (hard links don't require admin privileges)
     if (Test-Path $MasterProfile) {
         try {
-            Write-Host "Creating symlink for profile ($ProfileDesc): $ProfilePath -> $MasterProfile"
-            New-Item -ItemType SymbolicLink -Path $ProfilePath -Target $MasterProfile -Force | Out-Null
+            Write-Host "Creating hard link for profile ($ProfileDesc): $ProfilePath -> $MasterProfile"
+            New-Item -ItemType HardLink -Path $ProfilePath -Target $MasterProfile -Force | Out-Null
         } catch {
-            Write-Warning "Failed to create symlink for profile ($ProfileDesc): $ProfilePath - $($_.Exception.Message)"
-            Write-Warning "You may need to run as Administrator to create symbolic links"
+            Write-Warning "Failed to create hard link for profile ($ProfileDesc): $ProfilePath - $($_.Exception.Message)"
+            Write-Warning "Falling back to copying the file instead"
+            try {
+                Copy-Item -Path $MasterProfile -Destination $ProfilePath -Force
+            } catch {
+                Write-Warning "Failed to copy profile: $($_.Exception.Message)"
+            }
         }
     } else {
-        Write-Warning "Master profile not found at $MasterProfile - skipping symlink creation for $ProfileDesc"
+        Write-Warning "Master profile not found at $MasterProfile - skipping link creation for $ProfileDesc"
         Write-Host "Note: The profile.ps1 file should be checked out to $MasterProfile by the bare repo"
     }
 }

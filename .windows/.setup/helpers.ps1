@@ -170,10 +170,11 @@ if (-not $Global:InstallLogLevel -or $null -eq $Global:InstallLogLevel) {
 
 function Write-Log {
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, Position=0)]
         [AllowEmptyString()]
         [string]$Message,
 
+        [Parameter(Position=1)]
         [ValidateSet('INFO','WARN','ERROR','DEBUG')]
         [string]$Level = 'INFO',
 
@@ -250,14 +251,14 @@ function Write-Log {
         $sepLen = [Math]::Max(10, ($title.Length + 8))
         $sep = ('=' * $sepLen)
         $center = "  $title  "
-        & $WriteLine '' $Level $timestamp $logPath
-        & $WriteLine $sep $Level $timestamp $logPath
-        & $WriteLine $center $Level $timestamp $logPath
-        & $WriteLine $sep $Level $timestamp $logPath
-        & $WriteLine '' $Level $timestamp $logPath
+        $WriteLine.Invoke('', $Level, $timestamp, $logPath)
+        $WriteLine.Invoke($sep, $Level, $timestamp, $logPath)
+        $WriteLine.Invoke($center, $Level, $timestamp, $logPath)
+        $WriteLine.Invoke($sep, $Level, $timestamp, $logPath)
+        $WriteLine.Invoke('', $Level, $timestamp, $logPath)
         return
     }
 
-    # Normal single-line log (pass explicit params)
-    & $WriteLine $Message $Level $timestamp $logPath
+    # Normal single-line log (use .Invoke() for PS 5.1 compatibility)
+    $WriteLine.Invoke($Message, $Level, $timestamp, $logPath)
 }

@@ -80,7 +80,7 @@ Foreach ($app in $apps)
   #Get-AppxPackage -allusers $app | Remove-AppxPackage
 
     Try{
-        Write-Log "Removing :" $app.name
+        Write-Log "Removing: $($app.name)"
         Get-AppxPackage "*$app.name*" | Remove-AppxPackage -ErrorAction SilentlyContinue
         Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "*$app.name*" | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
     }

@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param(
+    [switch]$SkipApps = $false,
     [switch]$SkipDebloat = $false,
     [switch]$SkipNeovim = $false,
     [switch]$SkipPython = $false,
@@ -24,6 +25,7 @@ if ($WhatIf) {
 Write-Log "Script Directory: $ScriptDir"
 Write-Log "Admin Rights: $(if (Test-AdminRights) { 'Yes' } else { 'No (some features may require elevation)' })"
 Write-Log "Options:"
+Write-Log "  Skip Apps: $SkipApps"
 Write-Log "  Skip Debloat: $SkipDebloat"
 Write-Log "  Skip Neovim: $SkipNeovim"
 Write-Log "  Skip Python: $SkipPython"
@@ -41,8 +43,13 @@ if (-not $success) {
 
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-Write-Log "Step 2: Application Installation" -Section
-$success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_apps.ps1" -Description "Install applications via winget/choco" -WhatIf:$WhatIf)
+if (-not $SkipApps) {
+    Write-Log "Step 2: Application Installation" -Section
+    $success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_apps.ps1" -Description "Install applications via winget/choco" -WhatIf:$WhatIf)
+} else {
+    Write-Log ""
+    Write-Log "Skipping application installation (SkipApps specified)" -Level 'WARN'
+}
 
 if (-not $SkipDebloat) {
     Write-Log "Step 3: Windows Debloat" -Section
@@ -68,6 +75,51 @@ if (-not $SkipNeovim) {
 } else {
     Write-Log ""
     Write-Log "Skipping Neovim setup (SkipNeovim specified)" -Level 'WARN'
+}
+
+Write-Log "Step 6: PowerShell Profile Setup" -Section
+Write-Log "Ensuring PowerShell profiles are linked to master profile..."
+
+$MasterProfile = Join-Path $env:USERPROFILE 'profile.ps1'
+if (Test-Path $MasterProfile) {
+    # Define both PS 5.1 and PS 7 profile paths explicitly
+    $AllProfilePaths = @(
+        @{ Path = "$env:USERPROFILE\Documents\WindowsPowerShell\profile.ps1"; Desc = "PS 5.1 - All Hosts" },
+        @{ Path = "$env:USERPROFILE\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"; Desc = "PS 5.1 - Current Host" },
+        @{ Path = "$env:USERPROFILE\Documents\PowerShell\profile.ps1"; Desc = "PS 7 - All Hosts" },
+        @{ Path = "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"; Desc = "PS 7 - Current Host" }
+    )
+
+    foreach ($profileInfo in $AllProfilePaths) {
+        $profilePath = $profileInfo.Path
+        $profileDesc = $profileInfo.Desc
+        $profileDir = Split-Path $profilePath -Parent
+
+        # Create directory if it doesn't exist
+        if (-not (Test-Path $profileDir)) {
+            New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
+        }
+
+        # Skip if already linked correctly
+        if (Test-Path $profilePath) {
+            $item = Get-Item $profilePath
+            if ($item.LinkType -eq 'HardLink' -or $item.Target -eq $MasterProfile) {
+                Write-Log "  ✓ Already linked: $profileDesc" -Level 'DEBUG'
+                continue
+            }
+        }
+
+        # Create hard link
+        try {
+            New-Item -ItemType HardLink -Path $profilePath -Target $MasterProfile -Force -ErrorAction Stop | Out-Null
+            Write-Log "  ✓ Linked: $profileDesc"
+        } catch {
+            Write-Log "  ⚠ Failed to link $profileDesc - $($_.Exception.Message)" -Level 'WARN'
+        }
+    }
+} else {
+    Write-Log "Master profile not found at $MasterProfile" -Level 'WARN'
+    Write-Log "Run bootstrap.ps1 to set up dotfiles and create the master profile" -Level 'WARN'
 }
 
 Write-Log "Setup Complete" -Section

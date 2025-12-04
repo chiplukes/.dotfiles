@@ -86,10 +86,10 @@
       "name": "WiresharkFoundation.Wireshark",
       "category": "work"
     },
-    {
-      "name": "Valve.Steam",
-      "category": "gaming"
-    },
+    //{
+    //  "name": "Valve.Steam",
+    //  "category": "gaming"
+    //},
     {
       "name": "Sandboxie.Plus",
       "category": "misc"
