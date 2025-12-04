@@ -276,6 +276,7 @@ function M.setup()
         end
         return { basedpyright_path, '--stdio' }
       end)(),
+      filetypes = { 'python' },
       settings = {
         basedpyright = {
           analysis = {
@@ -302,6 +303,7 @@ function M.setup()
         end
         return { ruff_path, 'server' }
       end)(),
+      filetypes = { 'python' },
     },
 
     -- =============================================================================
