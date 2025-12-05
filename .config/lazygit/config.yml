@@ -3,6 +3,7 @@ git:
   showIcons: true # Shows icons in the files panel
   log:
     order: 'top-order' # Changes how commits are ordered in the log
+    showGraph: always # Always shows the commit graph
 gui:
   theme:
     activeBorderColor: [255, 114, 224] # A magenta-like color

@@ -106,6 +106,13 @@ Debugging operations and breakpoint management.
 
 File search, grep, and fuzzy finding operations.
 
+**Picker Actions (available in all search pickers):**
+- `<CR>` - window picker (select location to open file)
+- `w` - window picker (select location to open file)
+- `t` - Open in new tab
+- `v` - Open in vertical split
+- `h` - Open in horizontal split
+
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
 | Files | `f` | Search files | snacks.lua | Find by filename |
@@ -173,6 +180,12 @@ Window splitting, navigation, and layout management.
 ## 📂 Explorer/Files (`<leader>e`)
 
 File exploration and project navigation.
+
+**Explorer Actions:**
+- `<CR>` - Open in current window (default)
+- `<C-t>` - Open in new tab
+- `<C-v>` - Open in vertical split
+- `<C-x>` - Open in horizontal split
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
@@ -411,18 +424,19 @@ Built-in Neovim mappings (reference only - not customized).
 - Register management shortcuts
 
 ### Conflicts to Resolve
-- `<leader>fb` appears in both Code (format) and as standalone
-- Multiple format keymaps need consolidation
-- Consider moving `<leader>pr` (Python refactor) under a Python submenu
-
----
-
 ## 🔍 Quick Reference by Function
 
 **File Operations:** `<leader>ff`, `<leader>sf`, `<leader>se`, `<leader>of`
 **Search Content:** `<leader>sg`, `<leader>sw`, `<leader>/`
+**Picker Actions:** `<CR>` (current), `<C-t>` (tab), `<C-v>` (vsplit), `<C-x>` (split)
 **Code Actions:** `<C-.>`, `<leader>.`, `<leader>cm`, `<leader>ca`
 **Navigate Code:** `grd`, `grr`, `gri`, `grt`, `grD`, `grn`
+**Diagnostics:** `gdn`, `gdp`, `gdd`, `[d`, `]d`, `<leader>e`
+**Format Code:** `<leader>cf`, `<leader>fb`, `<leader>rf`
+**Bookmarks:** `<leader>mm`, `<leader>mn`, `<leader>mp`
+**Sessions:** `<leader>qs`, `<leader>ql`, `<leader>qd`
+**Window Nav:** `<M-h>`, `<M-l>`, `<M-j>`, `<M-k>`
+**Quick Jump:** `sj`, `S`, `f/F/t/T`i`, `grt`, `grD`, `grn`
 **Diagnostics:** `gdn`, `gdp`, `gdd`, `[d`, `]d`, `<leader>e`
 **Format Code:** `<leader>cf`, `<leader>fb`, `<leader>rf`
 **Bookmarks:** `<leader>mm`, `<leader>mn`, `<leader>mp`

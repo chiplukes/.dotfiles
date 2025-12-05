@@ -5,13 +5,77 @@ return {
   priority = 1000,
   lazy = false,
   opts = {
-    explorer = { enabled = true },
     picker = {
       enabled = true,
+
       -- Default action when selecting a file
       formatters = {
         file = {
           filename_first = true,
+        },
+      },
+      -- Default keymaps for all pickers
+      win = {
+        -- Input window: search/filter bar at top of picker
+        input = {
+          keys = {
+            -- Note: using autocmd below to disable conflicting keymaps in pickers
+            ['t'] = { 'tab', mode = { 'n' } },
+            ['h'] = { 'edit_split', mode = { 'n' } },
+            ['v'] = { 'edit_vsplit', mode = { 'n' } },
+            ['w'] = { { 'pick_win', 'jump' }, mode = { 'n' } },  -- Also try pick_win on Enter from input
+            ['<CR>'] = { { 'pick_win', 'jump' }, mode = { 'i' } },
+          },
+        },
+        -- Could not get the following to work as expected
+        -- -- List window: results/file list in picker (applies to all pickers: files, grep, etc.)
+        -- list = {
+        --   keys = {
+        --     ['<CR>'] = 'pick_win',   -- Enter: pick and choose window
+        --     ['t'] = 'tab',       -- Ctrl-t: open in tab
+        --     ['h'] = 'edit_split',-- Ctrl-h: open in horizontal split
+        --     ['v'] = 'edit_vsplit',-- Ctrl-v: open in vertical split
+        --    },
+        -- },
+      },
+      -- Source-specific configurations
+      sources = {
+        -- Explorer source: file tree browser (uses its own keybindings)
+        explorer = {
+          enabled = true,
+          hidden = true,
+          auto_close = true,
+          --supports_live = true,
+          --tree = true,
+          watch = true,
+          --diagnostics = true,
+          --diagnostics_open = false,
+          git_status = true,
+          git_status_open = false,
+          git_untracked = true,
+          --follow_file = true,
+          -- Explorer list window: tree view with files/directories
+          win = {
+            list = {
+              keys = {
+                ['<CR>'] = { { 'pick_win', 'jump' }, mode = { 'n', 'x' } },
+                ['w'] = { { 'pick_win', 'jump' }, mode = { 'n', 'x' } },
+                ['t'] = 'tab',
+                ['v'] = 'edit_vsplit',
+                ['<c-s>'] = 'edit_split',
+                -- Keep explorer's native keybindings
+                ['l'] = 'confirm',         -- l: open file
+                ['h'] = 'explorer_close',  -- h: close directory
+                ['a'] = 'explorer_add',
+                ['d'] = 'explorer_del',
+                ['r'] = 'explorer_rename',
+                ['c'] = 'explorer_copy',
+                ['m'] = 'explorer_move',
+                ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
+                ['p'] = 'explorer_paste',
+              },
+            },
+          },
         },
       },
     },
@@ -222,118 +286,40 @@ return {
   keys = {
     { '<leader>sh', function() require('snacks').picker.help() end, desc = 'Search help' },
     { '<leader>sk', function() require('snacks').picker.keymaps() end, desc = 'Search keymaps' },
-    { '<leader>sf', function()
-      require('snacks').picker.files({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Search files' },
-    { '<leader>ss', function()
-      require('snacks').picker.smart({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Smart search' },
-    { '<leader>sw', function()
-      require('snacks').picker.grep_word({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Search current word' },
-    { '<leader>sg', function()
-      require('snacks').picker.grep({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Search by grep' },
-    { '<leader>sd', function()
-      require('snacks').picker.diagnostics({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Search diagnostics' },
-    { '<leader>sr', function()
-      require('snacks').picker.recent({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Recent files' },
+    { '<leader>sf', function() require('snacks').picker.files() end, desc = 'Search files' },
+    { '<leader>ss', function() require('snacks').picker.smart() end, desc = 'Smart search' },
+    { '<leader>sw', function() require('snacks').picker.grep_word() end, desc = 'Search current word' },
+    { '<leader>sg', function() require('snacks').picker.grep() end, desc = 'Search by grep' },
+    { '<leader>sd', function() require('snacks').picker.diagnostics() end, desc = 'Search diagnostics' },
+    { '<leader>sr', function() require('snacks').picker.recent() end, desc = 'Recent files' },
     { '<leader>sc', function()
-      require('snacks').picker.files({
-        cwd = vim.fn.stdpath('config'),
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
+      require('snacks').picker.files({ cwd = vim.fn.stdpath('config') })
     end, desc = 'Config files' },
     { '<leader>s/', function() require('snacks').picker.lines() end, desc = 'Search in buffer' },
     { '<leader>sof', function()
-      require('snacks').picker.grep({
-        open_only = true,
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
+      require('snacks').picker.grep({ open_only = true })
     end, desc = 'Search in open files' },
     { '<leader>sbl', function() require('snacks').picker.buffers() end, desc = 'Buffer list' },
     { '<leader>sp', function() require('snacks').picker.commands() end, desc = 'Command palette' },
     -- VIP keymaps (also defined in keymaps.lua but need to be here for lazy-loading)
-    { '<leader>ff', function()
-      require('snacks').picker.grep({
-        actions = {
-          tab = { action = 'jump', cmd = 'tab' },
-        },
-        confirm = function(picker)
-          picker:action('tab')
-        end
-      })
-    end, desc = 'Find in project' },
-    { '<leader>se', function()
-      require('snacks').picker.explorer({
-        win = {
-          input = {
-            keys = {
-              ['<CR>'] = { 'tab', mode = { 'i', 'n' } },
-            },
-          },
-          list = {
-            keys = {
-              ['<CR>'] = 'tab',
-            },
-          },
-        },
-      })
-    end, desc = 'Show explorer' },
+    { '<leader>ff', function() require('snacks').picker.grep() end, desc = 'Find in project' },
+    { '<leader>se', function() require('snacks').picker.explorer() end, desc = 'Show explorer' },
     { '<leader>gg', function() require('snacks').lazygit() end, desc = 'Lazygit' },
   },
+  config = function(_, opts)
+    require('snacks').setup(opts)
+    -- Setup autocmd to disable vim keybindings that conflict with picker keys
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'SnacksPickerOpen',
+      callback = function()
+        local picker_buf = vim.api.nvim_get_current_buf()
+        -- Disable only the keys we're using for picker actions (t, h, v, w)
+        -- This prevents vim defaults from interfering (t=till, h=left, v=visual, w=word)
+        local keys_to_disable = { 't', 'h', 'v', 'w' }
+        for _, key in ipairs(keys_to_disable) do
+          pcall(vim.keymap.set, 'n', key, '<Nop>', { buffer = picker_buf, noremap = true })
+        end
+      end,
+    })
+  end,
 }
