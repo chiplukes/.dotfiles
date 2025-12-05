@@ -6,7 +6,15 @@ return {
   lazy = false,
   opts = {
     explorer = { enabled = true },
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      -- Default action when selecting a file
+      formatters = {
+        file = {
+          filename_first = true,
+        },
+      },
+    },
     notifier = { enabled = false }, -- Disabled to prevent interference with :messages
     quickfile = { enabled = true },
     words = { enabled = true },
@@ -214,20 +222,118 @@ return {
   keys = {
     { '<leader>sh', function() require('snacks').picker.help() end, desc = 'Search help' },
     { '<leader>sk', function() require('snacks').picker.keymaps() end, desc = 'Search keymaps' },
-    { '<leader>sf', function() require('snacks').picker.files() end, desc = 'Search files' },
-    { '<leader>ss', function() require('snacks').picker.smart() end, desc = 'Smart search' },
-    { '<leader>sw', function() require('snacks').picker.grep_word() end, desc = 'Search current word' },
-    { '<leader>sg', function() require('snacks').picker.grep() end, desc = 'Search by grep' },
-    { '<leader>sd', function() require('snacks').picker.diagnostics() end, desc = 'Search diagnostics' },
-    { '<leader>sr', function() require('snacks').picker.recent() end, desc = 'Recent files' },
-    { '<leader>sc', function() require('snacks').picker.files({ cwd = vim.fn.stdpath('config') }) end, desc = 'Config files' },
+    { '<leader>sf', function()
+      require('snacks').picker.files({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Search files' },
+    { '<leader>ss', function()
+      require('snacks').picker.smart({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Smart search' },
+    { '<leader>sw', function()
+      require('snacks').picker.grep_word({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Search current word' },
+    { '<leader>sg', function()
+      require('snacks').picker.grep({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Search by grep' },
+    { '<leader>sd', function()
+      require('snacks').picker.diagnostics({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Search diagnostics' },
+    { '<leader>sr', function()
+      require('snacks').picker.recent({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Recent files' },
+    { '<leader>sc', function()
+      require('snacks').picker.files({
+        cwd = vim.fn.stdpath('config'),
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Config files' },
     { '<leader>s/', function() require('snacks').picker.lines() end, desc = 'Search in buffer' },
-    { '<leader>sof', function() require('snacks').picker.grep_open() end, desc = 'Search in open files' },
+    { '<leader>sof', function()
+      require('snacks').picker.grep({
+        open_only = true,
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Search in open files' },
     { '<leader>sbl', function() require('snacks').picker.buffers() end, desc = 'Buffer list' },
     { '<leader>sp', function() require('snacks').picker.commands() end, desc = 'Command palette' },
     -- VIP keymaps (also defined in keymaps.lua but need to be here for lazy-loading)
-    { '<leader>ff', function() require('snacks').picker.grep() end, desc = 'Find in project' },
-    { '<leader>se', function() require('snacks').picker.explorer() end, desc = 'Show explorer' },
+    { '<leader>ff', function()
+      require('snacks').picker.grep({
+        actions = {
+          tab = { action = 'jump', cmd = 'tab' },
+        },
+        confirm = function(picker)
+          picker:action('tab')
+        end
+      })
+    end, desc = 'Find in project' },
+    { '<leader>se', function()
+      require('snacks').picker.explorer({
+        win = {
+          input = {
+            keys = {
+              ['<CR>'] = { 'tab', mode = { 'i', 'n' } },
+            },
+          },
+          list = {
+            keys = {
+              ['<CR>'] = 'tab',
+            },
+          },
+        },
+      })
+    end, desc = 'Show explorer' },
     { '<leader>gg', function() require('snacks').lazygit() end, desc = 'Lazygit' },
   },
 }

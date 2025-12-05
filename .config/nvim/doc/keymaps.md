@@ -97,15 +97,6 @@ Debugging operations and breakpoint management.
 | Control | `<F2>` | Step over | (lazy) | Step over line |
 | Control | `<F3>` | Step out | (lazy) | Step out of function |
 
-
-### Workspace
-
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Workspace | `wa` | Add folder | (default) | Add to workspace | (remove_this)
-| Workspace | `wr` | Remove folder | (default) | Remove from workspace | (remove_this)
-| Workspace | `wl` | List folders | lsp_config.lua | Show workspace folders | (remove_this)
-
 ---
 
 
@@ -128,7 +119,6 @@ File search, grep, and fuzzy finding operations.
 | Other | `k` | Search keymaps | snacks.lua | Find keybindings |
 | Other | `h` | Search help | snacks.lua | Neovim help tags |
 | Other | `d` | Search diagnostics | snacks.lua | Find diagnostics |
-| Other | `r` | Resume search | snacks.lua | Resume last picker |
 | Other | `bl` | Find buffers | snacks.lua | Open buffer list |
 | Command | `p` | Command palette | keymaps.lua | VS Code-style palette |
 

@@ -354,10 +354,10 @@ vim.keymap.set('n', '<leader>sd', function()
   require('snacks').picker.diagnostics()
 end, { desc = 'Search diagnostics' })
 
--- Resume search
-vim.keymap.set('n', '<leader>sr', function()
-  require('snacks').picker.resume()
-end, { desc = 'Resume search' })
+-- -- Resume search
+-- vim.keymap.set('n', '<leader>sr', function()
+--   require('snacks').picker.resume()
+-- end, { desc = 'Resume search' })
 
 -- Buffer list
 vim.keymap.set('n', '<leader>sbl', function()
@@ -396,7 +396,20 @@ end, { desc = 'Open file picker' })
 
 -- File tree view
 vim.keymap.set('n', '<leader>et', function()
-  require('snacks').picker.explorer()
+  require('snacks').picker.explorer({
+    win = {
+      input = {
+        keys = {
+          ['<CR>'] = { 'tab', mode = { 'i', 'n' } },
+        },
+      },
+      list = {
+        keys = {
+          ['<CR>'] = 'tab',
+        },
+      },
+    },
+  })
 end, { desc = 'File tree view' })
 
 -- =============================================================================
