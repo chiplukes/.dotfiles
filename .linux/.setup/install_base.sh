@@ -202,10 +202,97 @@ install_lazygit() {
 
 install_lazygit
 
+# Install latest delta binary from GitHub
+install_delta() {
+    log_header "Installing delta from GitHub releases"
+
+    local bin_dir="$HOME/tools/delta"
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    local start_dir="$PWD"
+
+    # Create directory
+    ensure_dir "$bin_dir"
+
+    safe_cd "$temp_dir"
+
+    # Get latest release version
+    log_info "Fetching latest delta release information..."
+    local delta_version
+    delta_version=$(curl -s "https://api.github.com/repos/dandavison/delta/releases/latest" | \
+                    grep -Po '"tag_name": *"\K[^"]*')
+
+    if [[ -z "$delta_version" ]]; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to get delta version"
+    fi
+
+    log_info "Latest delta version: $delta_version"
+
+    # Download delta
+    local download_url="https://github.com/dandavison/delta/releases/download/${delta_version}/delta-${delta_version}-x86_64-unknown-linux-gnu.tar.gz"
+    log_info "Downloading delta from: $download_url"
+
+    if ! curl -Lo delta.tar.gz "$download_url"; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to download delta"
+    fi
+
+    # Extract
+    log_info "Extracting delta..."
+    if ! tar xf delta.tar.gz; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to extract delta"
+    fi
+
+    # Find the extracted directory (it will have a version number)
+    local extracted_dir
+    extracted_dir=$(find . -maxdepth 1 -type d -name "delta-*" | head -1)
+
+    if [[ -z "$extracted_dir" ]]; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Could not find extracted delta directory"
+    fi
+
+    # Install binary to ~/tools/delta
+    log_info "Installing delta binary to $bin_dir..."
+    if ! cp "$extracted_dir/delta" "$bin_dir/delta"; then
+        safe_cd "$start_dir"
+        rm -rf "$temp_dir"
+        die "Failed to install delta binary"
+    fi
+
+    # Make executable
+    chmod +x "$bin_dir/delta"
+
+    # Cleanup
+    safe_cd "$start_dir"
+    rm -rf "$temp_dir"
+
+    # Verify installation
+    if "$bin_dir/delta" --version >/dev/null 2>&1; then
+        log_success "delta installed successfully!"
+        log_info "delta version: $("$bin_dir/delta" --version)"
+        log_to_file "delta" "Installed from GitHub releases"
+    else
+        die "delta installation verification failed"
+    fi
+
+    # Add to PATH if not already there
+    add_to_bashrc 'export PATH="$HOME/tools/delta:$PATH"' "Add ~/tools/delta to PATH"
+}
+
+install_delta
+
 log_success "Base installation complete!"
 echo "Installed packages:"
 echo "- git, curl, subversion, ripgrep (via apt)"
 echo "- fzf (from GitHub)"
 echo "- fd-find (latest from GitHub releases)"
 echo "- lazygit (latest from GitHub releases)"
-echo "Note: Restart your shell to pick up fzf, fd, lazygit, and PATH changes"
+echo "- delta (latest from GitHub releases)"
+echo "Note: Restart your shell to pick up fzf, fd, lazygit, delta, and PATH changes"

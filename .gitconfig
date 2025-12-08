@@ -1,0 +1,38 @@
+[user]
+	email = 34627158+chiplukes@users.noreply.github.com
+	name = Chip Lukes
+
+[includeIf "gitdir:**/projects/work/**"]
+   path = ~/.gitconfig.work
+
+[merge]
+	guitool = vscode
+[mergetool "vscode"]
+	cmd = \"code\" --new-window --wait --merge \"$REMOTE\" \"$LOCAL\" \"$BASE\" \"$MERGED\"
+[pull]
+	rebase = false
+[fetch]
+	prune = false
+[rebase]
+	autoStash = false
+	autosquash = false
+	updateRefs = false
+[diff]
+	guitool = vscode
+[difftool "vscode"]
+	cmd = \"code\" --new-window --wait --diff \"$LOCAL\" \"$REMOTE\"
+[pager]
+    diff = delta
+    log = delta
+    reflog = delta
+    show = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    features = side-by-side line-numbers decorations
+    whitespace-error-style = 22
+    reverse
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none

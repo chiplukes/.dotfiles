@@ -145,6 +145,14 @@
       "category": "dev"
     },
     {
+      "name": "dandavison.delta",
+      "category": "dev"
+    },
+    {
+      "name": "jftuga.less",
+      "category": "dev"
+    },
+    {
       "name": "llvm",
       "category": "dev"
     }

@@ -4,6 +4,9 @@ git:
   log:
     order: 'top-order' # Changes how commits are ordered in the log
     showGraph: always # Always shows the commit graph
+  paging:
+    colorArg: always
+    pager: delta --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
 gui:
   theme:
     activeBorderColor: [255, 114, 224] # A magenta-like color
@@ -11,5 +14,3 @@ gui:
   showFileTree: true
 editCommand: "nvim" # Sets your default editor
 editCommandTemplate: "{{editor}} \"{{filename}}\""
-paging:
-  useConfig: true # Uses the pager from your git config
