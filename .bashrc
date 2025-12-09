@@ -199,4 +199,9 @@ export PATH="$HOME/tools/verible/bin:$PATH"
 # Add to ~/.bashrc
 source "$HOME/.linux/.scripts/python_uv_interceptor.bash"
 
-alias lazydot='lazygit --use-config-file "~/.config/config.yml" --work-tree ~ --git-dir ~/.dotfiles-bare'
+alias lazydot='lazygit --use-config-file "$HOME/.config/lazygit/config.yml" --work-tree "$HOME" --git-dir "$HOME/.dotfiles-bare"'
+
+# Add ~/tools/delta to PATH
+export PATH="$HOME/tools/delta:$PATH"
+
+. "$HOME/.local/bin/env"

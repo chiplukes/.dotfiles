@@ -2,11 +2,11 @@
 git:
   showIcons: true # Shows icons in the files panel
   log:
-    order: 'top-order' # Changes how commits are ordered in the log
+    order: 'topo-order' # Changes how commits are ordered in the log
     showGraph: always # Always shows the commit graph
-  paging:
-    colorArg: always
-    pager: delta --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+  pagers:
+    - colorArg: always
+      pager: delta --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
 gui:
   theme:
     activeBorderColor: [255, 114, 224] # A magenta-like color
