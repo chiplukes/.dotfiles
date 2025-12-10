@@ -62,15 +62,10 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- VIP Keymaps (No Category Prefix - Direct Access)
 -- =============================================================================
 
--- Find files in project (VIP - most used)
-vim.keymap.set('n', '<leader>ff', function()
-  require('snacks').picker.grep()
-end, { desc = 'Find in project' })
-
 -- Show explorer (VIP)
-vim.keymap.set('n', '<leader>se', function()
+vim.keymap.set('n', '<leader>e', function()
   require('snacks').picker.explorer()
-end, { desc = 'Show explorer' })
+end, { desc = 'File Tree View' })
 
 -- Accept AI suggestion (VIP)
 vim.keymap.set('n', '<leader>y', function()
@@ -83,6 +78,12 @@ vim.keymap.set('n', '<leader>pr', function()
     vim.cmd('normal! "0p')
   end)
 end, { desc = 'Paste from yank register' })
+
+-- Lazygit
+vim.keymap.set('n', '<leader>g', function()
+  require('snacks').lazygit()
+end, { desc = 'Lazygit' })
+
 
 -- =============================================================================
 -- Window Management (VIP - Alt keys)
@@ -329,10 +330,10 @@ vim.keymap.set('n', '<leader>s/', function()
   require('snacks').picker.lines()
 end, { desc = 'Search in buffer' })
 
--- Search in open files
+-- Search in open buffers
 vim.keymap.set('n', '<leader>sof', function()
-  require('snacks').picker.grep_open()
-end, { desc = 'Search in open files' })
+  require('snacks').picker.grep_buffers()
+end, { desc = 'Search in open buffers' })
 
 -- Smart search
 vim.keymap.set('n', '<leader>ss', function()
@@ -360,7 +361,7 @@ end, { desc = 'Search diagnostics' })
 -- end, { desc = 'Resume search' })
 
 -- Buffer list
-vim.keymap.set('n', '<leader>sbl', function()
+vim.keymap.set('n', '<leader>sb', function()
   require('snacks').picker.buffers()
 end, { desc = 'Buffer list' })
 
@@ -386,40 +387,8 @@ vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = 'Close window' })
 vim.keymap.set('n', '<leader>wf', '<cmd>only<CR>', { desc = 'Fullscreen' })
 
 -- =============================================================================
--- 📂 Explorer (<leader>e)
--- =============================================================================
-
--- Open file picker
-vim.keymap.set('n', '<leader>ef', function()
-  require('snacks').picker.files()
-end, { desc = 'Open file picker' })
-
--- File tree view
-vim.keymap.set('n', '<leader>et', function()
-  require('snacks').picker.explorer({
-    win = {
-      input = {
-        keys = {
-          ['<CR>'] = { 'tab', mode = { 'i', 'n' } },
-        },
-      },
-      list = {
-        keys = {
-          ['<CR>'] = 'tab',
-        },
-      },
-    },
-  })
-end, { desc = 'File tree view' })
-
--- =============================================================================
 -- ✨ Git (<leader>g)
 -- =============================================================================
-
--- Lazygit
-vim.keymap.set('n', '<leader>gg', function()
-  require('snacks').lazygit()
-end, { desc = 'Lazygit' })
 
 -- =============================================================================
 -- VIP Diagnostics and Code Actions (No prefix)

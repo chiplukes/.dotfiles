@@ -60,7 +60,6 @@ return {
       { '<leader>m', group = '📌 [M]arkers', mode = 'n' },
       { '<leader>mg', group = 'Marker [G]roups', mode = 'n' },
       { '<leader>w', group = '🪟 [W]indow', mode = 'n' },
-      { '<leader>e', group = '📂 [E]xplorer', mode = 'n' },
       { '<leader>a', group = '💬 [A]I', mode = 'n' },
       { '<leader>l', group = '🎓 [L]earning', mode = 'n' },
       { '<leader>lx', group = 'E[x]ecute Code', mode = 'n' },

@@ -12,7 +12,6 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 | Keymap | Description | File | Repeatable | Notes |
 |--------|-------------|------|-------|-------|
 | `<leader><leader>` | Repeat last command |n| keymaps.lua | Repeat Previous command |
-| `<leader>ff` | Find files in project | keymaps.lua |n| VS Code-style file search |
 | `gc` | Toggle comment | |n | Line/block commenting |
 | `ge` | Go to next error | |y| VS Code-style error navigation |
 | `go` | Go to outline/symbols | keymaps.lua |n| Document symbol outline |
@@ -23,6 +22,7 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 | `<Alt-j>` | Window down | keymaps.lua |n| Navigate to lower window |
 | `<Alt-k>` | Window up | keymaps.lua |n| Navigate to upper window |
 | `<leader>pr` | Paste from yank register | keymaps.lua | y| Paste last yank (ignores deletes) |
+| `<leader>e` | File Explorer | keymaps.lua | n| Shows File Tree |
 
 ---
 
@@ -37,6 +37,7 @@ Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 | `r` | n | Rename symbol | keymaps.lua | n | LSP rename across project |
 | `a` | n | Code action / Quick fix | keymaps.lua | n | Context-sensitive fixes |
 | `a` | v | Multi-cursor on all | keymaps.lua | n | Multi-cursor simulation |
+| `i` | n | toggle inlay hints | lsp_config.lua | n | Toggle inlay hints |
 
 ### Python Specific (`p` prefix)
 
@@ -126,7 +127,7 @@ File search, grep, and fuzzy finding operations.
 | Other | `k` | Search keymaps | snacks.lua | Find keybindings |
 | Other | `h` | Search help | snacks.lua | Neovim help tags |
 | Other | `d` | Search diagnostics | snacks.lua | Find diagnostics |
-| Other | `bl` | Find buffers | snacks.lua | Open buffer list |
+| Other | `b` | Find buffers | snacks.lua | Open buffer list |
 | Command | `p` | Command palette | keymaps.lua | VS Code-style palette |
 
 ---
@@ -183,15 +184,10 @@ File exploration and project navigation.
 
 **Explorer Actions:**
 - `<CR>` - Open in current window (default)
-- `<C-t>` - Open in new tab
-- `<C-v>` - Open in vertical split
-- `<C-x>` - Open in horizontal split
-
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Explorer | `f` | Open file picker | keymaps.lua | Quick file open |
-| Explorer | `w` | Window explorer | keymaps.lua | Netrw explorer |
-| Explorer | `t` | Show explorer | snacks.lua | File tree view |
+- `w` - pick window
+- `t` - Open in new tab
+- `v` - Open in vertical split
+- `h` - Open in horizontal split
 
 ---
 
@@ -423,23 +419,3 @@ Built-in Neovim mappings (reference only - not customized).
 - Macro recording shortcuts
 - Register management shortcuts
 
-### Conflicts to Resolve
-## 🔍 Quick Reference by Function
-
-**File Operations:** `<leader>ff`, `<leader>sf`, `<leader>se`, `<leader>of`
-**Search Content:** `<leader>sg`, `<leader>sw`, `<leader>/`
-**Picker Actions:** `<CR>` (current), `<C-t>` (tab), `<C-v>` (vsplit), `<C-x>` (split)
-**Code Actions:** `<C-.>`, `<leader>.`, `<leader>cm`, `<leader>ca`
-**Navigate Code:** `grd`, `grr`, `gri`, `grt`, `grD`, `grn`
-**Diagnostics:** `gdn`, `gdp`, `gdd`, `[d`, `]d`, `<leader>e`
-**Format Code:** `<leader>cf`, `<leader>fb`, `<leader>rf`
-**Bookmarks:** `<leader>mm`, `<leader>mn`, `<leader>mp`
-**Sessions:** `<leader>qs`, `<leader>ql`, `<leader>qd`
-**Window Nav:** `<M-h>`, `<M-l>`, `<M-j>`, `<M-k>`
-**Quick Jump:** `sj`, `S`, `f/F/t/T`i`, `grt`, `grD`, `grn`
-**Diagnostics:** `gdn`, `gdp`, `gdd`, `[d`, `]d`, `<leader>e`
-**Format Code:** `<leader>cf`, `<leader>fb`, `<leader>rf`
-**Bookmarks:** `<leader>mm`, `<leader>mn`, `<leader>mp`
-**Sessions:** `<leader>qs`, `<leader>ql`, `<leader>qd`
-**Window Nav:** `<M-h>`, `<M-l>`, `<M-j>`, `<M-k>`
-**Quick Jump:** `sj`, `S`, `f/F/t/T`

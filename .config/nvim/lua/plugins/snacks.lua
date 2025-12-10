@@ -23,8 +23,8 @@ return {
             ['t'] = { 'tab', mode = { 'n' } },
             ['h'] = { 'edit_split', mode = { 'n' } },
             ['v'] = { 'edit_vsplit', mode = { 'n' } },
-            ['w'] = { { 'pick_win', 'jump' }, mode = { 'n' } },  -- Also try pick_win on Enter from input
-            ['<CR>'] = { { 'pick_win', 'jump' }, mode = { 'i' } },
+            ['w'] = { 'pick_win', mode = { 'n' } },  -- pick_win without jump for file-based pickers
+            ['<CR>'] = { 'confirm', mode = { 'i' } },  -- Use confirm as default
           },
         },
         -- Could not get the following to work as expected
@@ -40,6 +40,22 @@ return {
       },
       -- Source-specific configurations
       sources = {
+        -- Code action source: LSP code actions
+        code_action = {
+          enabled = true,
+          win = {
+            input = {
+              keys = {
+                ['<CR>'] = { 'confirm', mode = { 'i', 'n' } },  -- Just confirm, don't jump
+              },
+            },
+            list = {
+              keys = {
+                ['<CR>'] = 'confirm',  -- Confirm selection, don't jump
+              },
+            },
+          },
+        },
         -- Explorer source: file tree browser (uses its own keybindings)
         explorer = {
           enabled = true,
@@ -283,29 +299,8 @@ return {
   -- Map the keybindings that previously pointed to Telescope to Snacks equivalents
   -- Note: Most keymaps are now in keymaps.lua following the new hierarchical structure
   -- These are kept here for lazy-loading the plugin
-  keys = {
-    { '<leader>sh', function() require('snacks').picker.help() end, desc = 'Search help' },
-    { '<leader>sk', function() require('snacks').picker.keymaps() end, desc = 'Search keymaps' },
-    { '<leader>sf', function() require('snacks').picker.files() end, desc = 'Search files' },
-    { '<leader>ss', function() require('snacks').picker.smart() end, desc = 'Smart search' },
-    { '<leader>sw', function() require('snacks').picker.grep_word() end, desc = 'Search current word' },
-    { '<leader>sg', function() require('snacks').picker.grep() end, desc = 'Search by grep' },
-    { '<leader>sd', function() require('snacks').picker.diagnostics() end, desc = 'Search diagnostics' },
-    { '<leader>sr', function() require('snacks').picker.recent() end, desc = 'Recent files' },
-    { '<leader>sc', function()
-      require('snacks').picker.files({ cwd = vim.fn.stdpath('config') })
-    end, desc = 'Config files' },
-    { '<leader>s/', function() require('snacks').picker.lines() end, desc = 'Search in buffer' },
-    { '<leader>sof', function()
-      require('snacks').picker.grep({ open_only = true })
-    end, desc = 'Search in open files' },
-    { '<leader>sbl', function() require('snacks').picker.buffers() end, desc = 'Buffer list' },
-    { '<leader>sp', function() require('snacks').picker.commands() end, desc = 'Command palette' },
-    -- VIP keymaps (also defined in keymaps.lua but need to be here for lazy-loading)
-    { '<leader>ff', function() require('snacks').picker.grep() end, desc = 'Find in project' },
-    { '<leader>se', function() require('snacks').picker.explorer() end, desc = 'Show explorer' },
-    { '<leader>gg', function() require('snacks').lazygit() end, desc = 'Lazygit' },
-  },
+--   keys = {
+--   },
   config = function(_, opts)
     require('snacks').setup(opts)
     -- Setup autocmd to disable vim keybindings that conflict with picker keys

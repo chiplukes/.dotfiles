@@ -741,26 +741,8 @@ function M.setup()
     M.dump_keymaps(filename)
   end, { nargs = '?', desc = 'Dump all keymaps to file' })
 
-  -- Create keymaps
-  vim.keymap.set('n', '<leader>?', M.open_dashboard, { desc = 'Open learning dashboard' })
-  vim.keymap.set('n', '<leader>li', M.inspect_cursor, { desc = '[L]earn: [I]nspect word under cursor' })
-  vim.keymap.set('n', '<leader>lb', M.show_buffer_info, { desc = '[L]earn: [B]uffer info' })
-  vim.keymap.set('n', '<leader>lw', M.show_window_info, { desc = '[L]earn: [W]indow info' })
-  vim.keymap.set('n', '<leader>ll', M.show_lsp_clients, { desc = '[L]earn: [L]SP clients' })
-  vim.keymap.set('n', '<leader>lld', M.debug_lsp_config, { desc = '[L]earn: [L]SP [D]ebug config' })
-  vim.keymap.set('n', '<leader>llp', M.print_lsp_clients, { desc = '[L]earn: [L]SP [P]rint clients' })
-  vim.keymap.set('n', '<leader>llc', function()
-    local client_name = vim.fn.input('Client name: ')
-    if client_name ~= '' then M.debug_lsp_client(client_name) end
-  end, { desc = '[L]earn: [L]SP [C]lient debug' })
-  vim.keymap.set('n', '<leader>llg', M.show_lsp_log, { desc = '[L]earn: [L]SP lo[G]' })
-  vim.keymap.set('n', '<leader>lp', M.show_plugins, { desc = '[L]earn: [P]lugins' })
-  vim.keymap.set('n', '<leader>lk', M.show_keymaps, { desc = '[L]earn: [K]eymaps' })
-  vim.keymap.set('n', '<leader>lh', M.show_highlight, { desc = '[L]earn: [H]ighlight groups' })
-  vim.keymap.set('n', '<leader>lo', M.show_options, { desc = '[L]earn: [O]ptions' })
-  vim.keymap.set('n', '<leader>lr', M.reload_module, { desc = '[L]earn: [R]eload current module' })
-  vim.keymap.set('n', '<leader>lx', M.exec_current_line, { desc = '[L]earn: E[x]ec current line' })
-  vim.keymap.set('v', '<leader>lx', M.exec_visual_selection, { desc = '[L]earn: E[x]ec selection' })
+  -- Note: All <leader>l keymaps are defined in keymaps.lua
+  -- Python execution keymaps (not part of standard learning interface)
   vim.keymap.set('n', '<leader>cpx', M.exec_python_line, { desc = 'Python: execute line' })
   vim.keymap.set('v', '<leader>cpx', M.exec_python_selection, { desc = 'Python: execute selection' })
 
