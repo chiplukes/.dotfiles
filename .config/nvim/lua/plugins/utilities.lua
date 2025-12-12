@@ -65,9 +65,51 @@ return {
   -- Marker Groups for enhanced bookmarking (similar to VSCode bookmarks)
   {
     'jameswolensky/marker-groups.nvim',
+    dependencies = {
+        "nvim-lua/plenary.nvim", -- Required
+        "folke/snacks.nvim", -- Optional: Snacks picker
+    },
     config = function()
       require('marker-groups').setup({
-        -- Configuration will be added as we enhance bookmarks
+      -- Persistence
+      data_dir = vim.fn.stdpath("data") .. "/marker-groups",
+
+      -- Logging
+      debug = false,
+      log_level = "info",
+
+      -- Drawer viewer
+      drawer_config = {
+        width = 60,       -- 30..120
+        side = "right",   -- "left" | "right"
+        border = "rounded",
+        title_pos = "center",
+      },
+
+      -- Context shown around markers in viewer/preview
+      context_lines = 2,
+
+      -- Virtual text display
+       max_annotation_display = 50,
+
+       -- Highlight groups used for rendering (override names to integrate with colorschemes)
+       highlight_groups = {
+         marker = "MarkerGroupsMarker",
+         annotation = "MarkerGroupsAnnotation",
+         context = "MarkerGroupsContext",
+         multiline_start = "MarkerGroupsMultilineStart",
+         multiline_end = "MarkerGroupsMultilineEnd",
+       },
+
+      -- Keybinding configuration (declarative)
+      -- Disable plugin defaults; we define custom keymaps in keymaps.lua
+      keymaps = {
+        enabled = false,
+      },
+      -- Picker backend (default: 'vim')
+      -- Accepted values: 'vim' | 'snacks' | 'fzf-lua' | 'mini.pick' | 'telescope'
+      -- Invalid values fall back to 'vim'.
+      picker = 'snacks',
       })
     end,
   },

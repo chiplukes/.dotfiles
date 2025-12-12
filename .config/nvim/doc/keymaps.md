@@ -134,33 +134,25 @@ File search, grep, and fuzzy finding operations.
 
 ## 📌 Markers/Bookmarks (`<leader>m`)
 
-Bookmark and marker management.
+Marker and bookmark management using marker-groups.nvim.
 
 ### Basic Markers
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Basic | `m` | Toggle bookmark | keymaps.lua | Mark current line |
-| Basic | `n` | Next bookmark | keymaps.lua | Jump to next |
-| Basic | `p` | Previous bookmark | keymaps.lua | Jump to previous |
-| Basic | `a` | Add marker | marker-groups.nvim | Add with description |
-| Basic | `l` | List markers | marker-groups.nvim | Show buffer markers |
-| Basic | `i` | Show marker info | marker-groups.nvim | Details at cursor |
-| Basic | `d` | Delete marker | marker-groups.nvim | Remove at cursor |
-| Basic | `e` | Edit marker | marker-groups.nvim | Modify marker |
-| Basic | `v` | Toggle marker viewer | marker-groups.nvim | Drawer view |
+| Keymap | Description | File | Notes |
+|--------|-------------|------|-------|
+| `a` | Add marker | keymaps.lua | Add new marker |
+| `d` | Remove marker | keymaps.lua | Delete marker at cursor |
+| `v` | Toggle viewer | keymaps.lua | Show/hide marker drawer |
 
-### Marker Groups (`g` prefix)
+### Marker Groups (`<leader>mg` prefix)
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Groups | `c` | Create group | marker-groups.nvim | New marker group |
-| Groups | `s` | Select group | marker-groups.nvim | Switch active group |
-| Groups | `l` | List groups | marker-groups.nvim | Show all groups |
-| Groups | `r` | Rename group | marker-groups.nvim | Rename active group |
-| Groups | `d` | Delete group | marker-groups.nvim | Remove group |
-| Groups | `i` | Group info | marker-groups.nvim | Show group details |
-| Groups | `b` | Create from branch | marker-groups.nvim | Git branch group |
+| Keymap | Description | File | Notes |
+|--------|-------------|------|-------|
+| `c` | Create group | keymaps.lua | New marker group |
+| `s` | Select group | keymaps.lua | Switch active group |
+| `r` | Rename group | keymaps.lua | Rename active group |
+| `d` | Delete group | keymaps.lua | Remove group |
+| `b` | From branch | keymaps.lua | Create group from git branch |
 
 ---
 

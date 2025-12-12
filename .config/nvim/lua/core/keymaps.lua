@@ -354,92 +354,20 @@ vim.keymap.set('n', '<leader>cdb', function() require('dap').toggle_breakpoint()
 -- Note: cpd (docstring) and cpx (execute) are defined in autocmds.lua and learn.lua
 
 -- =============================================================================
--- Markers Category (<leader>m)
+-- Markers Category (<leader>m) - Using marker-groups.nvim
 -- =============================================================================
 
--- Basic marker operations - Remove run_and_remember from toggles/actions
-vim.keymap.set('n', '<leader>mm', function()
-  -- Get next available mark (a-z)
-  local marks = vim.split(vim.fn.execute('marks'), '\n')
-  local used_marks = {}
-  for _, line in ipairs(marks) do
-    local mark = line:match('^%s*([a-z])')
-    if mark then used_marks[mark] = true end
-  end
+-- Basic marker operations
+vim.keymap.set('n', '<leader>ma', function() require('marker-groups.markers').add_marker() end, { desc = 'Add marker' })
+vim.keymap.set('n', '<leader>md', function() require('marker-groups.markers').delete_marker() end, { desc = 'Remove marker' })
+vim.keymap.set('n', '<leader>mv', function() require('marker-groups.ui.drawer').toggle_drawer() end, { desc = 'Toggle viewer' })
 
-  -- Find first unused mark
-  for i = string.byte('a'), string.byte('z') do
-    local mark = string.char(i)
-    if not used_marks[mark] then
-      vim.cmd('mark ' .. mark)
-      print('Bookmark set: ' .. mark)
-      return
-    end
-  end
-  print('No available bookmark slots')
-end, { desc = 'Toggle marker' })
-
--- Keep run_and_remember for navigation (next/prev)
-vim.keymap.set('n', '<leader>mn', function()
-  run_and_remember(function()
-    vim.cmd("normal! ]'")
-  end)
-end, { desc = 'Next marker' })
-
-vim.keymap.set('n', '<leader>mp', function()
-  run_and_remember(function()
-    vim.cmd("normal! ['")
-  end)
-end, { desc = 'Previous marker' })
-
-vim.keymap.set('n', '<leader>ma', function()
-  -- Add new mark at cursor
-  local marks = vim.split(vim.fn.execute('marks'), '\n')
-  local used_marks = {}
-  for _, line in ipairs(marks) do
-    local mark = line:match('^%s*([a-z])')
-    if mark then used_marks[mark] = true end
-  end
-  for i = string.byte('a'), string.byte('z') do
-    local mark = string.char(i)
-    if not used_marks[mark] then
-      vim.cmd('mark ' .. mark)
-      print('Mark added: ' .. mark)
-      return
-    end
-  end
-end, { desc = 'Add marker' })
-
-vim.keymap.set('n', '<leader>ml', '<cmd>marks<CR>', { desc = 'List markers' })
-vim.keymap.set('n', '<leader>mi', function() vim.cmd('marks') end, { desc = 'Marker info' })
-
-vim.keymap.set('n', '<leader>md', function()
-  -- Delete mark at cursor line
-  local mark = vim.fn.input('Delete mark: ')
-  if mark ~= '' then
-    vim.cmd('delmarks ' .. mark)
-    print('Mark deleted: ' .. mark)
-  end
-end, { desc = 'Delete marker' })
-
-vim.keymap.set('n', '<leader>me', function()
-  -- Edit/jump to mark
-  local mark = vim.fn.input('Jump to mark: ')
-  if mark ~= '' then
-    vim.cmd("normal! '" .. mark)
-  end
-end, { desc = 'Edit/jump marker' })
-
-vim.keymap.set('n', '<leader>mv', '<cmd>marks<CR>', { desc = 'Marker viewer' })
-
--- Marker Groups (mg) - Placeholder commands
-vim.keymap.set('n', '<leader>mgc', function() print('Create marker group - requires marker-groups.nvim') end, { desc = 'Create group' })
-vim.keymap.set('n', '<leader>mgs', function() print('Select marker group - requires marker-groups.nvim') end, { desc = 'Select group' })
-vim.keymap.set('n', '<leader>mgl', function() print('List marker groups - requires marker-groups.nvim') end, { desc = 'List groups' })
-vim.keymap.set('n', '<leader>mgr', function() print('Rename marker group - requires marker-groups.nvim') end, { desc = 'Rename group' })
-vim.keymap.set('n', '<leader>mgd', function() print('Delete marker group - requires marker-groups.nvim') end, { desc = 'Delete group' })
-vim.keymap.set('n', '<leader>mgi', function() print('Marker group info - requires marker-groups.nvim') end, { desc = 'Group info' })
-vim.keymap.set('n', '<leader>mgb', function() print('Create group from branch - requires marker-groups.nvim') end, { desc = 'From branch' })
+-- Marker Groups (mg prefix) - Using marker-groups.nvim
+vim.keymap.set('n', '<leader>mgc', function() require('marker-groups.groups').create_group_interactive() end, { desc = 'Create group' })
+vim.keymap.set('n', '<leader>mgs', function() require('marker-groups.pickers').show_groups() end, { desc = 'Select group' })
+vim.keymap.set('n', '<leader>mgr', function() require('marker-groups.groups').rename_group_interactive() end, { desc = 'Rename group' })
+vim.keymap.set('n', '<leader>mgd', function() require('marker-groups.pickers').delete_groups() end, { desc = 'Delete group' })
+vim.keymap.set('n', '<leader>mgb', function() require('marker-groups.groups').create_group_from_branch() end, { desc = 'From branch' })
 
 -- =============================================================================
 -- Learning Category (<leader>l)
