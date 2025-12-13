@@ -165,7 +165,7 @@ Window splitting, navigation, and layout management.
 | Split | `v` | Split vertical | keymaps.lua | Vertical split |
 | Split | `c` | Close window | keymaps.lua | Close current |
 | Split | `f` | Fullscreen | keymaps.lua | Close other windows |
-| Other | `we` | Explorer (netrw) | keymaps.lua | File browser | (remove_this)
+| Split | `e` | Expand toggle | keymaps.lua | Toggle 3/4 width, repeatable |
 | Split | `t` | move to tab | keymaps.lua | Move to New Tab |
 
 ---
@@ -229,9 +229,8 @@ Session management and persistence.
 
 | Subcategory | Keymap | Description | File | Notes |
 |-------------|--------|-------------|------|-------|
-| Session | `qs` | Restore session | persistence.lua | Load saved session |
-| Session | `ql` | Restore last session | persistence.lua | Last session |
-| Session | `qd` | Don't save session | persistence.lua | Skip auto-save |
+| Session | `qs` | Switch session | keymaps.lua | Picker to select session to restore |
+| Session | `qd` | Don't save session | keymaps.lua | Skip auto-save |
 
 ---
 
@@ -405,9 +404,19 @@ Built-in Neovim mappings (reference only - not customized).
 - [ ] Review Python-specific keymaps for better organization
 
 ### Future Considerations
-- Add git operations category (`<leader>g`)
 - Terminal management keymaps (`<leader>t`)
 - Test/spec file navigation
 - Macro recording shortcuts
 - Register management shortcuts
 
+
+- LSP snacks pickers instead of what I am using
+{ "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
+{ "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
+{ "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+{ "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
+{ "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
+{ "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
+{ "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
+{ "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
+{ "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },

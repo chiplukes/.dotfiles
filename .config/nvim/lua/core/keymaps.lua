@@ -61,14 +61,22 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- =============================================================================
 -- VIP Keymaps (No Category Prefix - Direct Access)
 -- =============================================================================
-vim.keymap.set('n', '<leader>e', function() require('snacks').picker.explorer() end, { desc = 'File Tree View' }) -- Show explorer
+vim.keymap.set('n', '<leader>e', function()
+  -- Show explorer with helpful keybinding info
+  vim.notify(
+    'Explorer: l=open, h=close dir, a=add, d=delete, r=rename, c=copy, m=move, y=yank, p=paste, t=new tab, v=vsplit, w=window picker',
+    vim.log.levels.INFO,
+    { timeout = 5000 }
+  )
+  require('snacks').picker.explorer()
+end, { desc = 'File Tree View' }) -- Show explorer
 vim.keymap.set('n', '<leader>y', function() vim.lsp.buf.code_action() end, { desc = 'Accept suggestion' }) -- Accept suggestion
 vim.keymap.set('n', '<leader>pr', function() run_and_remember(function() vim.cmd('normal! "0p') end) end, { desc = 'Paste from yank register' }) -- Paste from yank
 vim.keymap.set('n', '<leader>g', function() require('snacks').lazygit() end, { desc = 'Lazygit' }) -- Lazygit
 vim.keymap.set('n', 'ge', function() run_and_remember(function() vim.diagnostic.goto_next() end) end, { desc = 'Go to next error' }) -- goto next diagnostic
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous diagnostic' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
-vim.keymap.set('n', 'go', function() vim.lsp.buf.document_symbol() end, { desc = 'Go to outline/symbols' }) -- Go to symbol/outline
+vim.keymap.set('n', 'go', function() require('snacks').picker.lsp_symbols() end, { desc = 'Go to outline/symbols' }) -- Go to symbol/outline
 
 
 -- =============================================================================
@@ -307,6 +315,30 @@ vim.keymap.set('n', '<leader>wt', '<C-w>T', { desc = 'Move window to new tab' })
 vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = 'Close window' }) -- Close window
 vim.keymap.set('n', '<leader>wf', '<cmd>only<CR>', { desc = 'Fullscreen' }) -- Fullscreen (close others)
 
+-- Track window expansion state per window
+_G.window_expand_state = _G.window_expand_state or {}
+
+-- Toggle window expand to 3/4 width
+vim.keymap.set('n', '<leader>we', function()
+  run_and_remember(function()
+    local win = vim.api.nvim_get_current_win()
+    local current_width = vim.api.nvim_win_get_width(win)
+    local max_width = vim.o.columns
+    local target_width = math.floor(max_width * 3 / 4)
+    
+    -- Check if window is already expanded
+    if _G.window_expand_state[win] then
+      -- Restore to original width
+      vim.api.nvim_win_set_width(win, _G.window_expand_state[win])
+      _G.window_expand_state[win] = nil
+    else
+      -- Save original width and expand
+      _G.window_expand_state[win] = current_width
+      vim.api.nvim_win_set_width(win, target_width)
+    end
+  end)
+end, { desc = 'Toggle expand window to 3/4 width' })
+
 
 -- =============================================================================
 -- Diagnostics and Code Actions (No prefix)
@@ -441,8 +473,38 @@ vim.keymap.set('v', '<leader>lxp', function() require('core.learn').exec_python_
 -- =============================================================================
 -- Sessions Category (<leader>q)
 -- =============================================================================
-vim.keymap.set('n', '<leader>qs', function() require('persistence').load() end, { desc = 'Restore session' })
-vim.keymap.set('n', '<leader>ql', function() require('persistence').load({ last = true }) end, { desc = 'Restore last session' })
+vim.keymap.set('n', '<leader>qs', function()
+  local session_dir = vim.fn.stdpath('state') .. '/sessions/'
+  local sessions = {}
+  
+  -- Scan session directory for available sessions
+  for file in vim.fs.dir(session_dir) do
+    if file ~= '.' and file ~= '..' then
+      table.insert(sessions, file)
+    end
+  end
+  
+  if #sessions == 0 then
+    vim.notify('No sessions found', vim.log.levels.INFO)
+    return
+  end
+  
+  table.sort(sessions)
+  require('snacks').picker.select(sessions, {
+    prompt = 'Select session to restore:',
+    format_item = function(item) return item:gsub('%.vim$', '') end,
+  }, function(session)
+    if session then
+      -- Save current session before switching
+      require('persistence').save()
+      -- Close all buffers
+      vim.cmd('bufdo bd!')
+      -- Load the selected session with error suppression (in case dir doesn't exist)
+      local session_path = session_dir .. session
+      vim.cmd('silent! source ' .. vim.fn.fnameescape(session_path))
+    end
+  end)
+end, { desc = 'Switch session' })
 vim.keymap.set('n', '<leader>qd', function()
   require('persistence').stop()
 end, { desc = "Don't save session" })
