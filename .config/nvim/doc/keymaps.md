@@ -253,46 +253,46 @@ Enhanced movement and text object operations.
 | Mode | Keymap | Description | File | Notes |
 |------|--------|-------------|------|-------|
 | n/x/o | `sj` | Flash jump | flash.lua | Jump to visible text |
-| n/x/o | `S` | Flash treesitter | flash.lua | Jump to TS nodes |
-| x/o | `R` | Flash treesitter search | flash.lua | Search TS nodes |
-| o | `r` | Remote flash | flash.lua | Remote operations |
 | n/x/o | `f/F/t/T` | Enhanced char motion | flash.lua | Flash-enhanced |
-
-### Treesitter Selection
-
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| n | `<C-Space>` | Init node selection | nvim-treesitter | Start selecting |
-| x | `<C-Space>` | Increment to node | nvim-treesitter | Expand to next node |
-| x | `<C-S>` | Increment to scope | nvim-treesitter | Expand to scope |
-| x | `<M-Space>` | Decrement selection | nvim-treesitter | Shrink selection |
 
 ### Text Objects (mini.ai)
 
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| x/o | `a` | Around textobject | mini.nvim | Outer textobject |
-| x/o | `i` | Inside textobject | mini.nvim | Inner textobject |
-| x/o | `an` | Around next | mini.nvim | Next outer |
-| x/o | `in` | Inside next | mini.nvim | Next inner |
-| x/o | `al` | Around last | mini.nvim | Last outer |
-| x/o | `il` | Inside last | mini.nvim | Last inner |
-| n/x | `g]` | Move right (around) | mini.nvim | Next textobject |
-| n/x | `g[` | Move left (around) | mini.nvim | Previous textobject |
+Mini.ai extends Vim's built-in text objects to work with more delimiters. Use them with operators like `d` (delete), `c` (change), `y` (yank), `v` (visual select).
+
+**Standard usage (all modes where applicable):**
+- `a<char>` = Around the character (e.g., `da"` deletes around quotes, `vi(` selects inside parens)
+- `i<char>` = Inside the character (e.g., `ci'` changes inside single quotes)
+
+**Supported delimiters:** `(`, `)`, `{`, `}`, `[`, `]`, `<`, `>`, `"`, `'`, `` ` ``, and more
+
+**Examples:**
+- `diw` = delete inside word
+- `da(` = delete around parentheses
+- `cit` = change inside tags
+- `yi"` = yank inside double quotes
+- `va{` = visual select around braces
 
 ### Surround (mini.surround)
 
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| n | `sa` | Add surrounding | mini.nvim | Add surround |
-| n | `sd` | Delete surrounding | mini.nvim | Remove surround |
-| n | `sr` | Replace surrounding | mini.nvim | Change surround |
-| n | `sf` | Find right surround | mini.nvim | Highlight right |
-| n | `sF` | Find left surround | mini.nvim | Highlight left |
-| n | `sh` | Highlight surround | mini.nvim | Show surrounding |
-| x | `sa` | Add to selection | mini.nvim | Surround visual |
-| n | `sdn/sdl` | Delete next/last | mini.nvim | Directional delete |
-| n | `srn/srl` | Replace next/last | mini.nvim | Directional replace |
+Add, delete, or replace surrounding characters (quotes, brackets, etc).
+
+**Normal mode usage:**
+- `sa<text object><char>` = Add surround (e.g., `saiw"` adds quotes around word, `sa2w)` adds parens around 2 words)
+- `sd<char>` = Delete surround (e.g., `sd"` deletes surrounding quotes)
+- `sr<old><new>` = Replace surround (e.g., `sr"'` replaces quotes with single quotes)
+
+**Directional versions:**
+- `sdn<char>` = Delete next surrounding delimiter
+- `sdl<char>` = Delete last/previous surrounding delimiter
+- `srn<old><new>` = Replace next surrounding
+- `srl<old><new>` = Replace last/previous surrounding
+
+**Find and highlight:**
+- `sf<char>` = Find and highlight right surrounding delimiter
+- `sF<char>` = Find and highlight left surrounding delimiter
+- `sh<char>` = Highlight surrounding delimiters
+
+**Visual mode:** Select text visually, then use the same keymaps (e.g., select text with `viw`, then `sa"` to surround)
 
 ### Alignment (mini.align)
 

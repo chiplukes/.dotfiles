@@ -59,16 +59,16 @@ return {
       disable = { 'ruby', 'python' }, -- Python indentation can be tricky with Treesitter
     },
 
-    -- Enhanced incremental selection
-    incremental_selection = {
-      enable = true,
-      keymaps = {
-        init_selection = '<C-space>',
-        node_incremental = '<C-space>',
-        scope_incremental = '<C-s>',
-        node_decremental = '<M-space>',
-      },
-    },
+    -- -- Enhanced incremental selection
+    -- incremental_selection = {
+    --   enable = true,
+    --   keymaps = {
+    --     init_selection = '<C-space>',
+    --     node_incremental = '<C-space>',
+    --     scope_incremental = '<C-s>',
+    --     node_decremental = '<M-space>',
+    --   },
+    -- },
 
     -- Enhanced text objects (if nvim-treesitter-textobjects is installed)
     textobjects = {
