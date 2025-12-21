@@ -33,9 +33,9 @@ return {
     dependencies = { 'mason-org/mason.nvim' },
     opts = {
       ensure_installed = {
-        -- LSP servers (only those that don't require npm/pip)
-        -- Note: basedpyright requires npm, so it won't install via Mason
-        -- Note: Use UV to install basedpyright: uv tool install basedpyright
+        -- LSP servers (only non-Python servers that don't require npm/pip)
+        -- Python servers (ty, ruff) are installed via UV and configured manually
+        -- Do NOT include pyright, pylsp, basedpyright here - they will be skipped
         'clangd',        -- C/C++ LSP (builds from source)
         'verible',       -- Verilog/SystemVerilog LSP
         'lua_ls',        -- Lua LSP

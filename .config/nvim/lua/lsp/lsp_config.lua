@@ -264,32 +264,63 @@ function M.setup()
   --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
   --  - settings (table): Override the default settings passed when initializing the server.
   --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+
+  -- Prevent lspconfig's built-in pyright from loading (we're using ty instead)
+  -- This MUST happen before lspconfig is required to work properly
+  local lspconfig_util = require('lspconfig.util')
+  local configs = require('lspconfig.configs')
+  if configs.pyright then
+    -- Remove pyright from lspconfig's configs to prevent auto-loading
+    configs.pyright = nil
+  end
+
   local servers = {
-    -- Python: Use basedpyright for language features (completion, hover, etc.)
+    -- Python: Use ty for language features (completion, hover, etc.)
     -- and Ruff for linting/formatting
-    basedpyright = {
-      -- Cross-platform basedpyright path - will use .exe on Windows, no extension on Linux
-      cmd = (function()
-        local basedpyright_path = vim.fn.expand('~/.local/bin/basedpyright-langserver')
-        if vim.fn.has('win32') == 1 then
-          basedpyright_path = basedpyright_path .. '.exe'
-        end
-        return { basedpyright_path, '--stdio' }
-      end)(),
+    -- basedpyright = {
+    --   -- Cross-platform basedpyright path - will use .exe on Windows, no extension on Linux
+    --   cmd = (function()
+    --     local basedpyright_path = vim.fn.expand('~/.local/bin/basedpyright-langserver')
+    --     if vim.fn.has('win32') == 1 then
+    --       basedpyright_path = basedpyright_path .. '.exe'
+    --     end
+    --     return { basedpyright_path, '--stdio' }
+    --   end)(),
+    --   filetypes = { 'python' },
+    --   settings = {
+    --     basedpyright = {
+    --       analysis = {
+    --         -- Disable all type checking diagnostics (let Ruff handle linting)
+    --         typeCheckingMode = "off",
+    --         diagnosticMode = "openFilesOnly",
+    --         -- Disable diagnostic rules
+    --         diagnosticSeverityOverrides = {
+    --           reportMissingImports = "none",
+    --           reportUndefinedVariable = "none",
+    --         },
+    --       },
+    --     },
+    --   },
+    -- },
+
+    ty = {
+      -- ty language server (requires Neovim 0.11+)
+      -- Install via: uv tool install ty (or pip install ty)
       filetypes = { 'python' },
       settings = {
-        basedpyright = {
-          analysis = {
-            -- Disable all type checking diagnostics (let Ruff handle linting)
-            typeCheckingMode = "off",
-            diagnosticMode = "openFilesOnly",
-            -- Disable diagnostic rules
-            diagnosticSeverityOverrides = {
-              reportMissingImports = "none",
-              reportUndefinedVariable = "none",
-            },
+        ty = {
+          -- Show diagnostics for entire workspace, not just open files
+          diagnosticMode = 'workspace',
+          -- Inlay hints are enabled by default
+          inlayHints = {
+            variableTypes = true,
+            callArgumentNames = true,
           },
-        },
+          -- Auto-import suggestions enabled by default
+          completions = {
+            autoImport = true,
+          },
+        }
       },
     },
 
@@ -400,9 +431,25 @@ function M.setup()
   -- and will automatically install the tools listed there on startup.
 
   require('mason-lspconfig').setup {
+    -- Don't automatically install servers
+    automatic_installation = false,
     handlers = {
-      -- Default handler for all servers managed by mason-lspconfig
+      -- Disable all Python-related servers from Mason (we handle ty and ruff manually)
+      pyright = function() end,
+      pylsp = function() end,
+      python_lsp_server = function() end,
+      basedpyright = function() end,
+
+      -- Default handler for all other servers managed by mason-lspconfig
       function(server_name)
+        -- Double-check to skip any Python servers
+        local python_servers = { 'pyright', 'pylsp', 'python_lsp_server', 'basedpyright' }
+        for _, py_server in ipairs(python_servers) do
+          if server_name == py_server then
+            return
+          end
+        end
+
         local server = servers[server_name] or {}
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
 
@@ -417,21 +464,11 @@ function M.setup()
     },
   }
 
-  -- Manually setup basedpyright since it's installed via UV, not Mason
-  local basedpyright_config = servers.basedpyright or {}
-  basedpyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, basedpyright_config.capabilities or {})
-
-  if vim.lsp.config then
-    vim.lsp.config('basedpyright', basedpyright_config)
-    -- Enable basedpyright for Python files
-    vim.api.nvim_create_autocmd('FileType', {
-      pattern = 'python',
-      callback = function(args)
-        vim.lsp.enable('basedpyright', args.buf)
-      end,
-    })
-  else
-    require('lspconfig').basedpyright.setup(basedpyright_config)
+  local ty_config = servers.ty or {}
+  ty_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, ty_config.capabilities or {})
+  -- Ensure cmd is set for ty
+  if not ty_config.cmd then
+    ty_config.cmd = { 'ty', 'server' }
   end
 
   -- Manually setup ruff since it's installed via UV, not Mason
@@ -439,17 +476,36 @@ function M.setup()
   ruff_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, ruff_config.capabilities or {})
 
   if vim.lsp.config then
+    vim.lsp.config('ty', ty_config)
     vim.lsp.config('ruff', ruff_config)
-    -- Enable ruff for Python files
+
+    -- Enable both ty and ruff for Python files
     vim.api.nvim_create_autocmd('FileType', {
       pattern = 'python',
       callback = function(args)
+        vim.lsp.enable('ty', args.buf)
         vim.lsp.enable('ruff', args.buf)
       end,
     })
   else
+    require('lspconfig').ty.setup(ty_config)
     require('lspconfig').ruff.setup(ruff_config)
   end
+
+  -- -- Commented out basedpyright setup
+  -- local basedpyright_config = servers.basedpyright or {}
+  -- basedpyright_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, basedpyright_config.capabilities or {})
+  -- if vim.lsp.config then
+  --   vim.lsp.config('basedpyright', basedpyright_config)
+  --   vim.api.nvim_create_autocmd('FileType', {
+  --     pattern = 'python',
+  --     callback = function(args)
+  --       vim.lsp.enable('basedpyright', args.buf)
+  --     end,
+  --   })
+  -- else
+  --   require('lspconfig').basedpyright.setup(basedpyright_config)
+  -- end
 end
 
 return M

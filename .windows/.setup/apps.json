@@ -190,6 +190,11 @@
       "description": "Extremely fast Python linter and formatter"
     },
     {
+      "name": "ty@latest",
+      "category": "dev",
+      "description": "uv ty language server/ type checker"
+    },
+    {
       "name": "mypy",
       "category": "dev",
       "description": "Static type checker for Python"
