@@ -11,24 +11,6 @@ return {
     --  - ci'  - [C]hange [I]nside [']quote
     require('mini.ai').setup { n_lines = 500 }
 
-    -- Add/delete/replace surroundings (brackets, quotes, etc.)
-    --
-    -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-    -- - sd'   - [S]urround [D]elete [']quotes
-    -- - sr)'  - [S]urround [R]eplace [)] [']
-    require('mini.surround').setup({
-      mappings = {
-        add = 'sa',            -- Add surrounding
-        delete = 'sd',         -- Delete surrounding
-        find = 'sf',           -- Find surrounding
-        find_left = 'sF',      -- Find left surrounding
-        highlight = 'sh',      -- Highlight surrounding
-        replace = 'sr',        -- Replace surrounding
-        update_n_lines = 'sn', -- Update number of lines
-      },
-      n_lines = 500,
-    })
-
     -- Simple and easy statusline.
     --  You could remove this setup call if you don't like it,
     --  and try some other statusline plugin

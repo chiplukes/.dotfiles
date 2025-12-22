@@ -4,7 +4,7 @@ return {
   'folke/flash.nvim',
   event = 'VeryLazy',
   keys = {
-    { 'sj', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = '[S] Flash jump (EasyMotion-style)' },
+    { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump (EasyMotion-style)' },
   },
   opts = {
     -- Flash configuration to match VSCode EasyMotion behavior

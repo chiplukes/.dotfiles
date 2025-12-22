@@ -16,7 +16,7 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 | `ge` | Go to next error | |y| VS Code-style error navigation |
 | `go` | Go to outline/symbols | keymaps.lua |n| Document symbol outline |
 | `K` | goto documentation | lsp_config.lua | n| LSP hover info |
-| `sj` | Flash jump (EasyMotion) | flash.lua |n| Quick cursor navigation |
+| `s` | Flash jump (EasyMotion) | flash.lua |n| Quick cursor navigation |
 | `<Alt-h>` | Window/buffer left (with wrap) | keymaps.lua |n| Navigate left or previous tab |
 | `<Alt-l>` | Window/buffer right (with wrap) | keymaps.lua | n| Navigate right or next tab |
 | `<Alt-j>` | Window down | keymaps.lua |n| Navigate to lower window |
@@ -271,28 +271,6 @@ Mini.ai extends Vim's built-in text objects to work with more delimiters. Use th
 - `cit` = change inside tags
 - `yi"` = yank inside double quotes
 - `va{` = visual select around braces
-
-### Surround (mini.surround)
-
-Add, delete, or replace surrounding characters (quotes, brackets, etc).
-
-**Normal mode usage:**
-- `sa<text object><char>` = Add surround (e.g., `saiw"` adds quotes around word, `sa2w)` adds parens around 2 words)
-- `sd<char>` = Delete surround (e.g., `sd"` deletes surrounding quotes)
-- `sr<old><new>` = Replace surround (e.g., `sr"'` replaces quotes with single quotes)
-
-**Directional versions:**
-- `sdn<char>` = Delete next surrounding delimiter
-- `sdl<char>` = Delete last/previous surrounding delimiter
-- `srn<old><new>` = Replace next surrounding
-- `srl<old><new>` = Replace last/previous surrounding
-
-**Find and highlight:**
-- `sf<char>` = Find and highlight right surrounding delimiter
-- `sF<char>` = Find and highlight left surrounding delimiter
-- `sh<char>` = Highlight surrounding delimiters
-
-**Visual mode:** Select text visually, then use the same keymaps (e.g., select text with `viw`, then `sa"` to surround)
 
 ### Alignment (mini.align)
 
