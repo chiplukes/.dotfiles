@@ -181,3 +181,29 @@ return M
 --     end
 --   end,
 -- })
+
+-- =============================================================================
+-- Windows ShaDa Cleanup (Fix for E138 error on exit)
+-- =============================================================================
+-- On Windows, Neovim sometimes leaves behind .tmp files in the ShaDa directory
+-- This causes "E138: All ... files exist, cannot write ShaDa file!" errors
+-- This cleans them up on startup and before exiting
+if vim.fn.has('win32') == 1 then
+  local function clean_shada_tmp()
+    local shada_dir = vim.fn.stdpath('data') .. '\\shada'
+    local pattern = shada_dir .. '\\main.shada.tmp.*'
+
+    for _, file in ipairs(vim.fn.glob(pattern, false, true)) do
+      os.remove(file)
+    end
+  end
+
+  -- Clean up on startup
+  clean_shada_tmp()
+
+  -- Clean up before exiting
+  vim.api.nvim_create_autocmd('VimLeavePre', {
+    desc = 'Clean up ShaDa temporary files on Windows',
+    callback = clean_shada_tmp,
+  })
+end
