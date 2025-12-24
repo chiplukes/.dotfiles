@@ -252,7 +252,7 @@ Enhanced movement and text object operations.
 
 | Mode | Keymap | Description | File | Notes |
 |------|--------|-------------|------|-------|
-| n/x/o | `sj` | Flash jump | flash.lua | Jump to visible text |
+| n/x/o | `s` | Flash jump | flash.lua | Jump to visible text |
 | n/x/o | `f/F/t/T` | Enhanced char motion | flash.lua | Flash-enhanced |
 
 ### Text Objects (mini.ai)

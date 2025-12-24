@@ -298,6 +298,20 @@ return {
           -- },
         },
         opts = {},
+        config = function()
+          local ls = require('luasnip')
+
+          -- Directly load and register Python snippets
+          local python_snippets = require('snippets.python')
+          ls.add_snippets('python', python_snippets)
+
+          -- Also load Verilog snippets if available
+          pcall(function()
+            local verilog_snippets = require('snippets.verilog')
+            ls.add_snippets('verilog', verilog_snippets)
+            ls.add_snippets('systemverilog', verilog_snippets)
+          end)
+        end,
       },
       'folke/lazydev.nvim',
     },
