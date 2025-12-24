@@ -317,59 +317,6 @@ Completion menu navigation (command mode).
 | `<C-U>` | Delete to line start | (default) | With undo break |
 | `<C-W>` | Delete word | (default) | With undo break |
 
----
-
-## 🖱️ Visual Mode
-
-| Keymap | Description | File | Notes |
-|--------|-------------|------|-------|
-| `gc` | Toggle comment | (default) | Line/block comment |
-| `gra` | Code action | (default) | Visual code action |
-| `<C-.>` | Quick fix | keymaps.lua | VS Code-style |
-| `ca` | Cursor on all | keymaps.lua | Multi-cursor visual |
-
----
-
-## 🔗 Other Defaults
-
-Built-in Neovim mappings (reference only - not customized).
-
-### Quickfix/Location Navigation
-
-| Keymap | Description | Notes |
-|--------|-------------|-------|
-| `]q/[q` | Next/prev quickfix | Built-in |
-| `]Q/[Q` | Last/first quickfix | Built-in |
-| `]l/[l` | Next/prev location | Built-in |
-| `]L/[L` | Last/first location | Built-in |
-
-### Buffer Navigation
-
-| Keymap | Description | Notes |
-|--------|-------------|-------|
-| `]b/[b` | Next/prev buffer | Built-in |
-| `]B/[B` | Last/first buffer | Built-in |
-
-### Tab Navigation
-
-| Keymap | Description | Notes |
-|--------|-------------|-------|
-| `]t/[t` | Next/prev tab | Built-in |
-| `]T/[T` | Last/first tab | Built-in |
-
-### Argument Navigation
-
-| Keymap | Description | Notes |
-|--------|-------------|-------|
-| `]a/[a` | Next/prev file | Built-in |
-| `]A/[A` | Last/first file | Built-in |
-
-### Space Management
-
-| Keymap | Description | Notes |
-|--------|-------------|-------|
-| `]<Space>` | Add line below | Built-in |
-| `[<Space>` | Add line above | Built-in |
 
 ---
 

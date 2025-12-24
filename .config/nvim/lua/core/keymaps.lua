@@ -378,7 +378,18 @@ vim.keymap.set('n', '<leader>c.p', function() run_and_remember(function() vim.di
 vim.keymap.set('n', '<leader>c.d', function() vim.diagnostic.open_float() end, { desc = 'Diagnostic details' })
 vim.keymap.set('n', '<leader>c.e', function() vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Error messages list' })
 vim.keymap.set('n', '<leader>c.q', function() vim.diagnostic.setqflist() end, { desc = 'Diagnostics quickfix' })
-vim.keymap.set('n', '<leader>c.u', function() vim.diagnostic.hide() end, { desc = 'Hide diagnostics' })
+-- vim.keymap.set('n', '<leader>c.u', function() vim.diagnostic.hide() end, { desc = 'Hide diagnostics' })
+vim.keymap.set('n', '<leader>c.v', function()
+  run_and_remember(function()
+    -- Toggle virtual text display for diagnostics
+    local config = vim.diagnostic.config()
+    if config.virtual_text then
+      vim.diagnostic.config({ virtual_text = false })
+    else
+      vim.diagnostic.config({ virtual_text = true })
+    end
+  end)
+end, { desc = 'Toggle virtual text diagnostics' })
 vim.keymap.set('n', '<leader>cfb', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, { desc = 'Format buffer' })
 vim.keymap.set('v', '<leader>cfs', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, { desc = 'Format selection' })
 -- Debug (cd)
