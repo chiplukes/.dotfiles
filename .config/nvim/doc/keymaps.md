@@ -1,7 +1,13 @@
 # Neovim Keymaps Reference
 
-**Generated:** 2025-10-30
+**Generated:** 2025-12-24
 **Purpose:** Organized keymap reference for easy lookup and future refactoring
+
+**Legend:** VS Code column shows mapping status
+- ✅ = Mapped (same or similar keymap)
+- ⚡ = Mapped with different keymap
+- 🔧 = Not mapped, but VS Code command exists (add to settings)
+- ❌ = No VS Code equivalent
 
 ---
 
@@ -9,20 +15,21 @@
 
 These are frequently-used shortcuts that bypass category prefixes for quick access.
 
-| Keymap | Description | File | Repeatable | Notes |
-|--------|-------------|------|-------|-------|
-| `<leader><leader>` | Repeat last command |n| keymaps.lua | Repeat Previous command |
-| `gc` | Toggle comment | |n | Line/block commenting |
-| `ge` | Go to next error | |y| VS Code-style error navigation |
-| `go` | Go to outline/symbols | keymaps.lua |n| Document symbol outline |
-| `K` | goto documentation | lsp_config.lua | n| LSP hover info |
-| `s` | Flash jump (EasyMotion) | flash.lua |n| Quick cursor navigation |
-| `<Alt-h>` | Window/buffer left (with wrap) | keymaps.lua |n| Navigate left or previous tab |
-| `<Alt-l>` | Window/buffer right (with wrap) | keymaps.lua | n| Navigate right or next tab |
-| `<Alt-j>` | Window down | keymaps.lua |n| Navigate to lower window |
-| `<Alt-k>` | Window up | keymaps.lua |n| Navigate to upper window |
-| `<leader>pr` | Paste from yank register | keymaps.lua | y| Paste last yank (ignores deletes) |
-| `<leader>e` | File Explorer | keymaps.lua | n| Shows File Tree |
+| Keymap | Description | File | Repeatable | Notes | VS Code |
+|--------|-------------|------|------------|-------|---------|
+| `<leader><leader>` | Repeat last command | keymaps.lua | n | Repeat previous command | ✅ (extension) |
+| `gc` | Toggle comment | (mini.comment) | n | Line/block commenting | ✅ (built-in) |
+| `ge` | Next error | keymaps.lua | y | VS Code-style error nav | ✅ `editor.action.marker.nextInFiles` |
+| `go` | Outline | keymaps.lua | n | Document symbols | ✅ `workbench.action.gotoSymbol` |
+| `K` | Hover docs | lsp_config.lua | n | LSP hover info | ⚡ `gh` → `editor.action.showHover` |
+| `s` | Flash jump | flash.lua | n | EasyMotion-style nav | ✅ EasyMotion `<leader><leader>2s` |
+| `<Alt-h>` | Window/tab left | keymaps.lua | n | Navigate left with wrap | ❌ |
+| `<Alt-l>` | Window/tab right | keymaps.lua | n | Navigate right with wrap | ❌ |
+| `<Alt-j>` | Window down | keymaps.lua | n | Navigate to lower window | ❌ |
+| `<Alt-k>` | Window up | keymaps.lua | n | Navigate to upper window | ❌ |
+| `<leader>pr` | Paste yank register | keymaps.lua | y | Paste last yank | ⚡ `<leader>p` → `"0P` |
+| `<leader>e` | Explorer | keymaps.lua | n | File tree view | ⚡ `<leader>we` → `workbench.view.explorer` |
+| `<leader>g` | Lazygit | keymaps.lua | n | Git interface | ❌ |
 
 ---
 
@@ -30,76 +37,65 @@ These are frequently-used shortcuts that bypass category prefixes for quick acce
 
 Code-related operations: LSP actions, refactoring, formatting, diagnostics.
 
-### Direct Code Actions (no prefix)
+### Direct Code Actions
 
-| Keymap | Mode | Description | File | Repeatable | Notes |
-|--------|------|-------------|------|-------|-------|
-| `r` | n | Rename symbol | keymaps.lua | n | LSP rename across project |
-| `a` | n | Code action / Quick fix | keymaps.lua | n | Context-sensitive fixes |
-| `a` | v | Multi-cursor on all | keymaps.lua | n | Multi-cursor simulation |
-| `i` | n | toggle inlay hints | lsp_config.lua | n | Toggle inlay hints |
+| Keymap | Mode | Description | File | Notes | VS Code |
+|--------|------|-------------|------|-------|---------||
+| `<leader>cr` | n | Rename | keymaps.lua | LSP rename across project | 🔧 `editor.action.rename` |
+| `<leader>ca` | n | Code action | keymaps.lua | Context-sensitive fixes | 🔧 `editor.action.quickFix` |
+| `<leader>ci` | n | Toggle inlay hints | lsp_config.lua | Show/hide type hints | 🔧 `editor.inlayHints.toggle` |
 
-### Python Specific (`p` prefix)
+### Python Specific (`<leader>cp`)
 
-| Keymap | Mode | Description | File | Notes |
-|--------|------|-------------|------|-------|
-| `d` | n | Add docstring | autocmds.lua | Generate Python docstring |
-| `x` | n | Execute Python line | autocmds.lua | Run current line |
-| `x` | v | Execute Python selection | autocmds.lua | Run selected code |
+| Keymap | Mode | Description | File | Notes | VS Code |
+|--------|------|-------------|------|-------|---------||
+| `<leader>cpd` | n | Docstring | autocmds.lua | Generate Python docstring | ❌ |
 
-**Note:** For formatting Python code (including selections), use `<leader>cfb` (buffer) or `<leader>cfs` (visual selection).
+### Goto Navigation (`<leader>cg`)
 
-### Goto Navigation (`g` prefix)
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>cgr` | References | lsp_config.lua | Find all references | 🔧 `editor.action.goToReferences` |
+| `<leader>cgd` | Definition | lsp_config.lua | Jump to definition | ✅ `gd` built-in |
+| `<leader>cgi` | Implementation | lsp_config.lua | Jump to implementation | 🔧 `editor.action.goToImplementation` |
+| `<leader>cgD` | Declaration | lsp_config.lua | Jump to declaration | 🔧 `editor.action.revealDeclaration` |
+| `<leader>cgt` | Type definition | lsp_config.lua | Jump to type def | 🔧 `editor.action.goToTypeDefinition` |
 
-| Subcategory -g | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Goto | `r` | Go to references | lsp_config.lua | Find all references |
-| Goto | `d` | Go to definition | lsp_config.lua | Jump to definition |
-| Goto | `i` | Go to implementation | lsp_config.lua | Jump to implementation |
-| Goto | `D` | Go to declaration | lsp_config.lua | Jump to declaration |
-| Goto | `t` | Go to type definition | lsp_config.lua | Jump to type def |
+### Diagnostics (`<leader>c.`)
 
-### Diagnostics (`.` prefix)
+| Keymap | Description | File | Repeatable | Notes | VS Code |
+|--------|-------------|------|------------|-------|---------||
+| `<leader>c.n` | Next | keymaps.lua | y | Next diagnostic | ⚡ `ge` → `editor.action.marker.nextInFiles` |
+| `<leader>c.p` | Prev | keymaps.lua | y | Previous diagnostic | 🔧 `editor.action.marker.prevInFiles` |
+| `<leader>c.d` | Details | keymaps.lua | n | Show full details | 🔧 `editor.action.showHover` |
+| `<leader>c.e` | Errors list | keymaps.lua | n | Error quickfix | 🔧 `workbench.actions.view.problems` |
+| `<leader>c.q` | Quickfix | keymaps.lua | n | All diagnostics | 🔧 `editor.action.quickFix` |
+| `<leader>c.v` | Toggle virtual text | keymaps.lua | n | Show/hide inline | ❌ (no toggle, use settings) |
+| `<leader>c.f` | Fix line | keymaps.lua | n | Ruff fix at cursor | 🔧 `editor.action.autoFix` |
 
-| Subcategory | Keymap | Description | File | Repeatable | Notes |
-|-------------|--------|-------------|------|-------|
-| Diagnostic | `n` | next diagnostic | lsp_config.lua | y | Next issue |
-| Diagnostic | `p` | previous diagnostic | lsp_config.lua | y | Previous issue |
-| Diagnostic | `d` | Diagnostic details | lsp_config.lua | y | Show full details |
-| Diagnostic | `e` | Show error messages | (default) | n | Diagnostic float |
-| Diagnostic | `q` | Diagnostic quickfix | (default) | n | Quickfix list |
-| Diagnostic | `u` | Hide diagnostics | keymaps.lua | n | Undo/hide suggestions |
+### Symbols (`<leader>cs`)
 
-### Symbols (`s` prefix)
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>csd` | Doc symbols | lsp_config.lua | Current file symbols | ⚡ `go` → `workbench.action.gotoSymbol` |
+| `<leader>csw` | Workspace symbols | lsp_config.lua | Project-wide symbols | 🔧 `workbench.action.showAllSymbols` |
 
-| Keymap | Description | File | Notes |
-|--------|-------------|------|-------|
-| `d` | Document symbols | lsp_config.lua | Symbol picker for current file |
-| `w` | Workspace symbols | lsp_config.lua | Symbol picker for entire project |
+### Formatting (`<leader>cf`)
 
-### Formatting (`f` prefix)
+| Keymap | Mode | Description | File | Notes | VS Code |
+|--------|------|-------------|------|-------|---------||
+| `<leader>cfb` | n | Format buffer | keymaps.lua | Format entire file | ⚡ `<leader>rf` (visual) → `editor.action.formatDocument` |
+| `<leader>cfs` | v | Format selection | keymaps.lua | Format visual selection | 🔧 `editor.action.formatSelection` |
 
-| Keymap | Mode | Description | File | Notes |
-|--------|------|-------------|------|-------|
-| `b` | n | Format buffer | lsp_config.lua | Format entire file |
-| `s` | v | Format selection | keymaps.lua | Format visual selection |
+### Debug (`<leader>cd`)
 
-
-### 🐛 Debug (`d`)
-
-Debugging operations and breakpoint management.
-
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Breakpoint | `b` | Toggle breakpoint | (lazy) | Toggle BP at line |
-| Breakpoint | `B` | Set breakpoint | (lazy) | Set conditional BP | (remove_this)
-| Control | `<F5>` | Start/Continue | (lazy) | Begin/resume debugging |
-| Control | `<F1>` | Step into | (lazy) | Step into function |
-| Control | `<F2>` | Step over | (lazy) | Step over line |
-| Control | `<F3>` | Step out | (lazy) | Step out of function |
-
----
-
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>cdb` | Breakpoint | keymaps.lua | Toggle breakpoint | 🔧 `editor.debug.action.toggleBreakpoint` |
+| `<F5>` | Start/Continue | (lazy) | Begin/resume debugging | ✅ (built-in) |
+| `<F1>` | Step into | (lazy) | Step into function | ⚡ `F11` built-in |
+| `<F2>` | Step over | (lazy) | Step over line | ⚡ `F10` built-in |
+| `<F3>` | Step out | (lazy) | Step out of function | ⚡ `Shift+F11` built-in |
 
 ---
 
@@ -108,118 +104,139 @@ Debugging operations and breakpoint management.
 File search, grep, and fuzzy finding operations.
 
 **Picker Actions (available in all search pickers):**
-- `<CR>` - window picker (select location to open file)
-- `w` - window picker (select location to open file)
+- `<CR>` - Open file (default)
+- `w` - Window picker (select location)
 - `t` - Open in new tab
 - `v` - Open in vertical split
 - `h` - Open in horizontal split
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Files | `f` | Search files | snacks.lua | Find by filename |
-| Files | `r` | Recent files | snacks.lua | Recently opened |
-| Files | `c` | Neovim config files | snacks.lua | Search config dir |
-| Content | `g` | Search by grep | snacks.lua | Live grep content |
-| Content | `w` | Search current word | snacks.lua | Grep word under cursor |
-| Content | `/` | Search in buffer | snacks.lua | Fuzzy search current file |
-| Content | `of` | Search in open files | snacks.lua | Search across buffers |
-| Smart | `s` | Smart search | snacks.lua | Context-aware search |
-| Other | `k` | Search keymaps | snacks.lua | Find keybindings |
-| Other | `h` | Search help | snacks.lua | Neovim help tags |
-| Other | `d` | Search diagnostics | snacks.lua | Find diagnostics |
-| Other | `b` | Find buffers | snacks.lua | Open buffer list |
-| Command | `p` | Command palette | keymaps.lua | VS Code-style palette |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>sf` | Files | keymaps.lua | Find by filename | ⚡ `<leader>o` → `workbench.action.quickOpen` |
+| `<leader>sr` | Recent | keymaps.lua | Recently opened | 🔧 `workbench.action.openRecent` |
+| `<leader>sc` | Config | keymaps.lua | Neovim config dir | ❌ (Neovim-specific) |
+| `<leader>sg` | Grep | keymaps.lua | Live grep content | 🔧 `workbench.action.findInFiles` |
+| `<leader>sw` | Word | keymaps.lua | Grep word at cursor | ⚡ `<leader>f` → `extension.searchUnderCursor` |
+| `<leader>s/` | Buffer lines | keymaps.lua | Fuzzy in current file | 🔧 `actions.find` (Ctrl+F) |
+| `<leader>sof` | Open files | keymaps.lua | Search across buffers | 🔧 `workbench.action.showAllEditors` |
+| `<leader>ss` | Smart | keymaps.lua | Context-aware search | ❌ (Neovim-specific) |
+| `<leader>sk` | Keymaps | keymaps.lua | Find keybindings | 🔧 `workbench.action.openGlobalKeybindings` |
+| `<leader>sh` | Help | keymaps.lua | Neovim help tags | ❌ (Neovim-specific) |
+| `<leader>sd` | Diagnostics | keymaps.lua | Find diagnostics | 🔧 `workbench.actions.view.problems` |
+| `<leader>sb` | Buffers | keymaps.lua | Open buffer list | 🔧 `workbench.action.showAllEditors` |
+| `<leader>sp` | Commands | keymaps.lua | Command palette | ⚡ `<leader>cp` → `workbench.action.showCommands` |
 
 ---
 
-## 📌 Markers/Bookmarks (`<leader>m`)
+## 📌 Markers (`<leader>m`)
 
 Marker and bookmark management using marker-groups.nvim.
 
 ### Basic Markers
 
-| Keymap | Description | File | Notes |
-|--------|-------------|------|-------|
-| `a` | Add marker | keymaps.lua | Add new marker |
-| `d` | Remove marker | keymaps.lua | Delete marker at cursor |
-| `v` | Toggle viewer | keymaps.lua | Show/hide marker drawer |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>ma` | Add | keymaps.lua | Add new marker | ⚡ `<leader>mm` → `bookmarks.toggle` |
+| `<leader>md` | Remove | keymaps.lua | Delete marker at cursor | ⚡ `<leader>mm` → `bookmarks.toggle` |
+| `<leader>mv` | Viewer | keymaps.lua | Show/hide marker drawer | ⚡ `<leader>ml` → `bookmarks.list` |
 
-### Marker Groups (`<leader>mg` prefix)
+### Marker Groups (`<leader>mg`)
 
-| Keymap | Description | File | Notes |
-|--------|-------------|------|-------|
-| `c` | Create group | keymaps.lua | New marker group |
-| `s` | Select group | keymaps.lua | Switch active group |
-| `r` | Rename group | keymaps.lua | Rename active group |
-| `d` | Delete group | keymaps.lua | Remove group |
-| `b` | From branch | keymaps.lua | Create group from git branch |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>mgc` | Create | keymaps.lua | New marker group | ❌ (bookmarks simpler) |
+| `<leader>mgs` | Select | keymaps.lua | Switch active group | ❌ (bookmarks simpler) |
+| `<leader>mgr` | Rename | keymaps.lua | Rename active group | ❌ (bookmarks simpler) |
+| `<leader>mgd` | Delete | keymaps.lua | Remove group | ❌ (bookmarks simpler) |
+| `<leader>mgb` | From branch | keymaps.lua | Create group from git branch | ❌ (bookmarks simpler) |
 
 ---
 
-## 🪟 Window Management (`<leader>w`)
+## 🪟 Window (`<leader>w`)
 
 Window splitting, navigation, and layout management.
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Split | `v` | Split vertical | keymaps.lua | Vertical split |
-| Split | `c` | Close window | keymaps.lua | Close current |
-| Split | `f` | Fullscreen | keymaps.lua | Close other windows |
-| Split | `e` | Expand toggle | keymaps.lua | Toggle 3/4 width, repeatable |
-| Split | `t` | move to tab | keymaps.lua | Move to New Tab |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>wv` | Vertical split | keymaps.lua | Split vertical | ✅ `workbench.action.splitEditorRight` |
+| `<leader>wc` | Close | keymaps.lua | Close current | ✅ `workbench.action.closeGroup` |
+| `<leader>wf` | Fullscreen | keymaps.lua | Close other windows | ✅ `workbench.action.toggleSidebarVisibility` |
+| `<leader>we` | Expand toggle | keymaps.lua | Toggle 3/4 width | ⚡ `workbench.view.explorer` (different) |
+| `<leader>wt` | To new tab | keymaps.lua | Move to new tab | 🔧 `workbench.action.moveEditorToNewWindow` |
 
 ---
 
-## 📂 Explorer/Files (`<leader>e`)
+## 📂 Explorer (`<leader>e`)
 
 File exploration and project navigation.
 
 **Explorer Actions:**
-- `<CR>` - Open in current window (default)
-- `w` - pick window
+- `l` - Open file / expand dir
+- `h` - Close directory
+- `a` - Add file
+- `d` - Delete
+- `r` - Rename
+- `c` - Copy
+- `m` - Move
+- `y` - Yank path
+- `p` - Paste
+- `w` - Window picker
 - `t` - Open in new tab
 - `v` - Open in vertical split
-- `h` - Open in horizontal split
 
 ---
 
-## 💬 AI/Copilot (`<leader>a`)
+## 💬 AI/Copilot
 
-AI assistance and code suggestions.
+AI assistance and code suggestions (insert mode).
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Accept | `y` | Accept suggestion | keymaps.lua | Accept AI completion |
+| Mode | Keymap | Description | File | Notes | VS Code |
+|------|--------|-------------|------|-------|---------||
+| i | `<Tab>` | Accept suggestion | copilot.lua | Accept or fallback to tab | ⚡ `<C-y>` → `editor.action.inlineSuggest.commit` |
+| i | `<C-]>` | Next suggestion | copilot.lua | Cycle forward | ⚡ `<C-n>` → `editor.action.inlineSuggest.showNext` |
+| i | `<C-[>` | Prev suggestion | copilot.lua | Cycle backward | ⚡ `<C-p>` → `editor.action.inlineSuggest.showPrevious` |
+| i | `<C-\>` | Dismiss | copilot.lua | Hide suggestion | ❌ |
+| i | `<C-Right>` | Accept word | copilot.lua | Accept next word | ❌ |
+| i | `<C-CR>` | Show panel | copilot.lua | Full suggestions list | ❌ |
+| i | - | Trigger suggestion | - | - | ✅ `<C-i>` → `editor.action.inlineSuggest.trigger` |
 
 ---
 
-## 🎓 Learning/Debug (`<leader>l`)
+## 🎓 Learning (`<leader>l`)
 
 Learning utilities and config debugging tools.
 
 ### Inspection
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Inspect | `i` | Inspect word | learn.lua | Inspect value at cursor |
-| Info | `b` | Buffer info | learn.lua | Show buffer details |
-| Info | `w` | Window info | learn.lua | Show window details |
-| Info | `l` | LSP clients | learn.lua | Active LSP servers |
-| Info | `p` | Plugins | learn.lua | Loaded plugins |
-| Info | `k` | Keymaps | learn.lua | Show keymaps for mode |
-| Info | `h` | Highlight groups | learn.lua | Treesitter highlights |
-| Info | `o` | Options | learn.lua | Vim option values |
-| Info | `?` | Learning dashboard | learn.lua | Open help dashboard |
-| Module | `hr` | Reload module | learn.lua | Hot reload config |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>li` | Inspect | keymaps.lua | Inspect value at cursor | ❌ (Neovim-specific) |
+| `<leader>lb` | Buffer | keymaps.lua | Show buffer details | ❌ (Neovim-specific) |
+| `<leader>lw` | Window | keymaps.lua | Show window details | ❌ (Neovim-specific) |
+| `<leader>ll` | LSP | keymaps.lua | Active LSP servers | ❌ (Neovim-specific) |
+| `<leader>lp` | Plugins | keymaps.lua | Loaded plugins | 🔧 `workbench.extensions.action.listExtensions` |
+| `<leader>lk` | Keymaps | keymaps.lua | Show keymaps for mode | 🔧 `workbench.action.openGlobalKeybindings` |
+| `<leader>lh` | Highlights | keymaps.lua | Treesitter highlights | ❌ (Neovim-specific) |
+| `<leader>lo` | Options | keymaps.lua | Vim option values | 🔧 `workbench.action.openSettings` |
+| `<leader>l?` | Dashboard | keymaps.lua | Open help dashboard | 🔧 `workbench.action.showWelcomePage` |
+| `<leader>lhr` | Reload | keymaps.lua | Hot reload config | 🔧 `workbench.action.reloadWindow` |
 
-### Code Execution (`x` prefix)
+### File Info (`<leader>lf`)
 
-| Keymap | Mode | Description | File | Notes |
-|--------|------|-------------|------|-------|
-| `l` | n | Execute Lua line | learn.lua | Run current line |
-| `l` | v | Execute Lua selection | learn.lua | Run selected code |
-| `p` | n | Execute Python line | learn.lua | Run current line |
-| `p` | v | Execute Python selection | learn.lua | Run selected code |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>lf` | File info | keymaps.lua | Show file details | 🔧 `workbench.action.showActiveFileInExplorer` |
+| `<leader>lfc` | Copy full path | keymaps.lua | Copy to clipboard | 🔧 `copyFilePath` |
+| `<leader>lfr` | Copy relative | keymaps.lua | Copy relative path | 🔧 `copyRelativeFilePath` |
+
+### Code Execution (`<leader>lx`)
+
+| Keymap | Mode | Description | File | Notes | VS Code |
+|--------|------|-------------|------|-------|---------||
+| `<leader>lxl` | n | Lua line | keymaps.lua | Run current line | ❌ (Lua-specific) |
+| `<leader>lxl` | v | Lua selection | keymaps.lua | Run selected code | ❌ (Lua-specific) |
+| `<leader>lxp` | n | Python line | keymaps.lua | Run current line | 🔧 `python.execInTerminal` |
+| `<leader>lxp` | v | Python selection | keymaps.lua | Run selected code | 🔧 `python.execSelectionInTerminal` |
 
 ---
 
@@ -227,20 +244,20 @@ Learning utilities and config debugging tools.
 
 Session management and persistence.
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Session | `qs` | Switch session | keymaps.lua | Picker to select session to restore |
-| Session | `qd` | Don't save session | keymaps.lua | Skip auto-save |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>qs` | Switch | keymaps.lua | Pick session to restore | ❌ |
+| `<leader>qd` | Don't save | keymaps.lua | Skip auto-save | ❌ |
 
 ---
 
-## ✨ Git Stuff (`<leader>g`)
+## ✨ Git (`<leader>g`)
 
-Git Stuff
+Git operations.
 
-| Subcategory | Keymap | Description | File | Notes |
-|-------------|--------|-------------|------|-------|
-| Misc | `g` | Lazygit | snacks.lua | Git interface |
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<leader>g` | Lazygit | keymaps.lua | Git interface | ❌ |
 
 ---
 
@@ -250,20 +267,19 @@ Enhanced movement and text object operations.
 
 ### Flash (EasyMotion-style)
 
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| n/x/o | `s` | Flash jump | flash.lua | Jump to visible text |
-| n/x/o | `f/F/t/T` | Enhanced char motion | flash.lua | Flash-enhanced |
+| Mode | Keymap | Description | File | Notes | VS Code |
+|------|--------|-------------|------|-------|---------||
+| n/x/o | `s` | Flash jump | flash.lua | Jump to visible text | ✅ EasyMotion `<leader><leader>2s` |
+| n/x/o | `f/F/t/T` | Enhanced char motion | flash.lua | Flash-enhanced | ❌ (standard vim f/F/t/T) |
 
 ### Text Objects (mini.ai)
 
-Mini.ai extends Vim's built-in text objects to work with more delimiters. Use them with operators like `d` (delete), `c` (change), `y` (yank), `v` (visual select).
+Mini.ai extends Vim's built-in text objects. Use with operators like `d`, `c`, `y`, `v`.
 
-**Standard usage (all modes where applicable):**
-- `a<char>` = Around the character (e.g., `da"` deletes around quotes, `vi(` selects inside parens)
-- `i<char>` = Inside the character (e.g., `ci'` changes inside single quotes)
+- `a<char>` = Around (e.g., `da"` deletes around quotes)
+- `i<char>` = Inside (e.g., `ci'` changes inside quotes)
 
-**Supported delimiters:** `(`, `)`, `{`, `}`, `[`, `]`, `<`, `>`, `"`, `'`, `` ` ``, and more
+**Supported:** `(`, `)`, `{`, `}`, `[`, `]`, `<`, `>`, `"`, `'`, `` ` ``
 
 **Examples:**
 - `diw` = delete inside word
@@ -274,74 +290,109 @@ Mini.ai extends Vim's built-in text objects to work with more delimiters. Use th
 
 ### Alignment (mini.align)
 
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| v | `ga` | Align by character | utilities.lua | Align on char |
-| v | `gA` | Align by regex | utilities.lua | Advanced alignment |
+| Mode | Keymap | Description | File | Notes | VS Code |
+|------|--------|-------------|------|-------|---------||
+| v | `ga` | Align by char | utilities.lua | Align on character | ✅ `align.by.regex` |
+| v | `gA` | Align by regex | utilities.lua | Advanced alignment | ❌ |
 
 ---
 
-## 🔧 Snippets
+## 🔧 Snippets (LuaSnip)
 
-LuaSnip snippet navigation and expansion.
-
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| i/s | `<Tab>` | Expand or jump next | luasnip.lua | Navigate forward |
-| i/s | `<S-Tab>` | Jump previous | luasnip.lua | Navigate backward |
-| i | `<C-E>` | Choose next option | luasnip.lua | Choice node |
+| Mode | Keymap | Description | File | Notes | VS Code |
+|------|--------|-------------|------|-------|---------||
+| i/s | `<Tab>` | Expand/jump next | luasnip.lua | Navigate forward | ✅ (built-in) |
+| i/s | `<S-Tab>` | Jump prev | luasnip.lua | Navigate backward | ✅ (built-in) |
+| i | `<C-E>` | Choose option | luasnip.lua | Choice node | ❌ |
 
 ---
 
 ## 💡 Completion (blink.cmp)
 
-Completion menu navigation (command mode).
+Command mode completion.
 
-| Mode | Keymap | Description | File | Notes |
-|------|--------|-------------|------|-------|
-| c | `<Tab>` | Next completion | blink.cmp | Navigate down |
-| c | `<S-Tab>` | Previous completion | blink.cmp | Navigate up |
-| c | `<C-Space>` | Show completions | blink.cmp | Trigger menu |
-| c | `<C-Y>` | Accept completion | blink.cmp | Confirm |
-| c | `<C-E>` | Cancel completion | blink.cmp | Close menu |
-| c | `<C-N>/<C-P>` | Navigate | blink.cmp | Up/Down |
+| Mode | Keymap | Description | File | Notes | VS Code |
+|------|--------|-------------|------|-------|---------||
+| c | `<Tab>` | Next | blink.cmp | Navigate down | ✅ (built-in) |
+| c | `<S-Tab>` | Prev | blink.cmp | Navigate up | ✅ (built-in) |
+| c | `<C-Space>` | Show | blink.cmp | Trigger menu | ✅ (built-in) |
+| c | `<C-Y>` | Accept | blink.cmp | Confirm | ✅ (built-in) |
+| c | `<C-E>` | Cancel | blink.cmp | Close menu | ✅ (built-in) |
+| c | `<C-N>/<C-P>` | Navigate | blink.cmp | Up/Down | ✅ (built-in) |
 
 ---
 
 ## 🔤 Insert Mode
 
-| Keymap | Description | File | Notes |
-|--------|-------------|------|-------|
-| `<C-K>` | Signature help | lsp_config.lua | Show function signature |
-| `<C-S>` | Signature help | (default) | Alternative binding |
-| `<C-U>` | Delete to line start | (default) | With undo break |
-| `<C-W>` | Delete word | (default) | With undo break |
-
+| Keymap | Description | File | Notes | VS Code |
+|--------|-------------|------|-------|---------||
+| `<C-K>` | Signature help | lsp_config.lua | Show function signature | ❌ |
+| `<C-U>` | Delete to start | (default) | With undo break | ✅ (built-in) |
+| `<C-W>` | Delete word | (default) | With undo break | ✅ (built-in) |
+| `<Esc>` | Exit insert | keymaps.lua | Mapped to `<C-c>` | ✅ (built-in) |
 
 ---
 
 ## 📝 Notes & TODOs
 
-### Categories to Refactor
-- [ ] Move frequently-used LSP goto commands to VIP section
-- [ ] Consider shorter bindings for common debug operations
-- [ ] Consolidate format keymaps (currently `cf`, `fb`, `rf`)
-- [ ] Review Python-specific keymaps for better organization
+### VS Code-Only Keymaps (Not in Neovim)
+
+These keymaps exist in your VS Code settings but don't have Neovim equivalents:
+
+| Keymap | Mode | Description | Command |
+|--------|------|-------------|---------|
+| `<leader>og` | n | Open Gist | `extension.gist.openFavorite` |
+| `<leader>cm` | n | Context menu | `editor.action.showContextMenu` |
+| `<leader>y` | n | Accept suggestions | Various accept commands |
+| `<leader>u` | n | Hide suggestions | Various hide commands |
+| `<leader>mm` | n | Toggle bookmark | `bookmarks.toggle` |
+| `<leader>ml` | n | List bookmarks | `bookmarks.list` |
+| `<leader>mn` | n | Next bookmark | `bookmarks.jumpToNext` |
+| `<leader>mp` | n | Prev bookmark | `bookmarks.jumpToPrevious` |
+
+### Coverage Summary
+
+**Legend:** ✅ Mapped | ⚡ Different key | 🔧 Available (not mapped) | ❌ No equivalent
+
+| Category | Total | ✅/⚡ Mapped | 🔧 Available | ❌ None |
+|----------|-------|-------------|--------------|---------|
+| VIP Keymaps | 13 | 9 | 4 | 0 |
+| Code Actions | 25 | 8 | 15 | 2 |
+| Search | 13 | 4 | 6 | 3 |
+| Markers | 8 | 3 | 0 | 5 |
+| Window | 5 | 4 | 1 | 0 |
+| AI/Copilot | 7 | 4 | 0 | 3 |
+| Learning | 17 | 0 | 9 | 8 |
+| Sessions | 2 | 0 | 0 | 2 |
+| Git | 1 | 0 | 1 | 0 |
+| Motion/Alignment | 4 | 2 | 0 | 2 |
+| **Overall** | **~95** | **~34** | **~36** | **~25** |
+
+**Key Insight:** ~74% of your Neovim keymaps have VS Code equivalents! Only ~26% are truly Neovim-specific (learning/debug introspection, Lua execution, sessions).
+
+### Recommended Mappings to Add
+
+High-value keymaps you should add to your VS Code settings:
+
+```json
+// Add to vim.normalModeKeyBindingsNonRecursive:
+{"before": ["<leader>", "c", "r"], "commands": ["editor.action.rename"]},
+{"before": ["<leader>", "c", "a"], "commands": ["editor.action.quickFix"]},
+{"before": ["<leader>", "c", "g", "r"], "commands": ["editor.action.goToReferences"]},
+{"before": ["<leader>", "c", "g", "i"], "commands": ["editor.action.goToImplementation"]},
+{"before": ["<leader>", "s", "r"], "commands": ["workbench.action.openRecent"]},
+{"before": ["<leader>", "s", "g"], "commands": ["workbench.action.findInFiles"]},
+{"before": ["<leader>", "s", "b"], "commands": ["workbench.action.showAllEditors"]},
+{"before": ["<leader>", "c", "s", "w"], "commands": ["workbench.action.showAllSymbols"]},
+{"before": ["<leader>", "c", "d", "b"], "commands": ["editor.debug.action.toggleBreakpoint"]},
+{"before": ["<Alt-h>"], "commands": ["workbench.action.focusLeftGroup"]},
+{"before": ["<Alt-l>"], "commands": ["workbench.action.focusRightGroup"]},
+{"before": ["<Alt-j>"], "commands": ["workbench.action.focusBelowGroup"]},
+{"before": ["<Alt-k>"], "commands": ["workbench.action.focusAboveGroup"]},
+```
 
 ### Future Considerations
 - Terminal management keymaps (`<leader>t`)
 - Test/spec file navigation
 - Macro recording shortcuts
 - Register management shortcuts
-
-
-- LSP snacks pickers instead of what I am using
-{ "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
-{ "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
-{ "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
-{ "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
-{ "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
-{ "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
-{ "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
-{ "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
-{ "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },

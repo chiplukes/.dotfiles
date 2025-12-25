@@ -66,7 +66,7 @@ vim.api.nvim_create_autocmd('FileType', {
         -- Move cursor to docstring content
         vim.api.nvim_win_set_cursor(0, { row + 2, #indent + 4 })
       end
-    end, { desc = 'Add docstring', buffer = true })
+    end, { desc = 'Docstring', buffer = true })
   end,
 })
 

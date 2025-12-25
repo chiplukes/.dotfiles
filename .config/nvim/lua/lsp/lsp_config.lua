@@ -50,24 +50,24 @@ function M.setup()
       --   <leader>ca - Code action / Quick fix
 
       -- Find references for the word under your cursor.
-      map('<leader>cgr', function() require('snacks').picker.lsp_references() end, 'Goto references')
+      map('<leader>cgr', function() require('snacks').picker.lsp_references() end, 'References')
 
       -- Jump to the implementation of the word under your cursor.
       --  Useful when your language has ways of declaring types without an actual implementation.
-      map('<leader>cgi', function() require('snacks').picker.lsp_implementations() end, 'Goto implementation')
+      map('<leader>cgi', function() require('snacks').picker.lsp_implementations() end, 'Implementation')
 
       -- Jump to the definition of the word under your cursor.
       --  This is where a variable was first declared, or where a function is defined, etc.
       --  To jump back, press <C-t>.
-      map('<leader>cgd', function() require('snacks').picker.lsp_definitions() end, 'Goto definition')
+      map('<leader>cgd', function() require('snacks').picker.lsp_definitions() end, 'Definition')
 
       -- WARN: This is not Goto Definition, this is Goto Declaration.
       --  For example, in C this would take you to the header.
-      map('<leader>cgD', vim.lsp.buf.declaration, 'Goto declaration')
+      map('<leader>cgD', vim.lsp.buf.declaration, 'Declaration')
 
       -- Fuzzy find all the symbols in your current document.
       --  Symbols are things like variables, functions, types, etc.
-      map('<leader>csd', function() require('snacks').picker.lsp_symbols() end, 'Document symbols')
+      map('<leader>csd', function() require('snacks').picker.lsp_symbols() end, 'Doc symbols')
 
       -- Fuzzy find all the symbols in your current workspace.
       --  Similar to document symbols, except searches over your entire project.
@@ -76,7 +76,7 @@ function M.setup()
       -- Jump to the type of the word under your cursor.
       --  Useful when you're not sure what type a variable is and you want to see
       --  the definition of its *type*, not where it was *defined*.
-      map('<leader>cgt', function() require('snacks').picker.lsp_type_definitions() end, 'Goto type definition')
+      map('<leader>cgt', function() require('snacks').picker.lsp_type_definitions() end, 'Type definition')
 
       -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
       ---@param client vim.lsp.Client
@@ -140,7 +140,7 @@ function M.setup()
 
       -- Hover documentation (K is VIP keymap in keymaps.lua)
       -- Using standard LSP hover which handles all edge cases properly
-      map('K', vim.lsp.buf.hover, 'Hover Documentation')
+      map('K', vim.lsp.buf.hover, 'Hover docs')
 
       -- Language-specific enhancements
       local filetype = vim.bo[event.buf].filetype
@@ -168,7 +168,7 @@ function M.setup()
           local current_setting = vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })
           vim.lsp.inlay_hint.enable(not current_setting, { bufnr = event.buf })
           vim.notify(string.format('Inlay hints %s', current_setting and 'disabled' or 'enabled'))
-        end, '[T]oggle Inlay [H]ints')
+        end, 'Toggle inlay hints')
       end
     end,
   })
@@ -335,6 +335,18 @@ function M.setup()
         return { ruff_path, 'server' }
       end)(),
       filetypes = { 'python' },
+      init_options = {
+        settings = {
+          -- Enable linting (diagnostics)
+          lint = {
+            enable = true,
+          },
+          -- Enable formatting (optional, already default)
+          format = {
+            enable = true,
+          },
+        },
+      },
     },
 
     -- =============================================================================

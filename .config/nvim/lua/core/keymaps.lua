@@ -25,7 +25,7 @@ function _G.repeat_last_leader()
 end
 
 -- Map leader+leader to repeat last leader command (changed from comma)
-vim.keymap.set('n', '<leader><leader>', _G.repeat_last_leader, { desc = 'Repeat last leader command' })
+vim.keymap.set('n', '<leader><leader>', _G.repeat_last_leader, { desc = 'Repeat leader command' })
 
 -- =============================================================================
 -- [[ Basic Keymaps ]]
@@ -69,14 +69,14 @@ vim.keymap.set('n', '<leader>e', function()
     { timeout = 5000 }
   )
   require('snacks').picker.explorer()
-end, { desc = 'File Tree View' }) -- Show explorer
-vim.keymap.set('n', '<leader>y', function() vim.lsp.buf.code_action() end, { desc = 'Accept suggestion' }) -- Accept suggestion
-vim.keymap.set('n', '<leader>pr', function() run_and_remember(function() vim.cmd('normal! "0p') end) end, { desc = 'Paste from yank register' }) -- Paste from yank
-vim.keymap.set('n', '<leader>g', function() require('snacks').lazygit() end, { desc = 'Lazygit' }) -- Lazygit
-vim.keymap.set('n', 'ge', function() run_and_remember(function() vim.diagnostic.goto_next() end) end, { desc = 'Go to next error' }) -- goto next diagnostic
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous diagnostic' })
+end, { desc = 'Explorer' })
+vim.keymap.set('n', '<leader>y', function() vim.lsp.buf.code_action() end, { desc = 'Accept suggestion' })
+vim.keymap.set('n', '<leader>pr', function() run_and_remember(function() vim.cmd('normal! "0p') end) end, { desc = 'Paste yank register' })
+vim.keymap.set('n', '<leader>g', function() require('snacks').lazygit() end, { desc = 'Lazygit' })
+vim.keymap.set('n', 'ge', function() run_and_remember(function() vim.diagnostic.goto_next() end) end, { desc = 'Next error' })
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Prev diagnostic' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
-vim.keymap.set('n', 'go', function() require('snacks').picker.lsp_symbols() end, { desc = 'Go to outline/symbols' }) -- Go to symbol/outline
+vim.keymap.set('n', 'go', function() require('snacks').picker.lsp_symbols() end, { desc = 'Outline' })
 
 
 -- =============================================================================
@@ -170,7 +170,7 @@ vim.keymap.set('n', '<A-h>', function()
   end
 
   prev_in_flat_list()
-end, { desc = 'Window left or buffer previous, else wrap to previous/last tab' })
+end, { desc = 'Window/tab left' })
 
 -- Move to window right, or to next tab; wrap to first tab if at last
 vim.keymap.set('n', '<A-l>', function()
@@ -251,7 +251,7 @@ vim.keymap.set('n', '<A-l>', function()
   end
 
   next_in_flat_list()
-end, { desc = 'Window right or buffer next, else wrap to next/first tab' })
+end, { desc = 'Window/tab right' })
 
 -- -- Temporary debug mapping: print flattened entries and persistent index
 -- vim.keymap.set('n', '<leader>td', function()
@@ -293,27 +293,27 @@ end, { desc = 'Window right or buffer next, else wrap to next/first tab' })
 -- =============================================================================
 -- 🔍 Search Category (<leader>s)
 -- =============================================================================
-vim.keymap.set('n', '<leader>sf', function() require('snacks').picker.files() end, { desc = 'Search files' }) -- Search files
-vim.keymap.set('n', '<leader>sr', function() require('snacks').picker.recent() end, { desc = 'Recent files' }) -- Recent files
-vim.keymap.set('n', '<leader>sc', function() require('snacks').picker.files({ cwd = vim.fn.stdpath('config') }) end, { desc = 'Config files' }) -- Config files
-vim.keymap.set('n', '<leader>sg', function() require('snacks').picker.grep() end, { desc = 'Search by grep' }) -- Search by grep
-vim.keymap.set('n', '<leader>sw', function() require('snacks').picker.grep_word() end, { desc = 'Search current word' }) -- Search current word
-vim.keymap.set('n', '<leader>s/', function() require('snacks').picker.lines() end, { desc = 'Search in buffer' }) -- Search in buffer
-vim.keymap.set('n', '<leader>sof', function() require('snacks').picker.grep_buffers() end, { desc = 'Search in open buffers' }) -- Search in open buffers
-vim.keymap.set('n', '<leader>ss', function() require('snacks').picker.smart() end, { desc = 'Smart search' }) -- Smart search
-vim.keymap.set('n', '<leader>sk', function() require('snacks').picker.keymaps() end, { desc = 'Search keymaps' }) -- Search keymaps
-vim.keymap.set('n', '<leader>sh', function() require('snacks').picker.help() end, { desc = 'Search help' }) -- Search help
-vim.keymap.set('n', '<leader>sd', function() require('snacks').picker.diagnostics() end, { desc = 'Search diagnostics' }) -- Search diagnostics
-vim.keymap.set('n', '<leader>sb', function() require('snacks').picker.buffers() end, { desc = 'Buffer list' }) -- Buffer list
-vim.keymap.set('n', '<leader>sp', function() require('snacks').picker.commands() end, { desc = 'Command palette' }) -- Command palette
+vim.keymap.set('n', '<leader>sf', function() require('snacks').picker.files() end, { desc = 'Files' })
+vim.keymap.set('n', '<leader>sr', function() require('snacks').picker.recent() end, { desc = 'Recent' })
+vim.keymap.set('n', '<leader>sc', function() require('snacks').picker.files({ cwd = vim.fn.stdpath('config') }) end, { desc = 'Config' })
+vim.keymap.set('n', '<leader>sg', function() require('snacks').picker.grep() end, { desc = 'Grep' })
+vim.keymap.set('n', '<leader>sw', function() require('snacks').picker.grep_word() end, { desc = 'Word' })
+vim.keymap.set('n', '<leader>s/', function() require('snacks').picker.lines() end, { desc = 'Buffer lines' })
+vim.keymap.set('n', '<leader>sof', function() require('snacks').picker.grep_buffers() end, { desc = 'Open files' })
+vim.keymap.set('n', '<leader>ss', function() require('snacks').picker.smart() end, { desc = 'Smart' })
+vim.keymap.set('n', '<leader>sk', function() require('snacks').picker.keymaps() end, { desc = 'Keymaps' })
+vim.keymap.set('n', '<leader>sh', function() require('snacks').picker.help() end, { desc = 'Help' })
+vim.keymap.set('n', '<leader>sd', function() require('snacks').picker.diagnostics() end, { desc = 'Diagnostics' })
+vim.keymap.set('n', '<leader>sb', function() require('snacks').picker.buffers() end, { desc = 'Buffers' })
+vim.keymap.set('n', '<leader>sp', function() require('snacks').picker.commands() end, { desc = 'Commands' })
 
 -- =============================================================================
 -- 🪟 Window Management (<leader>w)
 -- =============================================================================
-vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = 'Split vertical' }) -- Split vertical
-vim.keymap.set('n', '<leader>wt', '<C-w>T', { desc = 'Move window to new tab' }) -- Move window to new tab
-vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = 'Close window' }) -- Close window
-vim.keymap.set('n', '<leader>wf', '<cmd>only<CR>', { desc = 'Fullscreen' }) -- Fullscreen (close others)
+vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<CR>', { desc = 'Vertical split' })
+vim.keymap.set('n', '<leader>wt', '<C-w>T', { desc = 'To new tab' })
+vim.keymap.set('n', '<leader>wc', '<cmd>close<CR>', { desc = 'Close' })
+vim.keymap.set('n', '<leader>wf', '<cmd>only<CR>', { desc = 'Fullscreen' })
 
 -- Track window expansion state per window
 _G.window_expand_state = _G.window_expand_state or {}
@@ -325,7 +325,7 @@ vim.keymap.set('n', '<leader>we', function()
     local current_width = vim.api.nvim_win_get_width(win)
     local max_width = vim.o.columns
     local target_width = math.floor(max_width * 3 / 4)
-    
+
     -- Check if window is already expanded
     if _G.window_expand_state[win] then
       -- Restore to original width
@@ -337,7 +337,7 @@ vim.keymap.set('n', '<leader>we', function()
       vim.api.nvim_win_set_width(win, target_width)
     end
   end)
-end, { desc = 'Toggle expand window to 3/4 width' })
+end, { desc = '3/4 screen width' })
 
 
 -- =============================================================================
@@ -355,7 +355,7 @@ vim.keymap.set('n', '<leader>c.f', function()
       ['end'] = { line, line_length + 1 },
     },
   })
-end, { desc = 'Ruff fix @ cursor' })
+end, { desc = 'Fix line' })
 
 -- =============================================================================
 -- Completion keybindings
@@ -371,13 +371,13 @@ end, { desc = 'Ruff fix @ cursor' })
 -- Code Category (<leader>c)
 -- =============================================================================
 -- Rename symbol (direct under <leader>c)
-vim.keymap.set('n', '<leader>cr', function() vim.lsp.buf.rename() end, { desc = 'Rename symbol' })
-vim.keymap.set('n', '<leader>ca', function() vim.lsp.buf.code_action() end, { desc = 'Code action / Quick fix' }) -- Quick fix / code actions (direct under <leader>c)
-vim.keymap.set('n', '<leader>c.n', function() run_and_remember(function() vim.diagnostic.goto_next() end) end, { desc = 'Next diagnostic' })
-vim.keymap.set('n', '<leader>c.p', function() run_and_remember(function() vim.diagnostic.goto_prev() end) end, { desc = 'Previous diagnostic' })
-vim.keymap.set('n', '<leader>c.d', function() vim.diagnostic.open_float() end, { desc = 'Diagnostic details' })
-vim.keymap.set('n', '<leader>c.e', function() vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Error messages list' })
-vim.keymap.set('n', '<leader>c.q', function() vim.diagnostic.setqflist() end, { desc = 'Diagnostics quickfix' })
+vim.keymap.set('n', '<leader>cr', function() vim.lsp.buf.rename() end, { desc = 'Rename' })
+vim.keymap.set('n', '<leader>ca', function() vim.lsp.buf.code_action() end, { desc = 'Code action' })
+vim.keymap.set('n', '<leader>c.n', function() run_and_remember(function() vim.diagnostic.goto_next() end) end, { desc = 'Next' })
+vim.keymap.set('n', '<leader>c.p', function() run_and_remember(function() vim.diagnostic.goto_prev() end) end, { desc = 'Prev' })
+vim.keymap.set('n', '<leader>c.d', function() vim.diagnostic.open_float() end, { desc = 'Details' })
+vim.keymap.set('n', '<leader>c.e', function() vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Errors list' })
+vim.keymap.set('n', '<leader>c.q', function() vim.diagnostic.setqflist() end, { desc = 'Quickfix' })
 -- vim.keymap.set('n', '<leader>c.u', function() vim.diagnostic.hide() end, { desc = 'Hide diagnostics' })
 vim.keymap.set('n', '<leader>c.v', function()
   run_and_remember(function()
@@ -389,11 +389,11 @@ vim.keymap.set('n', '<leader>c.v', function()
       vim.diagnostic.config({ virtual_text = true })
     end
   end)
-end, { desc = 'Toggle virtual text diagnostics' })
+end, { desc = 'Toggle virtual text' })
 vim.keymap.set('n', '<leader>cfb', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, { desc = 'Format buffer' })
 vim.keymap.set('v', '<leader>cfs', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, { desc = 'Format selection' })
 -- Debug (cd)
-vim.keymap.set('n', '<leader>cdb', function() require('dap').toggle_breakpoint() end, { desc = 'Debug: toggle breakpoint' })
+vim.keymap.set('n', '<leader>cdb', function() require('dap').toggle_breakpoint() end, { desc = 'Breakpoint' })
 -- Note: cpd (docstring) and cpx (execute) are defined in autocmds.lua and learn.lua
 
 -- =============================================================================
@@ -401,30 +401,30 @@ vim.keymap.set('n', '<leader>cdb', function() require('dap').toggle_breakpoint()
 -- =============================================================================
 
 -- Basic marker operations
-vim.keymap.set('n', '<leader>ma', function() require('marker-groups.markers').add_marker() end, { desc = 'Add marker' })
-vim.keymap.set('n', '<leader>md', function() require('marker-groups.markers').delete_marker() end, { desc = 'Remove marker' })
-vim.keymap.set('n', '<leader>mv', function() require('marker-groups.ui.drawer').toggle_drawer() end, { desc = 'Toggle viewer' })
+vim.keymap.set('n', '<leader>ma', function() require('marker-groups.markers').add_marker() end, { desc = 'Add' })
+vim.keymap.set('n', '<leader>md', function() require('marker-groups.markers').delete_marker() end, { desc = 'Remove' })
+vim.keymap.set('n', '<leader>mv', function() require('marker-groups.ui.drawer').toggle_drawer() end, { desc = 'Viewer' })
 
 -- Marker Groups (mg prefix) - Using marker-groups.nvim
-vim.keymap.set('n', '<leader>mgc', function() require('marker-groups.groups').create_group_interactive() end, { desc = 'Create group' })
-vim.keymap.set('n', '<leader>mgs', function() require('marker-groups.pickers').show_groups() end, { desc = 'Select group' })
-vim.keymap.set('n', '<leader>mgr', function() require('marker-groups.groups').rename_group_interactive() end, { desc = 'Rename group' })
-vim.keymap.set('n', '<leader>mgd', function() require('marker-groups.pickers').delete_groups() end, { desc = 'Delete group' })
+vim.keymap.set('n', '<leader>mgc', function() require('marker-groups.groups').create_group_interactive() end, { desc = 'Create' })
+vim.keymap.set('n', '<leader>mgs', function() require('marker-groups.pickers').show_groups() end, { desc = 'Select' })
+vim.keymap.set('n', '<leader>mgr', function() require('marker-groups.groups').rename_group_interactive() end, { desc = 'Rename' })
+vim.keymap.set('n', '<leader>mgd', function() require('marker-groups.pickers').delete_groups() end, { desc = 'Delete' })
 vim.keymap.set('n', '<leader>mgb', function() require('marker-groups.groups').create_group_from_branch() end, { desc = 'From branch' })
 
 -- =============================================================================
 -- Learning Category (<leader>l)
 -- =============================================================================
-vim.keymap.set('n', '<leader>li', function() require('core.learn').inspect_under_cursor() end, { desc = 'Inspect element' })
-vim.keymap.set('n', '<leader>lb', function() require('core.learn').buffer_info() end, { desc = 'Buffer info' })
-vim.keymap.set('n', '<leader>lw', function() require('core.learn').window_info() end, { desc = 'Window info' })
-vim.keymap.set('n', '<leader>ll', function() require('core.learn').lsp_info() end, { desc = 'LSP info' })
-vim.keymap.set('n', '<leader>lp', function() require('core.learn').plugin_info() end, { desc = 'Plugin info' })
-vim.keymap.set('n', '<leader>lk', function() require('core.learn').dump_keymaps() end, { desc = 'Dump keymaps' })
-vim.keymap.set('n', '<leader>lh', function() require('core.learn').highlight_under_cursor() end, { desc = 'Highlight info' })
-vim.keymap.set('n', '<leader>lo', function() require('core.learn').option_info() end, { desc = 'Option info' })
+vim.keymap.set('n', '<leader>li', function() require('core.learn').inspect_under_cursor() end, { desc = 'Inspect' })
+vim.keymap.set('n', '<leader>lb', function() require('core.learn').buffer_info() end, { desc = 'Buffer' })
+vim.keymap.set('n', '<leader>lw', function() require('core.learn').window_info() end, { desc = 'Window' })
+vim.keymap.set('n', '<leader>ll', function() require('core.learn').lsp_info() end, { desc = 'LSP' })
+vim.keymap.set('n', '<leader>lp', function() require('core.learn').plugin_info() end, { desc = 'Plugins' })
+vim.keymap.set('n', '<leader>lk', function() require('core.learn').dump_keymaps() end, { desc = 'Keymaps' })
+vim.keymap.set('n', '<leader>lh', function() require('core.learn').highlight_under_cursor() end, { desc = 'Highlights' })
+vim.keymap.set('n', '<leader>lo', function() require('core.learn').option_info() end, { desc = 'Options' })
 vim.keymap.set('n', '<leader>l?', function() require('snacks').dashboard() end, { desc = 'Dashboard' })
-vim.keymap.set('n', '<leader>lhr', function() require('core.learn').reload_config() end, { desc = 'Reload config' })
+vim.keymap.set('n', '<leader>lhr', function() require('core.learn').reload_config() end, { desc = 'Reload' })
 
 -- File path info commands
 vim.keymap.set('n', '<leader>lf', function()
@@ -449,7 +449,7 @@ vim.keymap.set('n', '<leader>lf', function()
 
   vim.notify(table.concat(lines, '\n'), vim.log.levels.INFO)
   print(full_path)  -- Also print to command line for easy copying
-end, { desc = 'File path info' })
+end, { desc = 'File info' })
 
 vim.keymap.set('n', '<leader>lfc', function()
   local full_path = vim.fn.expand('%:p')
@@ -473,13 +473,13 @@ vim.keymap.set('n', '<leader>lfr', function()
   vim.fn.setreg('+', relative_path)  -- Copy to system clipboard
   vim.fn.setreg('"', relative_path)  -- Copy to default register
   vim.notify('Relative path copied: ' .. relative_path, vim.log.levels.INFO)
-end, { desc = 'Copy relative path' })
+end, { desc = 'Copy relative' })
 
 -- Execute (lx) - Execution commands don't need repeat either
-vim.keymap.set('n', '<leader>lxl', function() require('core.learn').exec_lua_line() end, { desc = 'Execute Lua line' })
-vim.keymap.set('v', '<leader>lxl', function() require('core.learn').exec_visual_selection() end, { desc = 'Execute Lua selection' })
-vim.keymap.set('n', '<leader>lxp', function() require('core.learn').exec_python_line() end, { desc = 'Execute Python line' })
-vim.keymap.set('v', '<leader>lxp', function() require('core.learn').exec_python_selection() end, { desc = 'Execute Python selection' })
+vim.keymap.set('n', '<leader>lxl', function() require('core.learn').exec_lua_line() end, { desc = 'Lua line' })
+vim.keymap.set('v', '<leader>lxl', function() require('core.learn').exec_visual_selection() end, { desc = 'Lua selection' })
+vim.keymap.set('n', '<leader>lxp', function() require('core.learn').exec_python_line() end, { desc = 'Python line' })
+vim.keymap.set('v', '<leader>lxp', function() require('core.learn').exec_python_selection() end, { desc = 'Python selection' })
 
 -- =============================================================================
 -- Sessions Category (<leader>q)
@@ -487,19 +487,19 @@ vim.keymap.set('v', '<leader>lxp', function() require('core.learn').exec_python_
 vim.keymap.set('n', '<leader>qs', function()
   local session_dir = vim.fn.stdpath('state') .. '/sessions/'
   local sessions = {}
-  
+
   -- Scan session directory for available sessions
   for file in vim.fs.dir(session_dir) do
     if file ~= '.' and file ~= '..' then
       table.insert(sessions, file)
     end
   end
-  
+
   if #sessions == 0 then
     vim.notify('No sessions found', vim.log.levels.INFO)
     return
   end
-  
+
   table.sort(sessions)
   require('snacks').picker.select(sessions, {
     prompt = 'Select session to restore:',
@@ -515,10 +515,10 @@ vim.keymap.set('n', '<leader>qs', function()
       vim.cmd('silent! source ' .. vim.fn.fnameescape(session_path))
     end
   end)
-end, { desc = 'Switch session' })
+end, { desc = 'Switch' })
 vim.keymap.set('n', '<leader>qd', function()
   require('persistence').stop()
-end, { desc = "Don't save session" })
+end, { desc = "Don't save" })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
