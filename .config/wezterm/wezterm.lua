@@ -1,8 +1,89 @@
 -- Pull in the wezterm API
 local wezterm = require("wezterm")
+local mux = wezterm.mux
+local act = wezterm.action
+
+local function get_launch_cwd(cmd)
+  if cmd and cmd.cwd then
+    return cmd.cwd
+  end
+
+  return wezterm.procinfo.current_working_dir_for_pid(wezterm.procinfo.pid()) or wezterm.home_dir
+end
+
+local function set_tab_title(tab, title)
+  if tab then
+    tab:set_title(title)
+  end
+end
+
+local function spawn_nvim_dev_layout(window, cwd)
+  set_tab_title(window:active_tab(), "terminal")
+
+  local nvim_tab = window:spawn_tab {
+    cwd = cwd,
+    args = { "nvim", "." },
+  }
+  set_tab_title(nvim_tab, "nvim")
+
+  local lazygit_tab = window:spawn_tab {
+    cwd = cwd,
+    args = { "lazygit" },
+  }
+  set_tab_title(lazygit_tab, "lazygit")
+end
+
+local function show_startup_menu(window, pane, mux_window, cwd)
+  window:perform_action(
+    act.InputSelector {
+      title = "Choose startup layout",
+      description = "Enter accepts, Esc keeps a single terminal tab, / filters",
+      choices = {
+        { id = "terminal", label = "terminal - single tab" },
+        { id = "nvim-dev", label = "nvim dev - terminal + neovim + lazygit" },
+      },
+      action = wezterm.action_callback(function(_, _, id)
+        if id == "nvim-dev" then
+          spawn_nvim_dev_layout(mux_window, cwd)
+          return
+        end
+
+        set_tab_title(mux_window:active_tab(), "terminal")
+      end),
+    },
+    pane
+  )
+end
+
+local function schedule_startup_menu(mux_window, cwd)
+  wezterm.time.call_after(0.1, function()
+    local gui_window = mux_window:gui_window()
+    local active_tab = mux_window:active_tab()
+    local pane = active_tab and active_tab:active_pane()
+
+    if gui_window and pane then
+      show_startup_menu(gui_window, pane, mux_window, cwd)
+    end
+  end)
+end
+
+wezterm.on("gui-startup", function(cmd)
+  local cwd = get_launch_cwd(cmd)
+
+  if cmd then
+    cmd.cwd = cmd.cwd or cwd
+  end
+
+  local tab, pane, window = mux.spawn_window(cmd or { cwd = cwd })
+  set_tab_title(tab, "terminal")
+
+  schedule_startup_menu(window, cwd)
+end)
 
 -- This will hold the configuration.
 local config = wezterm.config_builder()
+
+config.default_gui_startup_args = { "start", "--always-new-process", "--cwd", "." }
 
 -- Set default shell based on OS
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
