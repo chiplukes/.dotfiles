@@ -14,6 +14,11 @@ fix_ubuntu_sources
 apt_update
 apt_upgrade
 
+# Ensure latest Git packages are available
+install_package "software-properties-common" "add-apt-repository"
+ensure_git_core_ppa
+apt_update
+
 # Install base packages with correct verification commands
 install_packages_with_verify "git:git" "curl:curl" "subversion:svn" "ripgrep:rg"
 
