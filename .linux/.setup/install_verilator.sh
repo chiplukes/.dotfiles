@@ -13,6 +13,8 @@ log_header "Installing Verilator"
 install_verilator_deps() {
     log_info "Installing Verilator prerequisites..."
     apt_update
+
+    local optional_packages=(mold)
     
     local packages=(
         perl help2man make autoconf g++ flex bison ccache
@@ -21,6 +23,13 @@ install_verilator_deps() {
     )
     
     for package in "${packages[@]}"; do
+        if ! apt-cache show "$package" >/dev/null 2>&1; then
+            if [[ " ${optional_packages[*]} " == *" $package "* ]]; then
+                log_info "Skipping optional package $package (not available in apt sources)"
+                continue
+            fi
+        fi
+
         if ! sudo apt-get install -y "$package"; then
             log_warning "Failed to install $package (continuing)"
         fi
@@ -30,23 +39,11 @@ install_verilator_deps() {
 # Build and install Verilator
 build_verilator() {
     local build_dir="$HOME/tmp/verilator"
-    
-    if [[ -d "$build_dir" ]]; then
-        log_info "Updating existing Verilator repository..."
-        safe_cd "$build_dir"
-        git pull || die "Failed to update repository"
-    else
-        setup_build_dir "$build_dir"
-        git_clone_or_update "https://github.com/verilator/verilator" "$build_dir"
-    fi
+
+    git_clone_or_update "https://github.com/verilator/verilator" "$build_dir" "stable"
     
     # Clean environment and checkout stable
     unset VERILATOR_ROOT 2>/dev/null || true
-    
-    log_info "Checking out stable branch..."
-    if ! git checkout stable; then
-        die "Failed to checkout stable branch"
-    fi
     
     # Build
     run_autotools_build

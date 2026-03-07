@@ -14,6 +14,11 @@ fix_ubuntu_sources
 apt_update
 apt_upgrade
 
+# Ensure latest Git packages are available
+install_package "software-properties-common" "add-apt-repository"
+ensure_git_core_ppa
+apt_update
+
 # Install base packages with correct verification commands
 install_packages_with_verify "git:git" "curl:curl" "subversion:svn" "ripgrep:rg"
 
@@ -24,11 +29,10 @@ install_fzf() {
 
     if [[ -d "$fzf_dir" ]]; then
         log_info "Updating existing fzf installation..."
-        safe_cd "$fzf_dir"
-        git pull
+        git_clone_or_update "https://github.com/junegunn/fzf.git" "$fzf_dir" "master"
     else
         log_info "Cloning fzf repository..."
-        git_clone_or_update "https://github.com/junegunn/fzf.git" "$fzf_dir"
+        git_clone_or_update "https://github.com/junegunn/fzf.git" "$fzf_dir" "master"
     fi
 
     # Install fzf (automatically answers yes to prompts)
@@ -204,7 +208,7 @@ install_lazygit
 
 log_success "Base installation complete!"
 echo "Installed packages:"
-echo "- git, curl, subversion, ripgrep (via apt)"
+echo "- git (via git-core PPA), curl, subversion, ripgrep (via apt)"
 echo "- fzf (from GitHub)"
 echo "- fd-find (latest from GitHub releases)"
 echo "- lazygit (latest from GitHub releases)"

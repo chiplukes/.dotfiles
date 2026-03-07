@@ -10,6 +10,9 @@ $Global:DOTFILES_PROFILE_LOADED = $true
 # Dotfiles management function
 function dotfiles { git --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }
 
+# Explicit lazygit launcher for the bare dotfiles repo
+function lazydot { lazygit --git-dir="$env:USERPROFILE\.dotfiles-bare" --work-tree="$env:USERPROFILE" @args }
+
 # Load Python interceptor
 $interceptorPath = "$env:USERPROFILE\.windows\.scripts\.python_uv_interceptor.ps1"
 if (Test-Path $interceptorPath) {

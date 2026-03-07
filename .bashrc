@@ -118,6 +118,7 @@ fi
 
 # dotfiles alias
 alias dotfiles='git --git-dir=$HOME/.dotfiles-bare --work-tree=$HOME'
+alias lazydot='lazygit --git-dir="$HOME/.dotfiles-bare" --work-tree="$HOME"'
 
 ##pyenv
 #export PYENV_ROOT="$HOME/.pyenv"
@@ -198,3 +199,4 @@ export PATH="$HOME/tools/verible/bin:$PATH"
 
 # Add to ~/.bashrc
 source "$HOME/.linux/.scripts/python_uv_interceptor.bash"
+. "$HOME/.local/bin/env"

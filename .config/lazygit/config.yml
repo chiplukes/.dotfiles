@@ -2,7 +2,7 @@
 git:
   showIcons: true # Shows icons in the files panel
   log:
-    order: 'top-order' # Changes how commits are ordered in the log
+    order: 'topo-order' # Changes how commits are ordered in the log
 gui:
   theme:
     activeBorderColor: [255, 114, 224] # A magenta-like color
