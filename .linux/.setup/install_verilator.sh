@@ -14,6 +14,8 @@ install_verilator_deps() {
     log_info "Installing Verilator prerequisites..."
     apt_update
 
+    local optional_packages=(mold)
+
     local packages=(
         perl help2man make autoconf g++ flex bison ccache
         libgoogle-perftools-dev numactl perl-doc
@@ -21,6 +23,13 @@ install_verilator_deps() {
     )
 
     for package in "${packages[@]}"; do
+        if ! apt-cache show "$package" >/dev/null 2>&1; then
+            if [[ " ${optional_packages[*]} " == *" $package "* ]]; then
+                log_info "Skipping optional package $package (not available in apt sources)"
+                continue
+            fi
+        fi
+
         if ! sudo apt-get install -y "$package"; then
             log_warning "Failed to install $package (continuing)"
         fi
@@ -70,5 +79,7 @@ install_verilator_deps
 build_verilator
 
 verify_installation verilator "Verilator" "--version"
+
+safe_cleanup "$HOME/tmp"
 
 log_success "Verilator installation complete!"

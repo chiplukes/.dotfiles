@@ -181,6 +181,27 @@ apt_upgrade() {
     fi
 }
 
+ensure_git_core_ppa() {
+    local ppa_pattern="ppa.launchpadcontent.net/git-core/ppa/ubuntu"
+
+    if grep -Rqs "$ppa_pattern" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
+        log_info "git-core PPA already configured"
+        return 0
+    fi
+
+    if ! has_command add-apt-repository; then
+        log_info "Installing add-apt-repository support..."
+        if ! sudo apt-get install -y software-properties-common; then
+            die "Failed to install software-properties-common"
+        fi
+    fi
+
+    log_info "Adding git-core PPA for latest Git releases..."
+    if ! sudo add-apt-repository ppa:git-core/ppa -y; then
+        die "Failed to add git-core PPA"
+    fi
+}
+
 # Install single package with verification
 install_package() {
     local package="$1"
@@ -360,8 +381,46 @@ git_clone_or_update() {
     if [[ -d "$target_dir/.git" ]]; then
         log_info "Updating existing repository: $(basename "$target_dir")"
         safe_cd "$target_dir"
-        if ! git pull; then
-            die "Failed to update repository"
+        if ! git fetch --all --tags --prune; then
+            die "Failed to fetch repository updates"
+        fi
+
+        if [[ -n "$branch" ]]; then
+            if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+                if ! git checkout -B "$branch" "origin/$branch"; then
+                    die "Failed to checkout branch: $branch"
+                fi
+            elif git show-ref --verify --quiet "refs/heads/$branch"; then
+                if ! git checkout "$branch"; then
+                    die "Failed to checkout branch: $branch"
+                fi
+            else
+                die "Branch not found: $branch"
+            fi
+
+            if ! git pull --ff-only origin "$branch"; then
+                die "Failed to update repository"
+            fi
+        else
+            local current_branch
+            current_branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+
+            if [[ -n "$current_branch" ]]; then
+                if ! git pull --ff-only origin "$current_branch"; then
+                    die "Failed to update repository"
+                fi
+            else
+                local default_branch
+                default_branch=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)
+
+                if [[ -n "$default_branch" ]] && git show-ref --verify --quiet "refs/remotes/origin/$default_branch"; then
+                    if ! git checkout -B "$default_branch" "origin/$default_branch"; then
+                        die "Failed to checkout default branch: $default_branch"
+                    fi
+                else
+                    die "Repository is in detached HEAD state and no branch was specified"
+                fi
+            fi
         fi
     else
         log_info "Cloning repository: $(basename "$target_dir")"
@@ -369,7 +428,12 @@ git_clone_or_update() {
         if [[ -d "$target_dir" ]]; then
             rm -rf "$target_dir"
         fi
-        if ! git clone${branch:+ -b "$branch"} "$repo_url" "$target_dir"; then
+        local clone_args=()
+        if [[ -n "$branch" ]]; then
+            clone_args=(-b "$branch")
+        fi
+
+        if ! git clone "${clone_args[@]}" "$repo_url" "$target_dir"; then
             die "Failed to clone repository"
         fi
         safe_cd "$target_dir"
@@ -381,10 +445,22 @@ run_autotools_build() {
     local make_jobs="${1:-$(nproc)}"
 
     log_info "Running autoconf..."
-    if ! autoconf || ! sh autoconf.sh 2>/dev/null; then
-        if ! ./autogen.sh 2>/dev/null; then
-            die "Failed to run autoconf/autogen"
+    if [[ -x ./autogen.sh ]]; then
+        if ! ./autogen.sh; then
+            die "Failed to run autogen.sh"
         fi
+    elif [[ -f ./autoconf.sh ]]; then
+        if ! sh ./autoconf.sh; then
+            die "Failed to run autoconf.sh"
+        fi
+    elif [[ -f ./configure.ac || -f ./configure.in ]]; then
+        if ! autoconf; then
+            die "Failed to run autoconf"
+        fi
+    elif [[ -x ./configure || -f ./configure ]]; then
+        log_info "Build scripts already present; skipping autoconf regeneration"
+    else
+        die "Could not find autogen.sh, autoconf.sh, configure.ac, or configure"
     fi
 
     log_info "Configuring build..."
