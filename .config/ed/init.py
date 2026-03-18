@@ -6,6 +6,8 @@ options.set("scrolloff", 8)
 options.set("which_key_enabled", True)
 options.set("indentguides", "yes")
 options.set("clipboard", "unnamedplus")
+options.set("cursorblink", True)
+options.set("insertcursor", "bar")
 
 # ── LSP server ────────────────────────────────────────────────────────
 lsp.register_server("python", ["ty", "server"])
