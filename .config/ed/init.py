@@ -2,11 +2,84 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ed.core.style import Style
+from ed.syntax.themes import Theme, register_theme
+
 if TYPE_CHECKING:
     from ed.api.editor import EditorAPI
 
 
+def _register_vscode_dark_modern_theme() -> None:
+    groups = {
+        "keyword": Style(fg="#C586C0"),
+        "keyword.control": Style(fg="#569CD6"),
+        "keyword.conditional": Style(fg="#569CD6"),
+        "keyword.return": Style(fg="#C586C0"),
+        "keyword.function": Style(fg="#C586C0"),
+        "keyword.operator": Style(fg="#D4D4D4"),
+        "keyword.import": Style(fg="#C586C0"),
+        "keyword.repeat": Style(fg="#569CD6"),
+        "keyword.exception": Style(fg="#569CD6"),
+        "string": Style(fg="#CE9178"),
+        "string.escape": Style(fg="#D69D85"),
+        "string.special": Style(fg="#CE9178"),
+        "comment": Style(fg="#6A9955"),
+        "function": Style(fg="#DCDCAA"),
+        "function.call": Style(fg="#DCDCAA"),
+        "function.builtin": Style(fg="#DCDCAA"),
+        "function.macro": Style(fg="#F0F000"),
+        "type": Style(fg="#569CD6"),
+        "type.builtin": Style(fg="#569CD6"),
+        "type.definition": Style(fg="#569CD6"),
+        "variable": Style(fg="#D4D4D4"),
+        "variable.builtin": Style(fg="#569CD6"),
+        "variable.parameter": Style(fg="#9CDCFE"),
+        "constant": Style(fg="#6A9955"),
+        "constant.builtin": Style(fg="#6A9955"),
+        "constant.macro": Style(fg="#F0F000"),
+        "operator": Style(fg="#D4D4D4"),
+        "number": Style(fg="#6A9955"),
+        "float": Style(fg="#6A9955"),
+        "boolean": Style(fg="#569CD6"),
+        "punctuation": Style(fg="#D4D4D4"),
+        "punctuation.bracket": Style(fg="#C586C0"),
+        "punctuation.delimiter": Style(fg="#D4D4D4"),
+        "punctuation.special": Style(fg="#D4D4D4"),
+        "label": Style(fg="#D4D4D4"),
+        "namespace": Style(fg="#F0F000"),
+        "attribute": Style(fg="#9CDCFE"),
+        "tag": Style(fg="#569CD6"),
+        "error": Style(fg="#F44747"),
+        "text": Style(fg="#D4D4D4"),
+        "text.title": Style(fg="#DCDCAA"),
+        "text.strong": Style(fg="#D4D4D4", attrs=1),
+        "text.emphasis": Style(fg="#D4D4D4"),
+        "text.literal": Style(fg="#CE9178"),
+        "text.uri": Style(fg="#569CD6"),
+        "embedded": Style(fg="#D4D4D4"),
+        "property": Style(fg="#9CDCFE"),
+        "field": Style(fg="#9CDCFE"),
+        "constructor": Style(fg="#F0F000"),
+        "module": Style(fg="#4EC9B0"),
+        "module.instance": Style(fg="#DCDCAA"),
+        "parameter": Style(fg="#9CDCFE"),
+        "decorator": Style(fg="#DCDCAA"),
+        "annotation": Style(fg="#DCDCAA"),
+    }
+    register_theme(
+        "vscode_dark_modern",
+        Theme(
+            name="vscode_dark_modern",
+            groups=groups,
+            default_fg="#D4D4D4",
+            default_bg="#1F1F1F",
+        ),
+    )
+
+
 def setup(api: EditorAPI) -> None:
+    _register_vscode_dark_modern_theme()
+
     options = api.options
     keymap = api.keymap
     lsp = api.lsp
@@ -25,6 +98,7 @@ def setup(api: EditorAPI) -> None:
     options.set("insertcursor", "bar")
     options.set("number", True)
     options.set("relativenumber", False)
+    api._editor_state.active_theme = "vscode_dark_modern"
 
     # ── LSP server ────────────────────────────────────────────────────────
     lsp.register_server("python", ["ty", "server"])
@@ -39,8 +113,13 @@ def setup(api: EditorAPI) -> None:
     keymap.nunmap("<leader>F")
     keymap.ngroup("<leader>s", "Search")
     keymap.nmap("<leader>sf", "<Plug>PickerFindFiles", desc="Find files")
+    keymap.nmap("<leader>sr", "<Plug>PickerRecentFiles", desc="Recent files")
     keymap.nmap("<leader>sb", "<Plug>PickerFindBuffers", desc="Find buffers")
     keymap.nmap("<leader>sg", "<Plug>PickerLiveGrep", desc="Live grep")
+    keymap.nmap("<leader>sw", "<Plug>PickerWordGrep", desc="Grep word")
+    keymap.nmap("<leader>s/", "<Plug>PickerBufferLines", desc="Search lines")
+    keymap.nmap("<leader>sd", "<Plug>PickerDiagnostics", desc="Diagnostics")
+    keymap.nmap("<leader>sp", "<Plug>PickerCommands", desc="Commands")
 
     # ── Git ───────────────────────────────────────────────────────────────
     keymap.ngroup("g", "Go to")
@@ -93,6 +172,11 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>ws", ":split<CR>", desc="Horizontal split")
     keymap.nmap("<leader>wc", ":close<CR>", desc="Close window")
     keymap.nmap("<leader>wf", ":only<CR>", desc="Fullscreen (close others)")
+    keymap.nmap("<leader>we", lambda: api.toggle_window_expand(0.75), desc="Expand window to 3/4 width")
+    keymap.nmap("<leader>w<", remember(lambda: api.resize_window("h", -1)), desc="Shrink window width")
+    keymap.nmap("<leader>w>", remember(lambda: api.resize_window("h", 1)), desc="Grow window width")
+    keymap.nmap("<leader>w-", remember(lambda: api.resize_window("v", -1)), desc="Shrink window height")
+    keymap.nmap("<leader>w+", remember(lambda: api.resize_window("v", 1)), desc="Grow window height")
     keymap.nmap("<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev")
     keymap.nmap("<leader>wl", remember(lambda: api.focus_window("l")), desc="Window right / next")
     keymap.nmap("<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next")
@@ -106,6 +190,8 @@ def setup(api: EditorAPI) -> None:
 
     # ── Commentary ────────────────────────────────────────────────────────
     keymap.vmap("gc", "<Plug>CommentaryVisual", desc="Toggle comments")
+    keymap.vmap("ga", "<Plug>AlignCharPrompt", desc="Align on character")
+    keymap.vmap("gA", "<Plug>AlignRegexPrompt", desc="Align on regex")
 
     # ── Show file modification in gutter ─────────────────────────────────
     options.set("session_additions_enabled", True)
