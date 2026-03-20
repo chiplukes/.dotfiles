@@ -56,6 +56,9 @@ def _register_vscode_dark_modern_theme() -> None:
         "text.emphasis": Style(fg="#D4D4D4"),
         "text.literal": Style(fg="#CE9178"),
         "text.uri": Style(fg="#569CD6"),
+        "sidebar": Style(bg="#252526"),
+        "sidebar.header.active": Style(fg="#FFFFFF", bg="#50648C", attrs=1),
+        "sidebar.header.inactive": Style(fg="#D2D2D2", bg="#282C34"),
         "embedded": Style(fg="#D4D4D4"),
         "property": Style(fg="#9CDCFE"),
         "field": Style(fg="#9CDCFE"),
@@ -78,13 +81,38 @@ def _register_vscode_dark_modern_theme() -> None:
 
 
 def setup(api: EditorAPI) -> None:
+    plugin_manager = globals().get("plugins")
+
+    if plugin_manager is not None:
+        plugin_manager.load("ed.plugins.guess_indent")
+        plugin_manager.load("ed.plugins.todo")
+        plugin_manager.load("ed.plugins.gitsigns")
+        plugin_manager.load("ed.plugins.picker")
+        plugin_manager.load("ed.plugins.autopairs")
+        plugin_manager.load("ed.plugins.commentary")
+        plugin_manager.load("ed.plugins.surround")
+        plugin_manager.load("ed.plugins.align")
+        plugin_manager.load("ed.plugins.formatter")
+        plugin_manager.load("ed.plugins.which_key")
+        plugin_manager.load("ed.plugins.session")
+        plugin_manager.load("ed.plugins.explorer")
+        plugin_manager.load("ed.plugins.diagnostics_panel")
+        plugin_manager.load("ed.plugins.outline")
+        plugin_manager.load("ed.plugins.references_panel")
+        plugin_manager.load("ed.plugins.workspace_symbols")
+        plugin_manager.load("ed.plugins.repl")
+        plugin_manager.load("ed.plugins.dashboard")
+        plugin_manager.load("ed.plugins.editorconfig")
+        plugin_manager.load("ed.plugins.lsp")
+        plugin_manager.load("ed.plugins.editor_utils")
+        plugin_manager.load("ed.plugins.flash")
+
     _register_vscode_dark_modern_theme()
 
     options = api.options
     keymap = api.keymap
     lsp = api.lsp
     remember = getattr(api, "_remember_cmd", lambda fn: fn)
-    plugin_manager = globals().get("plugins")
 
     # ── Options ───────────────────────────────────────────────────────────
     options.set("leader", " ")
@@ -189,6 +217,7 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<A-k>", lambda: api.focus_window("k"), desc="Window up / prev")
 
     # ── Commentary ────────────────────────────────────────────────────────
+    keymap.nmap("<C-q>", "<C-v>", desc="Visual block mode")
     keymap.vmap("gc", "<Plug>CommentaryVisual", desc="Toggle comments")
     keymap.vmap("ga", "<Plug>AlignCharPrompt", desc="Align on character")
     keymap.vmap("gA", "<Plug>AlignRegexPrompt", desc="Align on regex")
