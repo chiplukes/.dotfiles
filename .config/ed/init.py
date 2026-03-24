@@ -96,6 +96,8 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("ed.plugins.which_key")
         plugin_manager.load("ed.plugins.session")
         plugin_manager.load("ed.plugins.explorer")
+        plugin_manager.load("ed.plugins.markers")
+        plugin_manager.load("ed.plugins.compare")
         plugin_manager.load("ed.plugins.diagnostics_panel")
         plugin_manager.load("ed.plugins.outline")
         plugin_manager.load("ed.plugins.references_panel")
@@ -106,6 +108,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("ed.plugins.lsp")
         plugin_manager.load("ed.plugins.editor_utils")
         plugin_manager.load("ed.plugins.flash")
+        plugin_manager.load("ed.plugins.local_history")
 
     _register_vscode_dark_modern_theme()
 
@@ -161,6 +164,20 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>prs", "<Plug>SessionRestore", desc="Restore session")
     keymap.nmap("<leader>pr", "<Plug>EditorPasteYank", desc="Paste yank register")
 
+    # ── Markers ───────────────────────────────────────────────────────────
+    keymap.ngroup("<leader>m", "Markers")
+    keymap.ngroup("<leader>mg", "Marker groups")
+    keymap.nmap("<leader>mn", remember("<Plug>MarkerNext"), desc="Next marker")
+    keymap.nmap("<leader>mp", remember("<Plug>MarkerPrev"), desc="Prev marker")
+    keymap.nmap("<leader>me", "<Plug>MarkerText", desc="Marker annotation")
+    keymap.nmap("<leader>ma", "<Plug>MarkerAdd", desc="Add marker")
+    keymap.nmap("<leader>md", "<Plug>MarkerDelete", desc="Delete marker")
+    keymap.nmap("<leader>mv", "<Plug>MarkerView", desc="Toggle marker sidebar")
+    keymap.nmap("<leader>mgc", "<Plug>MarkerGroupCreate", desc="Create marker group")
+    keymap.nmap("<leader>mgs", "<Plug>MarkerGroupSelect", desc="Select marker group")
+    keymap.nmap("<leader>mgr", "<Plug>MarkerGroupRename", desc="Rename marker group")
+    keymap.nmap("<leader>mgd", "<Plug>MarkerGroupDelete", desc="Delete marker group")
+
     # ── Code/LSP ──────────────────────────────────────────────────────────
     keymap.ngroup("<leader>c", "Code")
     keymap.nmap("<leader>ch", lambda: lsp.hover(), desc="Hover docs")
@@ -181,6 +198,17 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("[d", remember(lambda: lsp.goto_prev_diag()), desc="Prev diagnostic")
     keymap.nmap("]d", remember(lambda: lsp.goto_next_diag()), desc="Next diagnostic")
     keymap.nmap("ge", remember(lambda: lsp.goto_next_diag()), desc="Next diagnostic")
+
+    # ── Diff/Compare ──────────────────────────────────────────────────────────
+    keymap.ngroup("<leader>d", "Diff")
+    keymap.nmap("<leader>d1", "<Plug>CompareSelect1", desc="Compare file 1")
+    keymap.nmap("<leader>d2", "<Plug>CompareSelect2", desc="Compare file 2")
+    keymap.nmap("<leader>dc", "<Plug>CompareSelected", desc="Compare selected files")
+    keymap.nmap("<leader>dj", "<Plug>CompareNextDiff", desc="Next compare diff")
+    keymap.nmap("<leader>dk", "<Plug>ComparePrevDiff", desc="Prev compare diff")
+    keymap.nmap("<leader>ds", "<Plug>CompareStop", desc="Stop compare")
+    keymap.nmap("<leader>dm12", "<Plug>CompareMerge12", desc="Merge left to right")
+    keymap.nmap("<leader>dm21", "<Plug>CompareMerge21", desc="Merge right to left")
 
     # ── File info ─────────────────────────────────────────────────────────
     keymap.ngroup("<leader>l", "Location/File")
@@ -229,6 +257,11 @@ def setup(api: EditorAPI) -> None:
     if plugin_manager is not None:
         plugin_manager.load("ed.plugins.session_additions")
         plugin_manager.load("ed.plugins.tabs_to_spaces")
+
+
+
+        #options.set("local_history_root", "")
+
 
     # Add servers that are not auto-detected here if needed.
     # Example:
