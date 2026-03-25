@@ -233,3 +233,5 @@ def setup(api: EditorAPI) -> None:
     # Add servers that are not auto-detected here if needed.
     # Example:
     # lsp.register_server("sh", ["bash-language-server", "start"])
+
+    api.git.verbose = True # show git command output in messages for debugging
