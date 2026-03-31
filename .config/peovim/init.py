@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ed.core.style import Style
-from ed.syntax.themes import Theme, register_theme
+from peovim.core.style import Style
+from peovim.syntax.themes import Theme, register_theme
 
 if TYPE_CHECKING:
-    from ed.api.editor import EditorAPI
+    from peovim.api.editor import EditorAPI
 
 
 def _register_vscode_dark_modern_theme() -> None:
@@ -84,31 +84,31 @@ def setup(api: EditorAPI) -> None:
     plugin_manager = globals().get("plugins")
 
     if plugin_manager is not None:
-        plugin_manager.load("ed.plugins.guess_indent")
-        plugin_manager.load("ed.plugins.todo")
-        plugin_manager.load("ed.plugins.gitsigns")
-        plugin_manager.load("ed.plugins.picker")
-        plugin_manager.load("ed.plugins.autopairs")
-        plugin_manager.load("ed.plugins.commentary")
-        plugin_manager.load("ed.plugins.surround")
-        plugin_manager.load("ed.plugins.align")
-        plugin_manager.load("ed.plugins.formatter")
-        plugin_manager.load("ed.plugins.which_key")
-        plugin_manager.load("ed.plugins.session")
-        plugin_manager.load("ed.plugins.explorer")
-        plugin_manager.load("ed.plugins.markers")
-        plugin_manager.load("ed.plugins.compare")
-        plugin_manager.load("ed.plugins.diagnostics_panel")
-        plugin_manager.load("ed.plugins.outline")
-        plugin_manager.load("ed.plugins.references_panel")
-        plugin_manager.load("ed.plugins.workspace_symbols")
-        plugin_manager.load("ed.plugins.repl")
-        plugin_manager.load("ed.plugins.dashboard")
-        plugin_manager.load("ed.plugins.editorconfig")
-        plugin_manager.load("ed.plugins.lsp")
-        plugin_manager.load("ed.plugins.editor_utils")
-        plugin_manager.load("ed.plugins.flash")
-        plugin_manager.load("ed.plugins.local_history")
+        plugin_manager.load("peovim.plugins.guess_indent")
+        plugin_manager.load("peovim.plugins.todo")
+        plugin_manager.load("peovim.plugins.gitsigns")
+        plugin_manager.load("peovim.plugins.picker")
+        plugin_manager.load("peovim.plugins.autopairs")
+        plugin_manager.load("peovim.plugins.commentary")
+        plugin_manager.load("peovim.plugins.surround")
+        plugin_manager.load("peovim.plugins.align")
+        plugin_manager.load("peovim.plugins.formatter")
+        plugin_manager.load("peovim.plugins.which_key")
+        plugin_manager.load("peovim.plugins.session")
+        plugin_manager.load("peovim.plugins.explorer")
+        plugin_manager.load("peovim.plugins.markers")
+        plugin_manager.load("peovim.plugins.compare")
+        plugin_manager.load("peovim.plugins.diagnostics_panel")
+        plugin_manager.load("peovim.plugins.outline")
+        plugin_manager.load("peovim.plugins.references_panel")
+        plugin_manager.load("peovim.plugins.workspace_symbols")
+        plugin_manager.load("peovim.plugins.repl")
+        plugin_manager.load("peovim.plugins.dashboard")
+        plugin_manager.load("peovim.plugins.editorconfig")
+        plugin_manager.load("peovim.plugins.lsp")
+        plugin_manager.load("peovim.plugins.editor_utils")
+        plugin_manager.load("peovim.plugins.flash")
+        plugin_manager.load("peovim.plugins.local_history")
 
     _register_vscode_dark_modern_theme()
 
