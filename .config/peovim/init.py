@@ -101,6 +101,9 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.diagnostics_panel")
         plugin_manager.load("peovim.plugins.outline")
         plugin_manager.load("peovim.plugins.references_panel")
+        # References panel preview: "float" (popup, cursor stays put) | "cursor" (navigates like outline)
+        from peovim.plugins import references_panel
+        references_panel.configure(preview_mode="float", preview_syntax=True)
         plugin_manager.load("peovim.plugins.workspace_symbols")
         plugin_manager.load("peovim.plugins.repl")
         plugin_manager.load("peovim.plugins.dashboard")
