@@ -241,11 +241,19 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next")
     keymap.nmap("<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev")
 
-    # ── Window navigation (Alt + hjkl) ────────────────────────────────────
-    keymap.nmap("<A-h>", lambda: api.focus_window("h"), desc="Window left / prev")
-    keymap.nmap("<A-l>", lambda: api.focus_window("l"), desc="Window right / next")
-    keymap.nmap("<A-j>", lambda: api.focus_window("j"), desc="Window down / next")
-    keymap.nmap("<A-k>", lambda: api.focus_window("k"), desc="Window up / prev")
+    # ── Window/Sidebar navigation (Alt + hjkl) ───────────────────────────
+    # When sidebar is visible: h/l move focus in/out; j/k cycle panels.
+    # When sidebar is hidden: falls back to SmartFocusWindow (window cycling).
+    keymap.nmap("<A-h>", "<Plug>SidebarFocusLeft",  desc="Sidebar focus / window left")
+    keymap.nmap("<A-l>", "<Plug>SidebarFocusRight", desc="Editor focus / window right")
+    keymap.nmap("<A-j>", "<Plug>SidebarNextPanel",  desc="Sidebar next panel / window down")
+    keymap.nmap("<A-k>", "<Plug>SidebarPrevPanel",  desc="Sidebar prev panel / window up")
+
+    # ── Sidebar-internal keys (only active while sidebar is focused) ──────
+    api.ui.sidebar_nmap("[",     "SidebarShrink")
+    api.ui.sidebar_nmap("]",     "SidebarGrow")
+    api.ui.sidebar_nmap("q",     "SidebarClose")
+    api.ui.sidebar_nmap("<Esc>", "SidebarClose")
 
     # ── Commentary ────────────────────────────────────────────────────────
     keymap.nmap("<C-q>", "<C-v>", desc="Visual block mode")
