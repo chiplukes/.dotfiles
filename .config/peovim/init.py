@@ -5,8 +5,14 @@ from typing import TYPE_CHECKING
 from peovim.core.style import Style
 from peovim.syntax.themes import Theme, register_theme
 
+
 if TYPE_CHECKING:
     from peovim.api.editor import EditorAPI
+
+# import logging
+# logging.getLogger().setLevel(logging.DEBUG)
+# log = logging.getLogger(__name__)
+# log.info("plugin loaded")
 
 
 def _register_vscode_dark_modern_theme() -> None:
@@ -103,6 +109,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.references_panel")
         # References panel preview: "float" (popup, cursor stays put) | "cursor" (navigates like outline)
         from peovim.plugins import references_panel
+
         references_panel.configure(preview_mode="float", preview_syntax=True)
         plugin_manager.load("peovim.plugins.workspace_symbols")
         plugin_manager.load("peovim.plugins.repl")
@@ -244,16 +251,27 @@ def setup(api: EditorAPI) -> None:
     # ── Window/Sidebar navigation (Alt + hjkl) ───────────────────────────
     # When sidebar is visible: h/l move focus in/out; j/k cycle panels.
     # When sidebar is hidden: falls back to SmartFocusWindow (window cycling).
-    keymap.nmap("<A-h>", "<Plug>SidebarFocusLeft",  desc="Sidebar focus / window left")
+    keymap.nmap("<A-h>", "<Plug>SidebarFocusLeft", desc="Sidebar focus / window left")
     keymap.nmap("<A-l>", "<Plug>SidebarFocusRight", desc="Editor focus / window right")
-    keymap.nmap("<A-j>", "<Plug>SidebarNextPanel",  desc="Sidebar next panel / window down")
-    keymap.nmap("<A-k>", "<Plug>SidebarPrevPanel",  desc="Sidebar prev panel / window up")
+    keymap.nmap("<A-j>", "<Plug>SidebarNextPanel", desc="Sidebar next panel / window down")
+    keymap.nmap("<A-k>", "<Plug>SidebarPrevPanel", desc="Sidebar prev panel / window up")
 
     # ── Sidebar-internal keys (only active while sidebar is focused) ──────
-    api.ui.sidebar_nmap("[",     "SidebarShrink")
-    api.ui.sidebar_nmap("]",     "SidebarGrow")
-    api.ui.sidebar_nmap("q",     "SidebarClose")
+    api.ui.sidebar_nmap("[", "SidebarShrink")
+    api.ui.sidebar_nmap("]", "SidebarGrow")
+    api.ui.sidebar_nmap("q", "SidebarClose")
     api.ui.sidebar_nmap("<Esc>", "SidebarClose")
+
+    # ── Bottom panel ──────────────────────────────────────────────────────
+    keymap.nmap("<A-p>", "<Plug>BottomPanelToggle", desc="Toggle bottom panel")
+
+    # ── Bottom panel-internal keys (only active while panel is focused) ───
+    api.ui.bottom_nmap("[", "BottomPanelShrink")
+    api.ui.bottom_nmap("]", "BottomPanelGrow")
+    api.ui.bottom_nmap("q", "BottomPanelClose")
+    api.ui.bottom_nmap("<Esc>", "BottomPanelBlur")
+    api.ui.bottom_nmap("<", "BottomPanelPrevTab")
+    api.ui.bottom_nmap(">", "BottomPanelNextTab")
 
     # ── Commentary ────────────────────────────────────────────────────────
     keymap.nmap("<C-q>", "<C-v>", desc="Visual block mode")
@@ -266,16 +284,13 @@ def setup(api: EditorAPI) -> None:
     options.set("session_additions_sign_char", "+")
     options.set("session_additions_sign_color", "80,200,80")
     if plugin_manager is not None:
-        plugin_manager.load("ed.plugins.session_additions")
-        plugin_manager.load("ed.plugins.tabs_to_spaces")
+        plugin_manager.load("peovim.plugins.session_additions")
+        plugin_manager.load("peovim.plugins.tabs_to_spaces")
 
-
-
-        #options.set("local_history_root", "")
-
+        # options.set("local_history_root", "")
 
     # Add servers that are not auto-detected here if needed.
     # Example:
     # lsp.register_server("sh", ["bash-language-server", "start"])
 
-    api.git.verbose = True # show git command output in messages for debugging
+    api.git.verbose = True  # show git command output in messages for debugging
