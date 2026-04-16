@@ -9,10 +9,10 @@ from peovim.syntax.themes import Theme, register_theme
 if TYPE_CHECKING:
     from peovim.api.editor import EditorAPI
 
-# import logging
+import logging
+
 # logging.getLogger().setLevel(logging.DEBUG)
-# log = logging.getLogger(__name__)
-# log.info("plugin loaded")
+logging.getLogger("peovim").info("init.py -begin")
 
 
 def _register_vscode_dark_modern_theme() -> None:
@@ -193,9 +193,11 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>ch", lambda: lsp.hover(), desc="Hover docs")
     keymap.nmap("<leader>ca", lambda: lsp.code_actions(), desc="Code actions")
     keymap.nmap("<leader>ci", lambda: lsp.toggle_inlay_hints(), desc="Toggle inlay hints")
+    keymap.ngroup("<leader>cs", "Search")
     keymap.nmap("<leader>csd", lambda: lsp.document_symbols(), desc="Document symbols")
     keymap.nmap("<leader>csw", lambda: lsp.workspace_symbols(), desc="Workspace symbols")
     keymap.nmap("<leader>cd", lambda: lsp.definition(), desc="Go to definition")
+    keymap.ngroup("<leader>cg", "Goto")
     keymap.nmap("<leader>cgi", lambda: lsp.implementation(), desc="Go to implementation")
     keymap.nmap("<leader>cgt", lambda: lsp.type_definition(), desc="Go to type definition")
     keymap.nmap("<leader>cr", lambda: lsp.references(), desc="Find references")
@@ -210,6 +212,9 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("ge", remember(lambda: lsp.goto_next_diag()), desc="Next diagnostic")
 
     # ── Diff/Compare ──────────────────────────────────────────────────────────
+    # Remove compare plugin's default <leader>c* bindings (conflict with Code group)
+    for _k in ("<leader>c1", "<leader>c2", "<leader>cc", "<leader>cj", "<leader>ck", "<leader>cs"):
+        keymap.nunmap(_k)
     keymap.ngroup("<leader>d", "Diff")
     keymap.nmap("<leader>d1", "<Plug>CompareSelect1", desc="Compare file 1")
     keymap.nmap("<leader>d2", "<Plug>CompareSelect2", desc="Compare file 2")
@@ -294,3 +299,6 @@ def setup(api: EditorAPI) -> None:
     # lsp.register_server("sh", ["bash-language-server", "start"])
 
     api.git.verbose = True  # show git command output in messages for debugging
+
+
+logging.getLogger("peovim").info("init.py -end")
