@@ -278,6 +278,17 @@ def setup(api: EditorAPI) -> None:
     api.ui.bottom_nmap("<", "BottomPanelPrevTab")
     api.ui.bottom_nmap(">", "BottomPanelNextTab")
 
+    # ── Panel placement (sidebar or bottom) ───────────────────────────────
+    # Panels register to their default host inside each plugin. To relocate
+    # a panel, call move_panel() after plugins are loaded:
+    #
+    #   api.ui.move_panel("explorer",          "bottom")
+    #   api.ui.move_panel("markers",           "bottom")
+    #   api.ui.move_panel("outline",           "bottom")
+    #   api.ui.move_panel("references",        "bottom")
+    #   api.ui.move_panel("workspace-symbols", "bottom")
+    #   api.ui.move_panel("diagnostics",       "bottom")
+
     # ── Commentary ────────────────────────────────────────────────────────
     keymap.nmap("<C-q>", "<C-v>", desc="Visual block mode")
     keymap.vmap("gc", "<Plug>CommentaryVisual", desc="Toggle comments")
