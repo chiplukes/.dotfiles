@@ -119,6 +119,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.editor_utils")
         plugin_manager.load("peovim.plugins.flash")
         plugin_manager.load("peovim.plugins.local_history")
+        plugin_manager.load("peovim.plugins.perf_panel")
 
     _register_vscode_dark_modern_theme()
 
