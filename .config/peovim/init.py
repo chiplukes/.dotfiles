@@ -121,6 +121,9 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.local_history")
         plugin_manager.load("peovim.plugins.perf_panel")
 
+        plugins.load("peovim.plugins.copilot")
+        from peovim.plugins import copilot
+
     _register_vscode_dark_modern_theme()
 
     options = api.options
@@ -311,6 +314,16 @@ def setup(api: EditorAPI) -> None:
     # lsp.register_server("sh", ["bash-language-server", "start"])
 
     api.git.verbose = True  # show git command output in messages for debugging
+
+    # ── Copilot ────────────────────────────────────────────────────────
+    keymap.imap("<C-y>", copilot.accept, desc="Accept Copilot suggestion")
+    keymap.imap("<C-n>", copilot.cycle_next, desc="Next Copilot suggestion")
+    keymap.imap("<C-p>", copilot.cycle_prev, desc="Prev Copilot suggestion")
+    copilot.debounce_ms = 350  # ms to wait after keystroke (default 350)
+    copilot.max_ghost_lines = 3  # lines of suggestion to show (default 3)
+    copilot.auto_trigger = True  # False = manual trigger only (default True)
+    # Manual trigger (when auto_trigger=False):
+    # keymap.imap("<A-Space>", copilot.trigger, desc="Request Copilot suggestion")"""")"""]")"""")
 
 
 logging.getLogger("peovim").info("init.py -end")
