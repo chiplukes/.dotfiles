@@ -124,6 +124,17 @@ def setup(api: EditorAPI) -> None:
         plugins.load("peovim.plugins.copilot")
         from peovim.plugins import copilot
 
+        from peovim.plugins import verilog_lsp as _verilog_lsp
+        _verilog_lsp.configure(
+            # Comma-separated Verible rule overrides.
+            # Prefix with - to disable, + to enable.  Examples:
+            #   "-line-length"         suppress line-too-long warnings
+            #   "-no-trailing-whitespace"
+            #   "-module-filename"     don't require filename == module name
+            verible_rules=[],
+        )
+        plugins.load("peovim.plugins.verilog_lsp")
+
     _register_vscode_dark_modern_theme()
 
     options = api.options
@@ -314,6 +325,13 @@ def setup(api: EditorAPI) -> None:
     # lsp.register_server("sh", ["bash-language-server", "start"])
 
     api.git.verbose = True  # show git command output in messages for debugging
+
+    # ── Verilog / RTL ─────────────────────────────────────────────────────
+    from peovim.plugins import verilog_lsp as _vl
+    keymap.ngroup("<leader>r", "RTL/Verilog")
+    keymap.nmap("<leader>rh", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel")
+    keymap.nmap("<leader>rt", lambda: _vl.trace_signal(api), desc="Verilog trace signal")
+    keymap.nmap("<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace")
 
     # ── Copilot ────────────────────────────────────────────────────────
     keymap.imap("<C-y>", copilot.accept, desc="Accept Copilot suggestion")
