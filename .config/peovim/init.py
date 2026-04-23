@@ -93,6 +93,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.guess_indent")
         plugin_manager.load("peovim.plugins.todo")
         plugin_manager.load("peovim.plugins.gitsigns")
+        plugin_manager.load("peovim.plugins.svnsigns")
         plugin_manager.load("peovim.plugins.picker")
         plugin_manager.load("peovim.plugins.autopairs")
         plugin_manager.load("peovim.plugins.commentary")
@@ -130,10 +131,11 @@ def setup(api: EditorAPI) -> None:
             # Comma-separated Verible rule overrides.
             # Prefix with - to disable, + to enable.  Examples:
             #   "-line-length"         suppress line-too-long warnings
-            #   "-no-trailing-whitespace"
+            #   "-no-trailing-spaces"
             #   "-module-filename"     don't require filename == module name
             verible_rules=[
                 "-line-length",
+                "-no-trailing-spaces",
                 "-explicit-parameter-storage-type",
                 "-explicit-function-lifetime",
                 "-explicit-task-lifetime",
