@@ -125,13 +125,19 @@ def setup(api: EditorAPI) -> None:
         from peovim.plugins import copilot
 
         from peovim.plugins import verilog_lsp as _verilog_lsp
+
         _verilog_lsp.configure(
             # Comma-separated Verible rule overrides.
             # Prefix with - to disable, + to enable.  Examples:
             #   "-line-length"         suppress line-too-long warnings
             #   "-no-trailing-whitespace"
             #   "-module-filename"     don't require filename == module name
-            verible_rules=[],
+            verible_rules=[
+                "-line-length",
+                "-explicit-parameter-storage-type",
+                "-explicit-function-lifetime",
+                "-explicit-task-lifetime",
+            ]
         )
         plugins.load("peovim.plugins.verilog_lsp")
 
@@ -207,14 +213,22 @@ def setup(api: EditorAPI) -> None:
     keymap.ngroup("<leader>c", "Code")
     keymap.nmap("<leader>ch", lambda: lsp.hover(), desc="Hover docs")
     keymap.nmap("<leader>ca", lambda: lsp.code_actions(), desc="Code actions")
-    keymap.nmap("<leader>ci", lambda: lsp.toggle_inlay_hints(), desc="Toggle inlay hints")
+    keymap.nmap(
+        "<leader>ci", lambda: lsp.toggle_inlay_hints(), desc="Toggle inlay hints"
+    )
     keymap.ngroup("<leader>cs", "Search")
     keymap.nmap("<leader>csd", lambda: lsp.document_symbols(), desc="Document symbols")
-    keymap.nmap("<leader>csw", lambda: lsp.workspace_symbols(), desc="Workspace symbols")
+    keymap.nmap(
+        "<leader>csw", lambda: lsp.workspace_symbols(), desc="Workspace symbols"
+    )
     keymap.nmap("<leader>cd", lambda: lsp.definition(), desc="Go to definition")
     keymap.ngroup("<leader>cg", "Goto")
-    keymap.nmap("<leader>cgi", lambda: lsp.implementation(), desc="Go to implementation")
-    keymap.nmap("<leader>cgt", lambda: lsp.type_definition(), desc="Go to type definition")
+    keymap.nmap(
+        "<leader>cgi", lambda: lsp.implementation(), desc="Go to implementation"
+    )
+    keymap.nmap(
+        "<leader>cgt", lambda: lsp.type_definition(), desc="Go to type definition"
+    )
     keymap.nmap("<leader>cr", lambda: lsp.references(), desc="Find references")
     keymap.nmap("<leader>cn", lambda: lsp.rename(), desc="Rename symbol")
     keymap.nmap("<leader>cI", lambda: lsp.info(), desc="LSP info")
@@ -228,7 +242,14 @@ def setup(api: EditorAPI) -> None:
 
     # ── Diff/Compare ──────────────────────────────────────────────────────────
     # Remove compare plugin's default <leader>c* bindings (conflict with Code group)
-    for _k in ("<leader>c1", "<leader>c2", "<leader>cc", "<leader>cj", "<leader>ck", "<leader>cs"):
+    for _k in (
+        "<leader>c1",
+        "<leader>c2",
+        "<leader>cc",
+        "<leader>cj",
+        "<leader>ck",
+        "<leader>cs",
+    ):
         keymap.nunmap(_k)
     keymap.ngroup("<leader>d", "Diff")
     keymap.nmap("<leader>d1", "<Plug>CompareSelect1", desc="Compare file 1")
@@ -258,23 +279,57 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>ws", ":split<CR>", desc="Horizontal split")
     keymap.nmap("<leader>wc", ":close<CR>", desc="Close window")
     keymap.nmap("<leader>wf", ":only<CR>", desc="Fullscreen (close others)")
-    keymap.nmap("<leader>we", lambda: api.toggle_window_expand(0.75), desc="Expand window to 3/4 width")
-    keymap.nmap("<leader>w<", remember(lambda: api.resize_window("h", -1)), desc="Shrink window width")
-    keymap.nmap("<leader>w>", remember(lambda: api.resize_window("h", 1)), desc="Grow window width")
-    keymap.nmap("<leader>w-", remember(lambda: api.resize_window("v", -1)), desc="Shrink window height")
-    keymap.nmap("<leader>w+", remember(lambda: api.resize_window("v", 1)), desc="Grow window height")
-    keymap.nmap("<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev")
-    keymap.nmap("<leader>wl", remember(lambda: api.focus_window("l")), desc="Window right / next")
-    keymap.nmap("<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next")
-    keymap.nmap("<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev")
+    keymap.nmap(
+        "<leader>we",
+        lambda: api.toggle_window_expand(0.75),
+        desc="Expand window to 3/4 width",
+    )
+    keymap.nmap(
+        "<leader>w<",
+        remember(lambda: api.resize_window("h", -1)),
+        desc="Shrink window width",
+    )
+    keymap.nmap(
+        "<leader>w>",
+        remember(lambda: api.resize_window("h", 1)),
+        desc="Grow window width",
+    )
+    keymap.nmap(
+        "<leader>w-",
+        remember(lambda: api.resize_window("v", -1)),
+        desc="Shrink window height",
+    )
+    keymap.nmap(
+        "<leader>w+",
+        remember(lambda: api.resize_window("v", 1)),
+        desc="Grow window height",
+    )
+    keymap.nmap(
+        "<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev"
+    )
+    keymap.nmap(
+        "<leader>wl",
+        remember(lambda: api.focus_window("l")),
+        desc="Window right / next",
+    )
+    keymap.nmap(
+        "<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next"
+    )
+    keymap.nmap(
+        "<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev"
+    )
 
     # ── Window/Sidebar navigation (Alt + hjkl) ───────────────────────────
     # When sidebar is visible: h/l move focus in/out; j/k cycle panels.
     # When sidebar is hidden: falls back to SmartFocusWindow (window cycling).
     keymap.nmap("<A-h>", "<Plug>SidebarFocusLeft", desc="Sidebar focus / window left")
     keymap.nmap("<A-l>", "<Plug>SidebarFocusRight", desc="Editor focus / window right")
-    keymap.nmap("<A-j>", "<Plug>SidebarNextPanel", desc="Sidebar next panel / window down")
-    keymap.nmap("<A-k>", "<Plug>SidebarPrevPanel", desc="Sidebar prev panel / window up")
+    keymap.nmap(
+        "<A-j>", "<Plug>SidebarNextPanel", desc="Sidebar next panel / window down"
+    )
+    keymap.nmap(
+        "<A-k>", "<Plug>SidebarPrevPanel", desc="Sidebar prev panel / window up"
+    )
 
     # ── Sidebar-internal keys (only active while sidebar is focused) ──────
     api.ui.sidebar_nmap("[", "SidebarShrink")
@@ -328,10 +383,17 @@ def setup(api: EditorAPI) -> None:
 
     # ── Verilog / RTL ─────────────────────────────────────────────────────
     from peovim.plugins import verilog_lsp as _vl
+
     keymap.ngroup("<leader>r", "RTL/Verilog")
-    keymap.nmap("<leader>rh", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel")
-    keymap.nmap("<leader>rt", lambda: _vl.trace_signal(api), desc="Verilog trace signal")
-    keymap.nmap("<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace")
+    keymap.nmap(
+        "<leader>rh", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel"
+    )
+    keymap.nmap(
+        "<leader>rt", lambda: _vl.trace_signal(api), desc="Verilog trace signal"
+    )
+    keymap.nmap(
+        "<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace"
+    )
 
     # ── Copilot ────────────────────────────────────────────────────────
     keymap.imap("<C-y>", copilot.accept, desc="Accept Copilot suggestion")
