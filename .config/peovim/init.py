@@ -406,8 +406,8 @@ def setup(api: EditorAPI) -> None:
 
     # ── Copilot ────────────────────────────────────────────────────────
     keymap.imap("<C-y>", copilot.accept, desc="Accept Copilot suggestion")
-    keymap.imap("<C-n>", copilot.cycle_next, desc="Next Copilot suggestion")
-    keymap.imap("<C-p>", copilot.cycle_prev, desc="Prev Copilot suggestion")
+    keymap.imap("<A-]>", copilot.cycle_next, desc="Next Copilot suggestion")
+    keymap.imap("<A-[>", copilot.cycle_prev, desc="Prev Copilot suggestion")
     copilot.debounce_ms = 350  # ms to wait after keystroke (default 350)
     copilot.max_ghost_lines = 3  # lines of suggestion to show (default 3)
     copilot.auto_trigger = True  # False = manual trigger only (default True)
