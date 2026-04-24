@@ -162,6 +162,13 @@ def setup(api: EditorAPI) -> None:
     options.set("insertcursor", "bar")
     options.set("number", True)
     options.set("relativenumber", False)
+    options.set("dashboard_logo", """\
+  ██████╗ ███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
+  ██╔══██╗██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
+  ██████╔╝█████╗  ██║   ██║██║   ██║██║██╔████╔██║
+  ██╔═══╝ ██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
+  ██║     ███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
+  ╚═╝     ╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝""")
     api._editor_state.active_theme = "vscode_dark_modern"
 
     # ── LSP server ────────────────────────────────────────────────────────
