@@ -163,6 +163,7 @@ def setup(api: EditorAPI) -> None:
     options.set("insertcursor", "bar")
     options.set("number", True)
     options.set("relativenumber", False)
+    options.set("scrollbar", True)
     options.set("dashboard_logo", """\
   ██████╗ ███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
   ██╔══██╗██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
