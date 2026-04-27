@@ -1,0 +1,22 @@
+14:58:46.389  DEBUG    peovim.plugins.copilot_client   copilot: server initialized
+14:58:46.938  DEBUG    peovim.plugins.copilot_client   copilot: checkStatus error: {'code': -32002, 'message': 'editorInfo and editorPluginInfo not set in initializationOptions'}
+14:58:47.007  WARNING  peovim.plugins.copilot_client   copilot: signIn error: {'code': -32002, 'message': 'editorInfo and editorPluginInfo not set in initializationOptions'}
+15:00:13.408  DEBUG    peovim.plugins.copilot_client   copilot: server initialized
+15:00:14.283  INFO     peovim.plugins.copilot          copilot: Copilot: visit https://github.com/login/device  —  code: E582-653B
+15:00:26.289  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:00:38.291  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:00:50.292  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:01:02.294  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:01:14.295  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:01:26.297  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:01:38.298  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:01:50.299  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:02:02.301  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:02:14.303  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:02:26.305  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:02:38.307  DEBUG    peovim.plugins.copilot_client   copilot: signInConfirm error: 
+15:02:48.463  INFO     peovim.plugins.copilot          copilot: authentication complete
+15:03:24.463  DEBUG    peovim.plugins.copilot_client   copilot: server initialized
+15:03:25.731  DEBUG    peovim.plugins.copilot          copilot: already authenticated
+15:05:40.519  DEBUG    peovim.plugins.copilot_client   copilot: server initialized
+15:05:41.818  DEBUG    peovim.plugins.copilot          copilot: already authenticated

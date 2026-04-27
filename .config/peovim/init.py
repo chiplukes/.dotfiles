@@ -331,8 +331,9 @@ def setup(api: EditorAPI) -> None:
     )
 
     # ── Window/Sidebar navigation (Alt + hjkl) ───────────────────────────
-    # When sidebar is visible: h/l move focus in/out; j/k cycle panels.
-    # When sidebar is hidden: falls back to SmartFocusWindow (window cycling).
+    # Alt-h/l wrap in both directions across editor windows.
+    # When the sidebar is open it participates as the leftmost item in that cycle.
+    # While the sidebar is focused, Alt-j/k cycle panels.
     keymap.nmap("<A-h>", "<Plug>SidebarFocusLeft", desc="Sidebar focus / window left")
     keymap.nmap("<A-l>", "<Plug>SidebarFocusRight", desc="Editor focus / window right")
     keymap.nmap(

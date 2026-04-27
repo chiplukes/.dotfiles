@@ -1,0 +1,48 @@
+14:50:41.868  INFO     peovim                          init.py -begin
+14:50:41.868  INFO     peovim                          init.py -end
+14:50:41.869  INFO     peovim.plugins                  loaded peovim.plugins.guess_indent
+14:50:41.870  INFO     peovim.plugins                  loaded peovim.plugins.todo
+14:50:41.876  INFO     peovim.plugins                  loaded peovim.plugins.gitsigns
+14:50:41.889  INFO     peovim.plugins                  loaded peovim.plugins.picker
+14:50:41.890  INFO     peovim.plugins                  loaded peovim.plugins.autopairs
+14:50:41.891  INFO     peovim.plugins                  loaded peovim.plugins.commentary
+14:50:41.899  INFO     peovim.plugins                  loaded peovim.plugins.surround
+14:50:41.900  INFO     peovim.plugins                  loaded peovim.plugins.align
+14:50:41.900  INFO     peovim.plugins                  loaded peovim.plugins.formatter
+14:50:41.901  INFO     peovim.plugins                  loaded peovim.plugins.which_key
+14:50:41.902  INFO     peovim.plugins                  loaded peovim.plugins.session
+14:50:41.949  INFO     peovim.plugins                  loaded peovim.plugins.explorer
+14:50:41.953  INFO     peovim.plugins                  loaded peovim.plugins.markers
+14:50:41.958  INFO     peovim.plugins                  loaded peovim.plugins.compare
+14:50:41.959  INFO     peovim.plugins                  loaded peovim.plugins.diagnostics_panel
+14:50:41.960  INFO     peovim.plugins                  loaded peovim.plugins.outline
+14:50:41.961  INFO     peovim.plugins                  loaded peovim.plugins.references_panel
+14:50:41.962  INFO     peovim.plugins                  loaded peovim.plugins.workspace_symbols
+14:50:41.962  INFO     peovim.plugins                  loaded peovim.plugins.repl
+14:50:41.963  INFO     peovim.plugins                  loaded peovim.plugins.dashboard
+14:50:41.972  INFO     peovim.plugins                  loaded peovim.plugins.editorconfig
+14:50:42.049  INFO     peovim.plugins                  loaded peovim.plugins.lsp
+14:50:42.050  INFO     peovim.plugins                  loaded peovim.plugins.editor_utils
+14:50:42.051  INFO     peovim.plugins                  loaded peovim.plugins.flash
+14:50:42.053  INFO     peovim.plugins                  loaded peovim.plugins.local_history
+14:50:42.055  INFO     peovim.plugins                  loaded peovim.plugins.perf_panel
+14:50:42.056  INFO     peovim.plugins                  loaded peovim.plugins.copilot
+14:50:42.061  INFO     peovim.plugins                  loaded peovim.plugins.verilog_lsp
+14:50:42.065  INFO     peovim.plugins                  loaded peovim.plugins.session_additions
+14:50:42.066  INFO     peovim.plugins                  loaded peovim.plugins.tabs_to_spaces
+14:50:46.339  WARNING  peovim.lsp.client               LSP stderr [verible-verilog-ls]: Verible Verilog Language Server built at v0.0-4023-gc1271a00
+14:50:46.339  WARNING  peovim.lsp.client               LSP stderr [verible-verilog-ls]: commandline: verible-verilog-ls
+14:50:47.110  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.workspace: verilog-lsp: starting full workspace parse at C:\projects\personal\github\verilog_project
+14:50:47.111  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.workspace: verilog-lsp: found 7 files, parsing�
+14:51:00.707  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.handlers.extended: traceSignal: path=C:\projects\personal\github\verilog_project\sdi_fsync.v line=231 char=29
+14:51:00.721  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.handlers.extended: traceSignal: node type=NoneType repr=None
+14:51:09.117  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.handlers.extended: traceSignal: path=C:\projects\personal\github\verilog_project\sdi_fsync.v line=231 char=29
+14:51:09.117  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.handlers.extended: traceSignal: node type=NoneType repr=None
+14:51:09.121  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.workspace: verilog-lsp: parsed 7 modules, running analysis�
+14:51:09.235  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.workspace: verilog-lsp: parse complete, 7 modules found
+14:51:09.238  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.workspace: verilog-lsp: calling on_parse_complete
+14:51:09.238  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.workspace: verilog-lsp: all modules=['async_vector', 'axis_fifo', 'freq_measure', 'phase_measure', 'sdi_fsync', 'strobe_vect_change_clk', 'vsync_dll']  hierarchy roots=['axis_fifo', 'sdi_fsync', 'vsync_dll']
+14:51:09.238  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.handlers.extended: push_hierarchy_tree: sending verilog/hierarchyTree with 3 roots
+14:51:09.238  WARNING  peovim.lsp.features             LSP notification 'verilog/hierarchyTree': 1 handlers registered
+14:51:09.238  WARNING  peovim.lsp.client               LSP stderr [C:\projects\personal\github\peovim\.venv\Scripts\python.exe]: WARNING verilog_lsp.handlers.extended: push_hierarchy_tree: notification sent
+14:51:09.253  WARNING  peovim.plugins.verilog_lsp.plugin  verilog_lsp: _on_hierarchy_tree received, 3 roots
