@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from peovim.core.style import Style
@@ -150,6 +151,27 @@ def setup(api: EditorAPI) -> None:
     keymap = api.keymap
     lsp = api.lsp
     remember = getattr(api, "_remember_cmd", lambda fn: fn)
+    from peovim.plugins import svnsigns as _svn
+    from peovim.plugins import which_key as _wk
+
+    def _verilog_only(callback):
+        def _wrapped(ctx=None):
+            with contextlib.suppress(Exception):
+                buf = api.active_buffer()
+                if getattr(buf, "filetype", None) == "verilog":
+                    return callback(ctx) if ctx is not None else callback()
+            return None
+
+        return _wrapped
+
+    def _svn_only(callback):
+        def _wrapped():
+            with contextlib.suppress(Exception):
+                buf = api.active_buffer()
+                if buf.path and _svn._find_svn_root(buf.path) is not None:
+                    callback()
+
+        return _wrapped
 
     # ── Options ───────────────────────────────────────────────────────────
     options.set("leader", " ")
@@ -194,17 +216,27 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>sd", "<Plug>PickerDiagnostics", desc="Diagnostics")
     keymap.nmap("<leader>sp", "<Plug>PickerCommands", desc="Commands")
 
+    # ── Lists / TODO ───────────────────────────────────────────────────────
+    keymap.ngroup("<leader>x", "Lists")
+    keymap.nmap("<leader>xt", "<Plug>TodoList", desc="Todo list")
+
     # ── Git ───────────────────────────────────────────────────────────────
     keymap.ngroup("g", "Go to")
     keymap.nmap("gn", "<Plug>GitsignsNextHunk", desc="Next git hunk")
     keymap.nmap("gp", "<Plug>GitsignsPrevHunk", desc="Prev git hunk")
+    keymap.nmap("<leader>gs", "<Plug>GitsignsStatusPanel", desc="Git status panel")
     keymap.nmap("go", lambda: lsp.document_symbols(), desc="Document symbols")
+    keymap.nmap("]h", _svn_only(lambda: _svn._next_hunk(api)), desc="Next SVN hunk")
+    keymap.nmap("[h", _svn_only(lambda: _svn._prev_hunk(api)), desc="Prev SVN hunk")
+    keymap.nmap("<leader>ss", _svn_only(lambda: _svn._toggle_status(api)), desc="SVN status panel")
 
     # ── Project/Session ───────────────────────────────────────────────────
     keymap.ngroup("<leader>p", "Project")
     keymap.nmap("<leader>ps", "<Plug>SessionSave", desc="Save session")
     keymap.nmap("<leader>prs", "<Plug>SessionRestore", desc="Restore session")
     keymap.nmap("<leader>pr", "<Plug>EditorPasteYank", desc="Paste yank register")
+    keymap.nmap("<leader>qs", "<Plug>SessionSave", desc="Save default session")
+    keymap.nmap("<leader>qr", "<Plug>SessionRestore", desc="Restore last session")
 
     # ── Markers ───────────────────────────────────────────────────────────
     keymap.ngroup("<leader>m", "Markers")
@@ -219,9 +251,14 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>mgs", "<Plug>MarkerGroupSelect", desc="Select marker group")
     keymap.nmap("<leader>mgr", "<Plug>MarkerGroupRename", desc="Rename marker group")
     keymap.nmap("<leader>mgd", "<Plug>MarkerGroupDelete", desc="Delete marker group")
+    keymap.nmap("mn", remember("<Plug>MarkerNext"), desc="Next marker")
+    keymap.nmap("mp", remember("<Plug>MarkerPrev"), desc="Prev marker")
+    keymap.nmap("me", "<Plug>MarkerText", desc="Marker annotation")
 
     # ── Code/LSP ──────────────────────────────────────────────────────────
     keymap.ngroup("<leader>c", "Code")
+    keymap.nmap("K", "<Plug>LspHover", desc="Hover docs")
+    keymap.nmap("gd", "<Plug>LspDefinition", desc="Go to definition")
     keymap.nmap("<leader>ch", lambda: lsp.hover(), desc="Hover docs")
     keymap.nmap("<leader>ca", lambda: lsp.code_actions(), desc="Code actions")
     keymap.nmap(
@@ -242,11 +279,17 @@ def setup(api: EditorAPI) -> None:
     )
     keymap.nmap("<leader>cr", lambda: lsp.references(), desc="Find references")
     keymap.nmap("<leader>cn", lambda: lsp.rename(), desc="Rename symbol")
+    keymap.nmap("<leader>gr", "<Plug>LspReferences", desc="Find references")
+    keymap.nmap("<leader>rn", "<Plug>LspRename", desc="Rename symbol")
     keymap.nmap("<leader>cI", lambda: lsp.info(), desc="LSP info")
     keymap.nmap("<leader>cx", lambda: lsp.restart(), desc="Restart LSP")
     keymap.nmap("<leader>c.d", "<Plug>LspDiagDetail", desc="Diagnostic detail")
+    keymap.nmap("<leader>cD", "<Plug>DiagnosticsPanel", desc="Diagnostics sidebar")
+    keymap.nmap("<leader>cR", "<Plug>ReferencesPanel", desc="References sidebar")
+    keymap.nmap("<leader>csW", "<Plug>WorkspaceSymbolsPanel", desc="Workspace symbols sidebar")
     keymap.nmap("<leader>cf", "<Plug>FormatterFormat", desc="Format buffer")
     keymap.imap("<C-k>", lambda: lsp.signature_help(), desc="Signature help")
+    keymap.imap("<C-n>", "<Plug>LspComplete", desc="Insert completion")
     keymap.nmap("[d", remember(lambda: lsp.goto_prev_diag()), desc="Prev diagnostic")
     keymap.nmap("]d", remember(lambda: lsp.goto_next_diag()), desc="Next diagnostic")
     keymap.nmap("ge", remember(lambda: lsp.goto_next_diag()), desc="Next diagnostic")
@@ -271,6 +314,10 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>ds", "<Plug>CompareStop", desc="Stop compare")
     keymap.nmap("<leader>dm12", "<Plug>CompareMerge12", desc="Merge left to right")
     keymap.nmap("<leader>dm21", "<Plug>CompareMerge21", desc="Merge right to left")
+    keymap.nmap("]c", "<Plug>CompareNextDiff", desc="Next compare diff")
+    keymap.nmap("[c", "<Plug>ComparePrevDiff", desc="Prev compare diff")
+    keymap.nmap("<leader>m12", "<Plug>CompareMerge12", desc="Merge left to right")
+    keymap.nmap("<leader>m21", "<Plug>CompareMerge21", desc="Merge right to left")
 
     # ── File info ─────────────────────────────────────────────────────────
     keymap.ngroup("<leader>l", "Location/File")
@@ -282,6 +329,7 @@ def setup(api: EditorAPI) -> None:
     keymap.ngroup("<leader>f", "File")
     keymap.nmap("<leader>e", "<Plug>ExplorerToggle", desc="File explorer")
     keymap.nmap("<leader>fs", ":w<CR>", desc="Save file")
+    keymap.nmap("<leader>o", "<Plug>OutlineToggle", desc="Outline sidebar")
     keymap.nmap("<C-^>", "<Plug>EditorAltFile", desc="Alternate file")
 
     # ── Window Management (<leader>w) ─────────────────────────────────────
@@ -360,6 +408,11 @@ def setup(api: EditorAPI) -> None:
     api.ui.bottom_nmap("<", "BottomPanelPrevTab")
     api.ui.bottom_nmap(">", "BottomPanelNextTab")
 
+    # ── Dashboard-internal keys (only relevant while the dashboard is visible)
+    # <CR> open selection
+    # e / q close dashboard
+    # i open init.py
+
     # ── Panel placement (sidebar or bottom) ───────────────────────────────
     # Panels register to their default host inside each plugin. To relocate
     # a panel, call move_panel() after plugins are loaded:
@@ -373,9 +426,30 @@ def setup(api: EditorAPI) -> None:
 
     # ── Commentary ────────────────────────────────────────────────────────
     keymap.nmap("<C-q>", "<C-v>", desc="Visual block mode")
+    keymap.nmap("gcc", "<Plug>CommentaryLine", desc="Toggle line comment")
+    keymap.nmap("gcj", "<Plug>CommentaryDown", desc="Comment current and next line")
+    keymap.nmap("gck", "<Plug>CommentaryUp", desc="Comment previous and current line")
     keymap.vmap("gc", "<Plug>CommentaryVisual", desc="Toggle comments")
     keymap.vmap("ga", "<Plug>AlignCharPrompt", desc="Align on character")
     keymap.vmap("gA", "<Plug>AlignRegexPrompt", desc="Align on regex")
+
+    # ── Fquick / Flash / Which-key ────────────────────────────────────────
+    keymap.nmap("fh", "<Plug>FquickOlder", desc="Older session file")
+    keymap.nmap("fl", "<Plug>FquickNewer", desc="Newer session file")
+    keymap.nmap("fj", "<Plug>FquickSessionPickerDown", desc="Session files picker")
+    keymap.nmap("fk", "<Plug>FquickSessionPickerUp", desc="Session files picker")
+    keymap.nmap("f/", "<Plug>FquickWorkspacePicker", desc="Workspace files picker")
+    keymap.nmap("s", "<Plug>FlashJump", desc="Flash jump")
+    keymap.vmap("s", "<Plug>FlashJump", desc="Flash jump")
+    keymap.nmap(
+        "<leader>?", lambda: _wk._show_for_prefix(api, _wk._get_leader(api)), desc="Show leader bindings"
+    )
+    # Surround keeps its generated normal-mode families:
+    # ysiw<char> add surround, cs<old><new> change surround, ds<char> delete surround.
+
+    # ── REPL ───────────────────────────────────────────────────────────────
+    keymap.nmap("<leader>rl", "<Plug>ReplSendLine", desc="REPL send line")
+    keymap.nmap("<leader>rb", "<Plug>ReplSendBlock", desc="REPL send block")
 
     # ── Show file modification in gutter ─────────────────────────────────
     options.set("session_additions_enabled", True)
@@ -395,6 +469,7 @@ def setup(api: EditorAPI) -> None:
 
     # ── Verilog / RTL ─────────────────────────────────────────────────────
     from peovim.plugins import verilog_lsp as _vl
+    from peovim.plugins.verilog_lsp import plugin as _vl_plugin
 
     keymap.ngroup("<leader>r", "RTL/Verilog")
     keymap.nmap(
@@ -405,6 +480,52 @@ def setup(api: EditorAPI) -> None:
     )
     keymap.nmap(
         "<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace"
+    )
+    keymap.nmap(
+        "<leader>fr", _verilog_only(lambda: lsp.references()), desc="Verilog references"
+    )
+    keymap.nmap(
+        "<leader>fw", _verilog_only(lambda: lsp.workspace_symbols()), desc="Verilog workspace symbols"
+    )
+    keymap.nmap(
+        "<leader>re",
+        _verilog_only(lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx)),
+        desc="Verilog preview extract selection",
+    )
+    keymap.nmap(
+        "<leader>rE",
+        _verilog_only(lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx)),
+        desc="Verilog apply extract selection",
+    )
+    keymap.nmap(
+        "<leader>rw",
+        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False)),
+        desc="Verilog push-down range preview",
+    )
+    keymap.nmap(
+        "<leader>rW",
+        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True)),
+        desc="Verilog push-down range apply",
+    )
+    keymap.vmap(
+        "<leader>re",
+        _verilog_only(lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx)),
+        desc="Verilog preview extract selection",
+    )
+    keymap.vmap(
+        "<leader>rE",
+        _verilog_only(lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx)),
+        desc="Verilog apply extract selection",
+    )
+    keymap.vmap(
+        "<leader>rw",
+        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False)),
+        desc="Verilog push-down range preview",
+    )
+    keymap.vmap(
+        "<leader>rW",
+        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True)),
+        desc="Verilog push-down range apply",
     )
 
     # ── Copilot ────────────────────────────────────────────────────────
