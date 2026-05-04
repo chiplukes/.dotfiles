@@ -154,16 +154,6 @@ def setup(api: EditorAPI) -> None:
     from peovim.plugins import svnsigns as _svn
     from peovim.plugins import which_key as _wk
 
-    def _verilog_only(callback):
-        def _wrapped(ctx=None):
-            with contextlib.suppress(Exception):
-                buf = api.active_buffer()
-                if getattr(buf, "filetype", None) == "verilog":
-                    return callback(ctx) if ctx is not None else callback()
-            return None
-
-        return _wrapped
-
     def _svn_only(callback):
         def _wrapped():
             with contextlib.suppress(Exception):
@@ -475,43 +465,63 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>rt", lambda: _vl.trace_signal(api), desc="Verilog trace signal")
     keymap.nmap("<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace")
     keymap.nmap(
+        "<leader>ru",
+        lambda ctx: _vl_plugin._preview_pull_up_selection(api, ctx=ctx),
+        desc="Verilog hier-up selected instance",
+    )
+    keymap.nmap(
+        "<leader>rU",
+        lambda ctx: _vl_plugin._apply_pull_up_selection(api, ctx=ctx),
+        desc="Verilog apply hier-up selected instance",
+    )
+    keymap.nmap(
         "<leader>re",
-        _verilog_only(lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx)),
-        desc="Verilog preview extract selection",
+        lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx),
+        desc="Verilog extract selection to new submodule",
     )
     keymap.nmap(
         "<leader>rE",
-        _verilog_only(lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx)),
+        lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx),
         desc="Verilog apply extract selection",
     )
     keymap.nmap(
         "<leader>rw",
-        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False)),
+        lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False),
         desc="Verilog push-down range preview",
     )
     keymap.nmap(
         "<leader>rW",
-        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True)),
+        lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True),
         desc="Verilog push-down range apply",
     )
     keymap.vmap(
+        "<leader>ru",
+        lambda ctx: _vl_plugin._preview_pull_up_selection(api, ctx=ctx),
+        desc="Verilog hier-up selected instance",
+    )
+    keymap.vmap(
+        "<leader>rU",
+        lambda ctx: _vl_plugin._apply_pull_up_selection(api, ctx=ctx),
+        desc="Verilog apply hier-up selected instance",
+    )
+    keymap.vmap(
         "<leader>re",
-        _verilog_only(lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx)),
-        desc="Verilog preview extract selection",
+        lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx),
+        desc="Verilog extract selection to new submodule",
     )
     keymap.vmap(
         "<leader>rE",
-        _verilog_only(lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx)),
+        lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx),
         desc="Verilog apply extract selection",
     )
     keymap.vmap(
         "<leader>rw",
-        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False)),
+        lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False),
         desc="Verilog push-down range preview",
     )
     keymap.vmap(
         "<leader>rW",
-        _verilog_only(lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True)),
+        lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True),
         desc="Verilog push-down range apply",
     )
 
