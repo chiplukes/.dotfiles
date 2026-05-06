@@ -467,62 +467,22 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap(
         "<leader>ru",
         lambda ctx: _vl_plugin._preview_pull_up_selection(api, ctx=ctx),
-        desc="Verilog hier-up selected instance",
-    )
-    keymap.nmap(
-        "<leader>rU",
-        lambda ctx: _vl_plugin._apply_pull_up_selection(api, ctx=ctx),
-        desc="Verilog apply hier-up selected instance",
-    )
-    keymap.nmap(
-        "<leader>re",
-        lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx),
-        desc="Verilog extract selection to new submodule",
-    )
-    keymap.nmap(
-        "<leader>rE",
-        lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx),
-        desc="Verilog apply extract selection",
+        desc="Verilog hier-up selection",
     )
     keymap.nmap(
         "<leader>rw",
         lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False),
-        desc="Verilog push-down range preview",
-    )
-    keymap.nmap(
-        "<leader>rW",
-        lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True),
-        desc="Verilog push-down range apply",
+        desc="Verilog hier-down selection",
     )
     keymap.vmap(
         "<leader>ru",
         lambda ctx: _vl_plugin._preview_pull_up_selection(api, ctx=ctx),
-        desc="Verilog hier-up selected instance",
-    )
-    keymap.vmap(
-        "<leader>rU",
-        lambda ctx: _vl_plugin._apply_pull_up_selection(api, ctx=ctx),
-        desc="Verilog apply hier-up selected instance",
-    )
-    keymap.vmap(
-        "<leader>re",
-        lambda ctx: _vl_plugin._preview_extract(api, ctx=ctx),
-        desc="Verilog extract selection to new submodule",
-    )
-    keymap.vmap(
-        "<leader>rE",
-        lambda ctx: _vl_plugin._apply_extract(api, ctx=ctx),
-        desc="Verilog apply extract selection",
+        desc="Verilog hier-up selection",
     )
     keymap.vmap(
         "<leader>rw",
         lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False),
-        desc="Verilog push-down range preview",
-    )
-    keymap.vmap(
-        "<leader>rW",
-        lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=True),
-        desc="Verilog push-down range apply",
+        desc="Verilog hier-down selection",
     )
 
     # ── Copilot ────────────────────────────────────────────────────────
