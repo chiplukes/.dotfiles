@@ -145,6 +145,7 @@ def setup(api: EditorAPI) -> None:
         )
         plugins.load("peovim.plugins.verilog_lsp")
         plugins.load("peovim.plugins.codemap")
+        plugins.load("peovim.plugins.filehistory")
 
     _register_vscode_dark_modern_theme()
 
@@ -223,9 +224,13 @@ def setup(api: EditorAPI) -> None:
         desc="SVN status panel",
     )
     keymap.nmap("<leader>pb", "<Plug>BottomPanelToggle", desc="Toggle bottom panel")
+    keymap.nmap("<leader>pc", "<Plug>CodemapToggle", desc="Codemap panel")
     keymap.nmap("<leader>pe", "<Plug>ExplorerToggle", desc="File explorer")
     keymap.nunmap("<leader>o")
     keymap.nmap("<leader>po", "<Plug>OutlineToggle", desc="Outline sidebar")
+    keymap.nmap(
+        "<leader>ph", "<Plug>FileHistoryToggle", desc="File History: toggle panel"
+    )
 
     # ── Git ───────────────────────────────────────────────────────────────
     keymap.nunmap("<leader>gs")
@@ -263,10 +268,13 @@ def setup(api: EditorAPI) -> None:
 
     # ── Codemap ───────────────────────────────────────────────────────────
     keymap.ngroup("<leader>M", "Codemap")
-    keymap.nmap("<leader>Mm", "<Plug>CodemapPicker",       desc="Codemap: picker")
-    keymap.nmap("<leader>Mt", "<Plug>CodemapToggle",       desc="Codemap: toggle sidebar")
-    keymap.nmap("<leader>Mi", "<Plug>CodemapInsertAnchor", desc="Codemap: insert anchor")
-    keymap.nmap("<leader>Mo", "<Plug>CodemapOpenFile",     desc="Codemap: open map file")
+    keymap.nmap("<leader>Mm", "<Plug>CodemapPicker", desc="Codemap: picker")
+    keymap.nmap("<leader>Mt", "<Plug>CodemapToggle", desc="Codemap: toggle sidebar")
+    keymap.nmap(
+        "<leader>Mi", "<Plug>CodemapInsertAnchor", desc="Codemap: insert anchor"
+    )
+    keymap.nmap("<leader>Mo", "<Plug>CodemapOpenFile", desc="Codemap: open map file")
+    keymap.nmap("<leader>Mg", "<Plug>CodemapGotoAnchor", desc="Codemap: goto anchor")
 
     # ── Code/LSP ──────────────────────────────────────────────────────────
     keymap.ngroup("<leader>c", "Code")
@@ -274,14 +282,22 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("gd", "<Plug>LspDefinition", desc="Go to definition")
     keymap.nmap("<leader>ch", lambda: lsp.hover(), desc="Hover docs")
     keymap.nmap("<leader>ca", lambda: lsp.code_actions(), desc="Code actions")
-    keymap.nmap("<leader>ci", lambda: lsp.toggle_inlay_hints(), desc="Toggle inlay hints")
+    keymap.nmap(
+        "<leader>ci", lambda: lsp.toggle_inlay_hints(), desc="Toggle inlay hints"
+    )
     keymap.ngroup("<leader>cs", "Search")
     keymap.nmap("<leader>csd", lambda: lsp.document_symbols(), desc="Document symbols")
-    keymap.nmap("<leader>csw", lambda: lsp.workspace_symbols(), desc="Workspace symbols")
+    keymap.nmap(
+        "<leader>csw", lambda: lsp.workspace_symbols(), desc="Workspace symbols"
+    )
     keymap.ngroup("<leader>cg", "Goto")
     keymap.nmap("<leader>cgd", lambda: lsp.definition(), desc="Go to definition")
-    keymap.nmap("<leader>cgi", lambda: lsp.implementation(), desc="Go to implementation")
-    keymap.nmap("<leader>cgt", lambda: lsp.type_definition(), desc="Go to type definition")
+    keymap.nmap(
+        "<leader>cgi", lambda: lsp.implementation(), desc="Go to implementation"
+    )
+    keymap.nmap(
+        "<leader>cgt", lambda: lsp.type_definition(), desc="Go to type definition"
+    )
     keymap.nunmap("<leader>gr")
     keymap.nmap("<leader>cgr", lambda: lsp.references(), desc="Find references")
     keymap.nmap("<leader>cn", lambda: lsp.rename(), desc="Rename symbol")
@@ -291,7 +307,9 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>c.d", "<Plug>LspDiagDetail", desc="Diagnostic detail")
     keymap.nmap("<leader>cD", "<Plug>DiagnosticsPanel", desc="Diagnostics sidebar")
     keymap.nmap("<leader>cR", "<Plug>ReferencesPanel", desc="References sidebar")
-    keymap.nmap("<leader>csW", "<Plug>WorkspaceSymbolsPanel", desc="Workspace symbols sidebar")
+    keymap.nmap(
+        "<leader>csW", "<Plug>WorkspaceSymbolsPanel", desc="Workspace symbols sidebar"
+    )
     keymap.nmap("<leader>cf", "<Plug>FormatterFormat", desc="Format buffer")
     keymap.imap("<C-k>", lambda: lsp.signature_help(), desc="Signature help")
     keymap.imap("<C-n>", "<Plug>LspComplete", desc="Insert completion")
@@ -370,14 +388,20 @@ def setup(api: EditorAPI) -> None:
         remember(lambda: api.resize_window("v", 1)),
         desc="Grow window height",
     )
-    keymap.nmap("<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev")
+    keymap.nmap(
+        "<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev"
+    )
     keymap.nmap(
         "<leader>wl",
         remember(lambda: api.focus_window("l")),
         desc="Window right / next",
     )
-    keymap.nmap("<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next")
-    keymap.nmap("<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev")
+    keymap.nmap(
+        "<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next"
+    )
+    keymap.nmap(
+        "<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev"
+    )
 
     # ── Window/Sidebar navigation (Alt + hjkl) ───────────────────────────
     # Alt-h/l wrap in both directions across editor windows.
@@ -385,8 +409,12 @@ def setup(api: EditorAPI) -> None:
     # While the sidebar is focused, Alt-j/k cycle panels.
     keymap.nmap("<A-h>", "<Plug>SidebarFocusLeft", desc="Sidebar focus / window left")
     keymap.nmap("<A-l>", "<Plug>SidebarFocusRight", desc="Editor focus / window right")
-    keymap.nmap("<A-j>", "<Plug>SidebarNextPanel", desc="Sidebar next panel / window down")
-    keymap.nmap("<A-k>", "<Plug>SidebarPrevPanel", desc="Sidebar prev panel / window up")
+    keymap.nmap(
+        "<A-j>", "<Plug>SidebarNextPanel", desc="Sidebar next panel / window down"
+    )
+    keymap.nmap(
+        "<A-k>", "<Plug>SidebarPrevPanel", desc="Sidebar prev panel / window up"
+    )
 
     # ── Sidebar-internal keys (only active while sidebar is focused) ──────
     api.ui.sidebar_nmap("[", "SidebarShrink")
@@ -455,7 +483,9 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.session_additions")
         plugin_manager.load("peovim.plugins.tabs_to_spaces")
 
-        # options.set("local_history_root", "")
+        # options.set("local_history_root", "")        # custom path, default: ~/.local/share/peovim/history
+        # options.set("local_history_max_entries", 50)   # snapshots kept per file (default 50)
+        # options.set("local_history_max_age_days",  30)  # prune older than N days; 0 = keep forever (default 30)
 
     # Add servers that are not auto-detected here if needed.
     # Example:
@@ -468,10 +498,18 @@ def setup(api: EditorAPI) -> None:
     from peovim.plugins.verilog_lsp import plugin as _vl_plugin
 
     keymap.ngroup("<leader>r", "RTL/Verilog")
-    keymap.nmap("<leader>rh", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel")
-    keymap.nmap("<leader>pv", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel")
-    keymap.nmap("<leader>rt", lambda: _vl.trace_signal(api), desc="Verilog trace signal")
-    keymap.nmap("<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace")
+    keymap.nmap(
+        "<leader>rh", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel"
+    )
+    keymap.nmap(
+        "<leader>pv", lambda: _vl.toggle_hierarchy(api), desc="Verilog hierarchy panel"
+    )
+    keymap.nmap(
+        "<leader>rt", lambda: _vl.trace_signal(api), desc="Verilog trace signal"
+    )
+    keymap.nmap(
+        "<leader>rr", lambda: _vl.reparse(api), desc="Verilog re-parse workspace"
+    )
     keymap.nmap(
         "<leader>ru",
         lambda ctx: _vl_plugin._preview_pull_up_selection(api, ctx=ctx),
