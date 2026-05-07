@@ -144,6 +144,7 @@ def setup(api: EditorAPI) -> None:
             ]
         )
         plugins.load("peovim.plugins.verilog_lsp")
+        plugins.load("peovim.plugins.codemap")
 
     _register_vscode_dark_modern_theme()
 
@@ -259,6 +260,13 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("mn", remember("<Plug>MarkerNext"), desc="Next marker")
     keymap.nmap("mp", remember("<Plug>MarkerPrev"), desc="Prev marker")
     keymap.nmap("me", "<Plug>MarkerText", desc="Marker annotation")
+
+    # ── Codemap ───────────────────────────────────────────────────────────
+    keymap.ngroup("<leader>M", "Codemap")
+    keymap.nmap("<leader>Mm", "<Plug>CodemapPicker",       desc="Codemap: picker")
+    keymap.nmap("<leader>Mt", "<Plug>CodemapToggle",       desc="Codemap: toggle sidebar")
+    keymap.nmap("<leader>Mi", "<Plug>CodemapInsertAnchor", desc="Codemap: insert anchor")
+    keymap.nmap("<leader>Mo", "<Plug>CodemapOpenFile",     desc="Codemap: open map file")
 
     # ── Code/LSP ──────────────────────────────────────────────────────────
     keymap.ngroup("<leader>c", "Code")
