@@ -151,7 +151,7 @@ def setup(api: EditorAPI) -> None:
     options = api.options
     keymap = api.keymap
     lsp = api.lsp
-    remember = getattr(api, "_remember_cmd", lambda fn: fn)
+    remember = api.remember
     from peovim.plugins import svnsigns as _svn
     from peovim.plugins import which_key as _wk
 
@@ -226,6 +226,8 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>pe", "<Plug>ExplorerToggle", desc="File explorer")
     keymap.nunmap("<leader>o")
     keymap.nmap("<leader>po", "<Plug>OutlineToggle", desc="Outline sidebar")
+    keymap.nmap("<leader>ph", "<Plug>LocalHistory", desc="Local history sidebar")
+    keymap.nmap("<leader>pH", "<Plug>LocalHistoryPicker", desc="Local history picker")
 
     # ── Git ───────────────────────────────────────────────────────────────
     keymap.nunmap("<leader>gs")
@@ -323,8 +325,6 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>dm21", "<Plug>CompareMerge21", desc="Merge right to left")
     keymap.nmap("]c", "<Plug>CompareNextDiff", desc="Next compare diff")
     keymap.nmap("[c", "<Plug>ComparePrevDiff", desc="Prev compare diff")
-    keymap.nmap("<leader>m12", "<Plug>CompareMerge12", desc="Merge left to right")
-    keymap.nmap("<leader>m21", "<Plug>CompareMerge21", desc="Merge right to left")
 
     # ── File info ─────────────────────────────────────────────────────────
     keymap.ngroup("<leader>l", "Location/File")
