@@ -173,6 +173,7 @@ def setup(api: EditorAPI) -> None:
     options.set("which_key_enabled", True)
     options.set("indentguides", "yes")
     options.set("clipboard", "unnamedplus")
+    options.set("format_on_save", False)
     options.set("cursorblink", True)
     options.set("insertcursor", "bar")
     options.set("number", True)
