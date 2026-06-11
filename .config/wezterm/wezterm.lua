@@ -17,14 +17,14 @@ local function set_tab_title(tab, title)
   end
 end
 
-local function spawn_nvim_dev_layout(window, cwd)
+local function spawn_peovim_dev_layout(window, cwd)
   set_tab_title(window:active_tab(), "terminal")
 
-  local nvim_tab = window:spawn_tab {
+  local peovim_tab = window:spawn_tab {
     cwd = cwd,
-    args = { "nvim", "." },
+    args = { "peovim", "." },
   }
-  set_tab_title(nvim_tab, "nvim")
+  set_tab_title(peovim_tab, "peovim")
 
   local lazygit_tab = window:spawn_tab {
     cwd = cwd,
@@ -40,11 +40,11 @@ local function show_startup_menu(window, pane, mux_window, cwd)
       description = "Enter accepts, Esc keeps a single terminal tab, / filters",
       choices = {
         { id = "terminal", label = "terminal - single tab" },
-        { id = "nvim-dev", label = "nvim dev - terminal + neovim + lazygit" },
+        { id = "peovim-dev", label = "peovim dev - terminal + peovim + lazygit" },
       },
       action = wezterm.action_callback(function(_, _, id)
-        if id == "nvim-dev" then
-          spawn_nvim_dev_layout(mux_window, cwd)
+        if id == "peovim-dev" then
+          spawn_peovim_dev_layout(mux_window, cwd)
           return
         end
 
@@ -80,6 +80,13 @@ wezterm.on("gui-startup", function(cmd)
   schedule_startup_menu(window, cwd)
 end)
 
+wezterm.on("update-right-status", function(window, _)
+  window:set_right_status(wezterm.format {
+    { Foreground = { AnsiColor = "Silver" } },
+    { Text = " A+S+N:new  A+S+H/L:tabs  A+S+J/K:panes  A+S+_:split  F11:fullscreen " },
+  })
+end)
+
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 
@@ -93,13 +100,14 @@ end
 
 -- Set the font and font size
 config.font = wezterm.font("JetBrains Mono")
-config.font_size = 10.0
+config.font_size = 12.0
 
 -- Choose a color scheme (exact names from available schemes)
-config.color_scheme = "Catppuccin Mocha" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
+--config.color_scheme = "Catppuccin Mocha" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
+config.color_scheme = "Windows Terminal (Dark)" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
 
 -- Adjust window opacity
-config.window_background_opacity = 0.95
+config.window_background_opacity = 1.0
 
 -- Window padding for a cleaner look
 config.window_padding = {
@@ -112,8 +120,8 @@ config.window_padding = {
 -- Enable or disable the tab bar
 config.enable_tab_bar = true
 
--- Hide the tab bar if only one tab is open
-config.hide_tab_bar_if_only_one_tab = true
+-- Always show the tab bar (needed for right-status cheat sheet)
+config.hide_tab_bar_if_only_one_tab = false
 
 -- Scrollback buffer (lines to keep in history)
 config.scrollback_lines = 10000
@@ -148,8 +156,43 @@ config.disable_default_key_bindings = false
 
 -- Configure keybindings
 config.keys = {
-  -- Example: Spawn a new tab with Ctrl+Shift+T
-  { key = "n", mods = "ALT|SHIFT", action = wezterm.action.SpawnTab("DefaultDomain") },
+  -- Alt+Shift+N: choose between new tab or horizontal split
+  {
+    key = "n",
+    mods = "ALT|SHIFT",
+    action = wezterm.action_callback(function(window, pane)
+      window:perform_action(
+        act.InputSelector {
+          title = "New pane",
+          choices = {
+            { id = "tab",   label = "New tab" },
+            { id = "split", label = "Horizontal split" },
+          },
+          action = wezterm.action_callback(function(win, pan, id)
+            if id == "tab" then
+              win:perform_action(
+                act.PromptInputLine {
+                  description = "Tab name (Enter to skip):",
+                  action = wezterm.action_callback(function(w, p, line)
+                    w:perform_action(act.SpawnTab("DefaultDomain"), p)
+                    if line and line ~= "" then
+                      wezterm.time.call_after(0.05, function()
+                        w:active_tab():set_title(line)
+                      end)
+                    end
+                  end),
+                },
+                pan
+              )
+            elseif id == "split" then
+              win:perform_action(act.SplitVertical { domain = "CurrentPaneDomain" }, pan)
+            end
+          end),
+        },
+        pane
+      )
+    end),
+  },
 
 --   -- Example: Close the current tab with Ctrl+Shift+W
 --   { key = "w", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab { confirm = true } },
@@ -162,14 +205,14 @@ config.keys = {
   { key = "l", mods = "ALT|SHIFT", action = wezterm.action.ActivateTabRelative(1) },
 
 --   -- Split panes
---   { key = "|", mods = "CTRL|SHIFT", action = wezterm.action.SplitHorizontal { domain = "CurrentPaneDomain" } },
---   { key = "_", mods = "CTRL|SHIFT", action = wezterm.action.SplitVertical { domain = "CurrentPaneDomain" } },
+--   { key = "|", mods = "ALT|SHIFT", action = wezterm.action.SplitHorizontal { domain = "CurrentPaneDomain" } },
+   { key = "_", mods = "ALT|SHIFT", action = wezterm.action.SplitVertical { domain = "CurrentPaneDomain" } },
 
 --   -- Navigate between panes
 --   { key = "LeftArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Left") },
 --   { key = "RightArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Right") },
---   { key = "UpArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Up") },
---   { key = "DownArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Down") },
+   { key = "j", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Prev") },
+   { key = "k", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Next") },
 
 --   -- Resize panes
 --   { key = "LeftArrow", mods = "CTRL|SHIFT|ALT", action = wezterm.action.AdjustPaneSize { "Left", 5 } },
