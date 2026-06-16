@@ -127,7 +127,7 @@ config.hide_tab_bar_if_only_one_tab = false
 config.scrollback_lines = 10000
 
 -- Enable scroll bar
-config.enable_scroll_bar = false
+config.enable_scroll_bar = true
 
 -- Cursor style and blinking
 config.default_cursor_style = "BlinkingBar" -- Options: "SteadyBlock", "BlinkingBlock", "SteadyBar", "BlinkingBar", "SteadyUnderline", "BlinkingUnderline"
@@ -233,7 +233,13 @@ config.keys = {
 
     -- Disable default assignment for Ctrl+R to avoid conflicts
   { key = "r", mods = "CTRL", action = wezterm.action.DisableDefaultAssignment},
-
+ 
+  -- Send newline sequence instead of Enter 
+  {
+    key = 'Enter',
+    mods = 'SHIFT',
+    action = wezterm.action.SendString '\n',
+  },
 }
 
 -- Finally, return the configuration to wezterm
