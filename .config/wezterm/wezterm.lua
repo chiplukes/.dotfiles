@@ -106,13 +106,17 @@ config.font_size = 12.0
 --config.color_scheme = "Catppuccin Mocha" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
 config.color_scheme = "Windows Terminal (Dark)" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
 
+config.colors = {
+  scrollbar_thumb = '#ffffff',
+}
+
 -- Adjust window opacity
 config.window_background_opacity = 1.0
 
 -- Window padding for a cleaner look
 config.window_padding = {
   left = 2,
-  right = 2,
+  right = '1cell',
   top = 0,
   bottom = 0,
 }
