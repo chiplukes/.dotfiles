@@ -98,13 +98,20 @@ if wezterm.target_triple == "x86_64-pc-windows-msvc" then
   config.default_prog = { "pwsh.exe" } -- Use "powershell.exe" for Windows PowerShell 5.1
 end
 
--- Set the font and font size
-config.font = wezterm.font("JetBrains Mono")
+
+-- Apply globally to enforce it across any unexpected fallbacks
+config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
+
+config.font = wezterm.font_with_fallback {
+  -- Explicitly targets the clean, built-in monospaced engine
+  { family = 'JetBrains Mono', harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, weight = 'Regular' },
+  { family = 'Symbols Nerd Font' }, 
+}
 config.font_size = 12.0
 
 -- Choose a color scheme (exact names from available schemes)
 --config.color_scheme = "Catppuccin Mocha" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
-config.color_scheme = "Windows Terminal (Dark)" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
+config.color_scheme = "Campbell (Gogh)" -- Popular options: "Dracula", "Nord (Gogh)", "Catppuccin Mocha", "Gruvbox Dark (Gogh)", "Monokai Remastered"
 
 config.colors = {
   scrollbar_thumb = '#ffffff',
