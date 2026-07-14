@@ -46,8 +46,11 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
   Ensure-Curl
   try {
     # Use curl.exe if now available, else Invoke-WebRequest
+    # (Out-String / .Content ensures a single string rather than an array of lines -
+    # Invoke-Expression on a line array would silently join them with spaces and
+    # mangle the script, e.g. comments would swallow the rest of the joined line.)
     if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-      $installerScript = curl.exe -LsSf https://astral.sh/uv/install.ps1
+      $installerScript = curl.exe -LsSf https://astral.sh/uv/install.ps1 | Out-String
     } else {
       $installerScript = (Invoke-WebRequest -UseBasicParsing https://astral.sh/uv/install.ps1).Content
     }
