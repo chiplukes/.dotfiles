@@ -16,6 +16,7 @@ scripts=(
     "install_uv_tools.sh"
 #    "install_neovim.sh"
     "install_hdl_tools.sh"
+    "install_verilator.sh"
 )
 
 # Ensure ~/bin is in PATH for all subsequent scripts

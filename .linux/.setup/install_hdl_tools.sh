@@ -18,8 +18,8 @@ log_info "Using Python version: $python_version"
 install_icarus_verilog() {
     log_header "Installing Icarus Verilog"
 
-    # Install prerequisites
-    install_build_deps gperf autoconf flex bison
+    # Install prerequisites (g++/make required - configure needs a C++11 compiler)
+    install_build_deps gperf autoconf flex bison g++ make
 
     # Setup and build from stable directory
     local build_dir="$HOME/tmp/iverilog"
