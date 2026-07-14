@@ -21,8 +21,10 @@ Write-Log -Message ""
 $LogFile = "$env:USERPROFILE\install_progress_log.txt"
 
 function Ensure-Curl {
-  if (Test-CommandExists -CmdName 'curl') { return }
-  Write-Log -Message "curl not found; attempting install..." -Level 'INFO'
+  # Note: 'curl' (no extension) resolves to PowerShell's built-in alias for
+  # Invoke-WebRequest, not the real curl.exe - always check/use 'curl.exe' explicitly.
+  if (Test-CommandExists -CmdName 'curl.exe') { return }
+  Write-Log -Message "curl.exe not found; attempting install..." -Level 'INFO'
   if (Test-CommandExists -CmdName 'winget') {
     try {
       winget install --id cURL.cURL -e --accept-package-agreements --accept-source-agreements -h
@@ -30,22 +32,22 @@ function Ensure-Curl {
         winget install cURL.cURL -e --accept-package-agreements --accept-source-agreements
       }
     } catch { }
-    if (Get-Command curl -ErrorAction SilentlyContinue) { return }
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) { return }
   }
   if (Test-CommandExists -CmdName 'choco') {
     try { choco install curl -y --no-progress } catch { }
-    if (Get-Command curl -ErrorAction SilentlyContinue) { return }
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) { return }
   }
-  Write-Log -Message "Could not install curl automatically (continuing with Invoke-WebRequest)." -Level 'WARN'
+  Write-Log -Message "Could not install curl.exe automatically (continuing with Invoke-WebRequest)." -Level 'WARN'
 }
 
 # Ensure uv
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
   Ensure-Curl
   try {
-    # Use curl if now available, else Invoke-WebRequest
-    if (Get-Command curl -ErrorAction SilentlyContinue) {
-      $installerScript = curl -LsSf https://astral.sh/uv/install.ps1
+    # Use curl.exe if now available, else Invoke-WebRequest
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+      $installerScript = curl.exe -LsSf https://astral.sh/uv/install.ps1
     } else {
       $installerScript = (Invoke-WebRequest -UseBasicParsing https://astral.sh/uv/install.ps1).Content
     }
