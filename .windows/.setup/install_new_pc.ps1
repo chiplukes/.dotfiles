@@ -43,24 +43,8 @@ if (-not $success) {
 
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-if (-not $SkipApps) {
-    Write-Log "Step 2: Application Installation" -Section
-    $success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_apps.ps1" -Description "Install applications via winget/choco" -WhatIf:$WhatIf)
-} else {
-    Write-Log ""
-    Write-Log "Skipping application installation (SkipApps specified)" -Level 'WARN'
-}
-
-if (-not $SkipDebloat) {
-    Write-Log "Step 3: Windows Debloat" -Section
-    $success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_debloat.ps1" -Description "Remove unwanted Windows apps and apply tweaks" -SkipIfMissing -WhatIf:$WhatIf)
-} else {
-    Write-Log ""
-    Write-Log "Skipping debloat (SkipDebloat specified)" -Level 'WARN'
-}
-
 if (-not $SkipPython) {
-    Write-Log "Step 4: Python Installation" -Section
+    Write-Log "Step 2: Python Installation" -Section
     $success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_python_uv.ps1" -Description "Install Python via uv" -SkipIfMissing -WhatIf:$WhatIf)
 } else {
     Write-Log ""
@@ -68,6 +52,22 @@ if (-not $SkipPython) {
 }
 
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+if (-not $SkipApps) {
+    Write-Log "Step 3: Application Installation" -Section
+    $success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_apps.ps1" -Description "Install applications via winget/choco" -WhatIf:$WhatIf)
+} else {
+    Write-Log ""
+    Write-Log "Skipping application installation (SkipApps specified)" -Level 'WARN'
+}
+
+if (-not $SkipDebloat) {
+    Write-Log "Step 4: Windows Debloat" -Section
+    $success = $success -and (Invoke-SetupScript -ScriptPath "$ScriptDir\install_debloat.ps1" -Description "Remove unwanted Windows apps and apply tweaks" -SkipIfMissing -WhatIf:$WhatIf)
+} else {
+    Write-Log ""
+    Write-Log "Skipping debloat (SkipDebloat specified)" -Level 'WARN'
+}
 
 if (-not $SkipNeovim) {
     Write-Log "Step 5: Neovim Configuration" -Section
