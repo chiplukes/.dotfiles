@@ -11,6 +11,24 @@ $DotfilesRepo = "https://github.com/chiplukes/.dotfiles.git"
 $DotfilesDir = "$env:USERPROFILE\.dotfiles-bare"
 $DotfilesBackup = "$env:USERPROFILE\.config-backup"
 
+# Ensure git is available before doing anything else
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Warning "git was not found on PATH."
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "Installing Git via winget..."
+        winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
+        # Refresh PATH for this process so git is usable without restarting the shell
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    } else {
+        Write-Error "winget is also unavailable, so git could not be installed automatically."
+    }
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Error "git is still not available. Install it manually (winget install --id Git.Git -e), restart PowerShell, then re-run bootstrap.ps1."
+        exit 1
+    }
+    Write-Host "Git installed successfully."
+}
+
 # Remove existing .dotfiles-bare directory
 if (Test-Path $DotfilesDir) {
     Write-Host "Removing existing .dotfiles-bare directory..."

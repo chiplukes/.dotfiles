@@ -104,7 +104,7 @@ if (Test-Path $MasterProfile) {
         if (Test-Path $profilePath) {
             $item = Get-Item $profilePath
             if ($item.LinkType -eq 'HardLink' -or $item.Target -eq $MasterProfile) {
-                Write-Log "  ✓ Already linked: $profileDesc" -Level 'DEBUG'
+                Write-Log "  [OK] Already linked: $profileDesc" -Level 'DEBUG'
                 continue
             }
         }
@@ -112,9 +112,9 @@ if (Test-Path $MasterProfile) {
         # Create hard link
         try {
             New-Item -ItemType HardLink -Path $profilePath -Target $MasterProfile -Force -ErrorAction Stop | Out-Null
-            Write-Log "  ✓ Linked: $profileDesc"
+            Write-Log "  [OK] Linked: $profileDesc"
         } catch {
-            Write-Log "  ⚠ Failed to link $profileDesc - $($_.Exception.Message)" -Level 'WARN'
+            Write-Log "  [!] Failed to link $profileDesc - $($_.Exception.Message)" -Level 'WARN'
         }
     }
 } else {

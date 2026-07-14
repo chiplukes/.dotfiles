@@ -45,10 +45,26 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
   try {
     # Use curl if now available, else Invoke-WebRequest
     if (Get-Command curl -ErrorAction SilentlyContinue) {
-      $script = curl -LsSf https://astral.sh/uv/install.ps1
-      Invoke-Expression $script
+      $installerScript = curl -LsSf https://astral.sh/uv/install.ps1
     } else {
-      Invoke-Expression (Invoke-WebRequest -UseBasicParsing https://astral.sh/uv/install.ps1).Content
+      $installerScript = (Invoke-WebRequest -UseBasicParsing https://astral.sh/uv/install.ps1).Content
+    }
+
+    # Validate we actually got a PowerShell script before executing it - a proxy/AV
+    # interception or truncated download can return HTML/garbage instead, which
+    # Invoke-Expression would then fail to parse with a confusing "line 1" error
+    # that looks like it comes from this script rather than the download.
+    if ([string]::IsNullOrWhiteSpace($installerScript)) {
+      throw "Downloaded uv installer script from astral.sh was empty."
+    }
+    if ($installerScript -notmatch '(?i)uv') {
+      throw "Downloaded uv installer script did not look like a valid PowerShell script. First 200 chars: $($installerScript.Substring(0, [Math]::Min(200, $installerScript.Length)))"
+    }
+
+    try {
+      Invoke-Expression $installerScript
+    } catch {
+      throw "uv installer script downloaded successfully but failed to execute: $($_.Exception.Message)"
     }
   } catch {
     "uv install failed: $($_.Exception.Message)" | Tee-Object -FilePath $LogFile -Append
@@ -98,7 +114,7 @@ function Test-RealPythonCommand {
   param([string]$CmdName)
   $c = Get-Command $CmdName -ErrorAction SilentlyContinue
   if (-not $c) { return $false }
-  # If the command path points into WindowsApps, it's the Microsoft Store stub — treat as not real
+  # If the command path points into WindowsApps, it's the Microsoft Store stub - treat as not real
   $path = $null
   try { $path = $c.Path } catch { $path = $null }
   if (-not $path) { return $false }

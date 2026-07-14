@@ -54,7 +54,7 @@ if (Test-Path $localConfiguration -PathType Container) {
 if (Test-Path $dotfilesConfiguration) {
     Write-Log -Message "Creating symbolic link for Neovim config..."
     if (New-Symlink-Elevated -Link $localConfiguration -Target $dotfilesConfiguration) {
-        Write-Log -Message "✓ Neovim config linked successfully"
+        Write-Log -Message "[OK] Neovim config linked successfully"
     } else {
         Write-Log -Message "Failed to create symbolic link: $localConfiguration -> $dotfilesConfiguration" -Level 'ERROR'
         Write-Log -Message "Manual step required: Create symlink from $localConfiguration to $dotfilesConfiguration" -Level 'WARN'
@@ -93,7 +93,7 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
         $venvPy = Join-Path $nvimVenv 'Scripts\python.exe'
         if (Test-Path $venvPy) {
             uv pip install --python $venvPy pynvim neovim
-            Write-Log -Message "✓ Python provider configured (pynvim installed with uv)"
+            Write-Log -Message "[OK] Python provider configured (pynvim installed with uv)"
         } else {
             Write-Log "Failed to create venv python at: $venvPy" -Level 'ERROR'
         }
