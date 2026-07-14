@@ -17,6 +17,7 @@ scripts=(
 #    "install_neovim.sh"
     "install_hdl_tools.sh"
     "install_verilator.sh"
+    "install_wezterm.sh"
 )
 
 # Ensure ~/bin is in PATH for all subsequent scripts
