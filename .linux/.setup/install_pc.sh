@@ -14,7 +14,7 @@ scripts=(
     "install_base.sh"
     "install_python_uv.sh"
     "install_uv_tools.sh"
-    "install_neovim.sh"
+#    "install_neovim.sh"
     "install_hdl_tools.sh"
 )
 

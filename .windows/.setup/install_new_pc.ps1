@@ -2,7 +2,7 @@
 param(
     [switch]$SkipApps = $false,
     [switch]$SkipDebloat = $false,
-    [switch]$SkipNeovim = $false,
+    [switch]$SkipNeovim = $true,
     [switch]$SkipPython = $false,
     [switch]$WhatIf = $false
 )
