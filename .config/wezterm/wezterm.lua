@@ -35,20 +35,40 @@ end
 
 local function show_startup_menu(window, pane, mux_window, cwd)
   window:perform_action(
-    act.InputSelector {
-      title = "Choose startup layout",
-      description = "Enter accepts, Esc keeps a single terminal tab, / filters",
-      choices = {
-        { id = "terminal", label = "terminal - single tab" },
-        { id = "peovim-dev", label = "peovim dev - terminal + peovim + lazygit" },
-      },
-      action = wezterm.action_callback(function(_, _, id)
-        if id == "peovim-dev" then
-          spawn_peovim_dev_layout(mux_window, cwd)
-          return
+    act.PromptInputLine {
+      description = "Window title (Enter to skip):",
+      action = wezterm.action_callback(function(win, pan, title)
+        -- Rename the active tab once the user confirms a title
+        if title and title ~= "" then
+          local tab = mux_window:active_tab()
+          if tab then
+            tab:set_title(title)
+          end
         end
 
-        set_tab_title(mux_window:active_tab(), "terminal")
+        -- Now show the layout selection menu (run it on the gui_window)
+        local gui = mux_window:gui_window()
+        if gui and pan then
+          gui:perform_action(
+            act.InputSelector {
+              title = "Choose startup layout",
+              description = "Enter accepts, Esc keeps a single terminal tab, / filters",
+              choices = {
+                { id = "terminal", label = "terminal - single tab" },
+                { id = "peovim-dev", label = "peovim dev - terminal + peovim + lazygit" },
+              },
+              action = wezterm.action_callback(function(_, _, id)
+                if id == "peovim-dev" then
+                  spawn_peovim_dev_layout(mux_window, cwd)
+                  return
+                end
+
+                set_tab_title(mux_window:active_tab(), "terminal")
+              end),
+            },
+            pan
+          )
+        end
       end),
     },
     pane
