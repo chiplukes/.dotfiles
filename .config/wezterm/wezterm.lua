@@ -3,6 +3,9 @@ local wezterm = require("wezterm")
 local mux = wezterm.mux
 local act = wezterm.action
 
+-- Module-level variable to hold the persistent window title set at startup.
+local persistent_window_title = nil
+
 local function get_launch_cwd(cmd)
   if cmd and cmd.cwd then
     return cmd.cwd
@@ -38,9 +41,9 @@ local function show_startup_menu(window, pane, mux_window, cwd)
     act.PromptInputLine {
       description = "Window title (Enter to skip):",
       action = wezterm.action_callback(function(win, pan, title)
-        local window_title = (title and title ~= "") and title or nil
+        persistent_window_title = (title and title ~= "") and title or nil
 
-        -- Now show the layout selection menu
+        -- Show the layout selection menu
         local gui = mux_window:gui_window()
         if gui and pan then
           gui:perform_action(
@@ -54,16 +57,6 @@ local function show_startup_menu(window, pane, mux_window, cwd)
               action = wezterm.action_callback(function(_, _, id)
                 if id == "peovim-dev" then
                   spawn_peovim_dev_layout(mux_window, cwd)
-                end
-
-                -- Apply the OS window title after the layout is created
-                if window_title then
-                  wezterm.time.call_after(0.1, function()
-                    local gw = mux_window:gui_window()
-                    if gw then
-                      gw:set_title(window_title)
-                    end
-                  end)
                 end
               end),
             },
@@ -99,6 +92,13 @@ wezterm.on("gui-startup", function(cmd)
   set_tab_title(tab, "terminal")
 
   schedule_startup_menu(window, cwd)
+end)
+
+wezterm.on("format-window-title", function(tab, pane, tabs, panes)
+  if persistent_window_title then
+    return persistent_window_title
+  end
+  return wezterm.hostname()
 end)
 
 wezterm.on("update-right-status", function(window, _)
