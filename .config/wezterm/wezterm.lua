@@ -38,15 +38,9 @@ local function show_startup_menu(window, pane, mux_window, cwd)
     act.PromptInputLine {
       description = "Window title (Enter to skip):",
       action = wezterm.action_callback(function(win, pan, title)
-        -- Rename the active tab once the user confirms a title
-        if title and title ~= "" then
-          local tab = mux_window:active_tab()
-          if tab then
-            tab:set_title(title)
-          end
-        end
+        local window_title = (title and title ~= "") and title or nil
 
-        -- Now show the layout selection menu (run it on the gui_window)
+        -- Now show the layout selection menu
         local gui = mux_window:gui_window()
         if gui and pan then
           gui:perform_action(
@@ -60,10 +54,17 @@ local function show_startup_menu(window, pane, mux_window, cwd)
               action = wezterm.action_callback(function(_, _, id)
                 if id == "peovim-dev" then
                   spawn_peovim_dev_layout(mux_window, cwd)
-                  return
                 end
 
-                set_tab_title(mux_window:active_tab(), "terminal")
+                -- Apply the OS window title after the layout is created
+                if window_title then
+                  wezterm.time.call_after(0.1, function()
+                    local gw = mux_window:gui_window()
+                    if gw then
+                      gw:set_title(window_title)
+                    end
+                  end)
+                end
               end),
             },
             pan
