@@ -44,6 +44,9 @@ install_uv() {
 setup_python() {
     log_info "Installing Python $USER_PY_VERSION with uv..."
 
+    # any uv tools that need to build an extension will need this
+    install_build_deps python3-dev
+
     # Install interpreter if not cached
     if ! uv python find "$USER_PY_VERSION" >/dev/null 2>&1; then
         uv python install "$USER_PY_VERSION"
