@@ -97,8 +97,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.svnsigns")
         plugin_manager.load("peovim.plugins.picker")
         plugin_manager.load("peovim.plugins.fquick")
-        plugin_manager.load("peovim.plugins.autopairs")
-        plugin_manager.load("peovim.plugins.commentary")
+        #         plugin_manager.load("peovim.plugins.commentary")
         plugin_manager.load("peovim.plugins.surround")
         plugin_manager.load("peovim.plugins.align")
         plugin_manager.load("peovim.plugins.formatter")
@@ -123,6 +122,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.flash")
         plugin_manager.load("peovim.plugins.local_history")
         plugin_manager.load("peovim.plugins.perf_panel")
+        plugin_manager.load("peovim.plugins.snippets")
 
         plugins.load("peovim.plugins.copilot")
         from peovim.plugins import copilot
@@ -188,7 +188,14 @@ def setup(api: EditorAPI) -> None:
   ██╔═══╝ ██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
   ██║     ███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
   ╚═╝     ╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝""",
-    )
+    ),
+
+    # ── Snippets ────────────────────────────────────────────────────────
+    options.set("snippets_mappings", {
+        "verilog": ["snippets/verilog.json"],    # ~/.config/peovim/snippets/verilog.json
+        "python":  ["snippets/python.json"],     # ~/.config/peovim/snippets/python.json
+    })
+
     api._editor_state.active_theme = "vscode_dark_modern"
 
     # ── LSP server ────────────────────────────────────────────────────────

@@ -1,0 +1,117 @@
+17:19:09.615  INFO     peovim                          init.py -begin
+17:19:09.615  INFO     peovim                          init.py -end
+17:19:09.616  INFO     peovim.plugins                  loaded peovim.plugins.guess_indent
+17:19:09.616  INFO     peovim.plugins                  loaded peovim.plugins.todo
+17:19:09.619  INFO     peovim.plugins                  loaded peovim.plugins.gitsigns
+17:19:09.620  INFO     peovim.plugins                  loaded peovim.plugins.svnsigns
+17:19:09.625  INFO     peovim.plugins                  loaded peovim.plugins.picker
+17:19:09.626  INFO     peovim.plugins                  loaded peovim.plugins.fquick
+17:19:09.628  INFO     peovim.plugins                  loaded peovim.plugins.surround
+17:19:09.628  INFO     peovim.plugins                  loaded peovim.plugins.align
+17:19:09.629  INFO     peovim.plugins                  loaded peovim.plugins.formatter
+17:19:09.629  INFO     peovim.plugins                  loaded peovim.plugins.which_key
+17:19:09.629  INFO     peovim.plugins                  loaded peovim.plugins.session
+17:19:09.638  INFO     peovim.plugins                  loaded peovim.plugins.explorer
+17:19:09.639  INFO     peovim.plugins                  loaded peovim.plugins.markers
+17:19:09.641  INFO     peovim.plugins                  loaded peovim.plugins.compare
+17:19:09.642  INFO     peovim.plugins                  loaded peovim.plugins.diagnostics_panel
+17:19:09.642  INFO     peovim.plugins                  loaded peovim.plugins.outline
+17:19:09.643  INFO     peovim.plugins                  loaded peovim.plugins.references_panel
+17:19:09.643  INFO     peovim.plugins                  loaded peovim.plugins.workspace_symbols
+17:19:09.643  INFO     peovim.plugins                  loaded peovim.plugins.repl
+17:19:09.643  INFO     peovim.plugins                  loaded peovim.plugins.dashboard
+17:19:09.646  INFO     peovim.plugins                  loaded peovim.plugins.editorconfig
+17:19:09.723  INFO     peovim.plugins                  loaded peovim.plugins.lsp
+17:19:09.726  INFO     peovim.plugins                  loaded peovim.plugins.editor_utils
+17:19:09.727  INFO     peovim.plugins                  loaded peovim.plugins.flash
+17:19:09.728  INFO     peovim.plugins                  loaded peovim.plugins.local_history
+17:19:09.728  INFO     peovim.plugins                  loaded peovim.plugins.perf_panel
+17:19:09.729  INFO     peovim.plugins.snippets         snippets: plugin ready
+17:19:09.729  INFO     peovim.plugins                  loaded peovim.plugins.snippets
+17:19:09.729  INFO     peovim.plugins                  loaded peovim.plugins.copilot
+17:19:09.750  WARNING  peovim.plugins.verilog_lsp.plugin  verilog_lsp: 'veriforge-lsp' not found — run: uv tool install veriforge
+17:19:09.754  INFO     peovim.plugins                  loaded peovim.plugins.verilog_lsp
+17:19:09.756  INFO     peovim.plugins                  loaded peovim.plugins.codemap
+17:19:09.756  INFO     peovim.plugins                  loaded peovim.plugins.filehistory
+17:19:09.758  INFO     peovim.plugins                  loaded peovim.plugins.session_additions
+17:19:09.759  INFO     peovim.plugins                  loaded peovim.plugins.tabs_to_spaces
+17:19:09.819  WARNING  peovim.plugins.snippets         snippets: cannot load /home/chipl/.config/peovim/snippets/verilog.json: Invalid control character at: line 9 column 24 (char 168)
+17:19:09.819  WARNING  peovim.plugins.snippets         snippets: verilog → no snippets loaded
+17:19:09.819  WARNING  peovim.plugins.snippets         snippets: cannot load /home/chipl/.config/peovim/snippets/python.json: Illegal trailing comma before end of object: line 34 column 6 (char 764)
+17:19:09.819  WARNING  peovim.plugins.snippets         snippets: python → no snippets loaded
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.177009726  INFO Version: 0.0.21
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.178768580  WARN Received unknown options during initialization: {
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]:   "environment": {
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]:     "extra-paths": [
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]:       "/home/chipl/projects/personal/github/peovim"
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]:     ]
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]:   }
+17:19:18.178  WARNING  peovim.lsp.client               LSP stderr [ty]: }
+17:19:18.178  WARNING  peovim.lsp.features             LSP notification 'window/showMessage': 0 handlers registered
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.179102789  INFO Client does not support workspace configuration, initializing workspaces using the initialization options
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.179390269  WARN Received unknown options for workspace `file:///home/chipl/projects/personal/github/peovim`: {
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]:   "environment": {
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]:     "extra-paths": [
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]:       "/home/chipl/projects/personal/github/peovim"
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]:     ]
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]:   }
+17:19:18.179  WARNING  peovim.lsp.client               LSP stderr [ty]: }
+17:19:18.179  WARNING  peovim.lsp.features             LSP notification 'window/showMessage': 0 handlers registered
+17:19:18.182  WARNING  peovim.lsp.client               LSP stderr [ruff]: 2026-07-16 17:19:18.181748216  INFO No workspace options found for file:///home/chipl/projects/personal/github/peovim, using default options
+17:19:18.186  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.186265497  INFO Defaulting to python-platform `linux`
+17:19:18.188  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.188836969  INFO Python version: Python 3.13, platform: linux
+17:19:18.194  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-07-16 17:19:18.192402499  WARN Your LSP client doesn't support file watching: You may see stale results when files change outside the editor
+17:19:18.197  WARNING  peovim.lsp.client               LSP stderr [ruff]: 2026-07-16 17:19:18.197186808  INFO Registering workspace: /home/chipl/projects/personal/github/peovim
+17:19:18.197  WARNING  peovim.lsp.client               LSP stderr [ruff]: 2026-07-16 17:19:18.197258469  WARN LSP client does not support dynamic capability registration - automatic configuration reloading will not be available.
+17:19:20.364  ERROR    peovim.event_bus                handler for 'buffer_text_changed' raised
+Traceback (most recent call last):
+  File "/home/chipl/projects/personal/github/peovim/peovim/core/event_bus.py", line 81, in emit
+    handler(**kwargs)
+    ~~~~~~~^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 418, in <lambda>
+    api.events.on("buffer_text_changed", lambda **kw: _on_text_changed(api, **kw))
+                                                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 365, in _on_text_changed
+    if not api.options.get("snippets_auto_trigger", True):
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: OptionsAPI.get() takes 2 positional arguments but 3 were given
+17:19:20.555  ERROR    peovim.event_bus                handler for 'buffer_text_changed' raised
+Traceback (most recent call last):
+  File "/home/chipl/projects/personal/github/peovim/peovim/core/event_bus.py", line 81, in emit
+    handler(**kwargs)
+    ~~~~~~~^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 418, in <lambda>
+    api.events.on("buffer_text_changed", lambda **kw: _on_text_changed(api, **kw))
+                                                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 365, in _on_text_changed
+    if not api.options.get("snippets_auto_trigger", True):
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: OptionsAPI.get() takes 2 positional arguments but 3 were given
+17:19:22.140  ERROR    peovim.event_bus                handler for 'buffer_text_changed' raised
+Traceback (most recent call last):
+  File "/home/chipl/projects/personal/github/peovim/peovim/core/event_bus.py", line 81, in emit
+    handler(**kwargs)
+    ~~~~~~~^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 418, in <lambda>
+    api.events.on("buffer_text_changed", lambda **kw: _on_text_changed(api, **kw))
+                                                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 365, in _on_text_changed
+    if not api.options.get("snippets_auto_trigger", True):
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: OptionsAPI.get() takes 2 positional arguments but 3 were given
+17:19:22.302  ERROR    peovim.event_bus                handler for 'buffer_text_changed' raised
+Traceback (most recent call last):
+  File "/home/chipl/projects/personal/github/peovim/peovim/core/event_bus.py", line 81, in emit
+    handler(**kwargs)
+    ~~~~~~~^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 418, in <lambda>
+    api.events.on("buffer_text_changed", lambda **kw: _on_text_changed(api, **kw))
+                                                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/chipl/projects/personal/github/peovim/peovim/plugins/snippets.py", line 365, in _on_text_changed
+    if not api.options.get("snippets_auto_trigger", True):
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: OptionsAPI.get() takes 2 positional arguments but 3 were given
+17:19:24.636  WARNING  peovim.plugins.snippets         snippets: cannot load /home/chipl/.config/peovim/snippets/verilog.json: Invalid control character at: line 9 column 24 (char 168)
+17:19:24.636  WARNING  peovim.plugins.snippets         snippets: verilog → no snippets loaded
+17:19:24.636  WARNING  peovim.plugins.snippets         snippets: cannot load /home/chipl/.config/peovim/snippets/python.json: Illegal trailing comma before end of object: line 34 column 6 (char 764)
+17:19:24.636  WARNING  peovim.plugins.snippets         snippets: python → no snippets loaded
