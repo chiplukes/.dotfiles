@@ -174,6 +174,10 @@ def setup(api: EditorAPI) -> None:
     options.set("indentguides", "yes")
     options.set("clipboard", "unnamedplus")
     options.set("format_on_save", False)
+    options.set("undofile", True)  # persistent undo enabled
+    options.set("autosnapshot", True)  # enable periodic file snapshots
+    options.set("autosnapshot_interval", 60)
+    options.set("autosnapshot_scope", "all")  # also snapshot git-dirty files
     options.set("cursorblink", True)
     options.set("insertcursor", "bar")
     options.set("number", True)
