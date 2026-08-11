@@ -500,7 +500,7 @@ def setup(api: EditorAPI) -> None:
     # Example:
     # lsp.register_server("sh", ["bash-language-server", "start"])
 
-    api.git.verbose = True  # show git command output in messages for debugging
+    api.git.verbose = False  # show git command output in messages for debugging
 
     # ── Verilog / RTL ─────────────────────────────────────────────────────
     from peovim.plugins import verilog_lsp as _vl
