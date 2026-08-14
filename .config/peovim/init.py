@@ -97,7 +97,7 @@ def setup(api: EditorAPI) -> None:
         plugin_manager.load("peovim.plugins.svnsigns")
         plugin_manager.load("peovim.plugins.picker")
         plugin_manager.load("peovim.plugins.fquick")
-        #         plugin_manager.load("peovim.plugins.commentary")
+        plugin_manager.load("peovim.plugins.commentary")
         plugin_manager.load("peovim.plugins.surround")
         plugin_manager.load("peovim.plugins.align")
         plugin_manager.load("peovim.plugins.formatter")
