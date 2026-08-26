@@ -210,6 +210,7 @@ def setup(api: EditorAPI) -> None:
 
     # ── Misc ────────────────────────────────────────────────────────────
     keymap.nmap("<leader>pr", "<Plug>EditorPasteYank", desc="Paste yank register")
+    keymap.nmap("<leader>wg", "<Plug>WinGoto", desc="Goto window or panel")
 
     # ── Search ────────────────────────────────────────────────────────────
     keymap.nunmap("<leader>ff")
