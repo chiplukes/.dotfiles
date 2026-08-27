@@ -171,6 +171,8 @@ def setup(api: EditorAPI) -> None:
     options.set("expandtab", True)
     options.set("scrolloff", 8)
     options.set("which_key_enabled", True)
+    # While a sidebar panel is focused, which-key shows only these leader groups.
+    options.set("which_key_sidebar_groups", "p w")
     options.set("indentguides", "yes")
     options.set("clipboard", "unnamedplus")
     options.set("format_on_save", False)
@@ -239,6 +241,8 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>pb", "<Plug>BottomPanelToggle", desc="Toggle bottom panel")
     keymap.nmap("<leader>pc", "<Plug>CodemapToggle", desc="Codemap panel")
     keymap.nmap("<leader>pe", "<Plug>ExplorerToggle", desc="File explorer")
+    keymap.nunmap("<leader>fh")
+    keymap.nmap("<leader>pf", "<Plug>FileHistoryToggle", desc="File history panel")
     keymap.nunmap("<leader>o")
     keymap.nmap("<leader>po", "<Plug>OutlineToggle", desc="Outline sidebar")
     keymap.nmap("<leader>ph", "<Plug>LocalHistory", desc="Local history sidebar")
@@ -369,49 +373,63 @@ def setup(api: EditorAPI) -> None:
 
     # ── Window Management (<leader>w) ─────────────────────────────────────
     keymap.ngroup("<leader>w", "Window")
-    keymap.nmap("<leader>wv", ":vsplit<CR>", desc="Vertical split")
-    keymap.nmap("<leader>ws", ":split<CR>", desc="Horizontal split")
-    keymap.nmap("<leader>wc", ":close<CR>", desc="Close window")
-    keymap.nmap("<leader>wf", ":only<CR>", desc="Fullscreen (close others)")
+    keymap.nmap("<leader>wv", ":vsplit<CR>", desc="Vertical split", scope="editor")
+    keymap.nmap("<leader>ws", ":split<CR>", desc="Horizontal split", scope="editor")
+    keymap.nmap("<leader>wc", ":close<CR>", desc="Close window", scope="editor")
+    keymap.nmap("<leader>wf", ":only<CR>", desc="Fullscreen (close others)", scope="editor")
     keymap.nmap(
         "<leader>we",
         lambda: api.toggle_window_expand(0.75),
         desc="Expand window to 3/4 width",
+        scope="editor",
     )
     keymap.nmap(
         "<leader>w<",
         remember(lambda: api.resize_window("h", -1)),
         desc="Shrink window width",
+        scope="editor",
     )
     keymap.nmap(
         "<leader>w>",
         remember(lambda: api.resize_window("h", 1)),
         desc="Grow window width",
+        scope="editor",
     )
     keymap.nmap(
         "<leader>w-",
         remember(lambda: api.resize_window("v", -1)),
         desc="Shrink window height",
+        scope="editor",
     )
     keymap.nmap(
         "<leader>w+",
         remember(lambda: api.resize_window("v", 1)),
         desc="Grow window height",
+        scope="editor",
     )
     keymap.nmap(
-        "<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev"
+        "<leader>wh", remember(lambda: api.focus_window("h")), desc="Window left / prev",
+        scope="editor",
     )
     keymap.nmap(
         "<leader>wl",
         remember(lambda: api.focus_window("l")),
         desc="Window right / next",
+        scope="editor",
     )
     keymap.nmap(
-        "<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next"
+        "<leader>wj", remember(lambda: api.focus_window("j")), desc="Window down / next",
+        scope="editor",
     )
     keymap.nmap(
-        "<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev"
+        "<leader>wk", remember(lambda: api.focus_window("k")), desc="Window up / prev",
+        scope="editor",
     )
+
+    # Sidebar resize/close — repeatable, only while the sidebar is focused.
+    keymap.nmap("<leader>w[", remember("<Plug>SidebarShrink"), desc="Shrink sidebar", scope="sidebar")
+    keymap.nmap("<leader>w]", remember("<Plug>SidebarGrow"), desc="Grow sidebar", scope="sidebar")
+    keymap.nmap("<leader>wc", "<Plug>SidebarClose", desc="Close sidebar", scope="sidebar")
 
     # ── Window/Sidebar navigation (Alt + hjkl) ───────────────────────────
     # Alt-h/l wrap in both directions across editor windows.
