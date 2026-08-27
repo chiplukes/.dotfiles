@@ -530,6 +530,21 @@ def setup(api: EditorAPI) -> None:
         lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False),
         desc="Verilog hier-down selection",
     )
+    keymap.nmap(
+        "<leader>rc",
+        lambda ctx: _vl_plugin._show_verilog_code_actions(api, ctx=ctx),
+        desc="Verilog code actions",
+    )
+    keymap.nmap(
+        "<leader>re",
+        lambda ctx: _vl_plugin._signal_extract(api, ctx=ctx),
+        desc="Verilog extract from signal",
+    )
+    keymap.vmap(
+        "<leader>rc",
+        lambda ctx: _vl_plugin._show_verilog_code_actions(api, ctx=ctx),
+        desc="Verilog code actions",
+    )
     keymap.vmap(
         "<leader>ru",
         lambda ctx: _vl_plugin._preview_pull_up_selection(api, ctx=ctx),
@@ -539,6 +554,11 @@ def setup(api: EditorAPI) -> None:
         "<leader>rw",
         lambda ctx: _vl_plugin._prompt_push_down_range(api, ctx=ctx, apply_edit=False),
         desc="Verilog hier-down selection",
+    )
+    keymap.vmap(
+        "<leader>rc",
+        lambda ctx: _vl_plugin._show_verilog_code_actions(api, ctx=ctx),
+        desc="Verilog code actions",
     )
 
     # ── Copilot ────────────────────────────────────────────────────────
