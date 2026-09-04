@@ -358,16 +358,11 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("]c", "<Plug>CompareNextDiff", desc="Next compare diff")
     keymap.nmap("[c", "<Plug>ComparePrevDiff", desc="Prev compare diff")
 
-    # ── File info ─────────────────────────────────────────────────────────
-    keymap.ngroup("<leader>l", "Location/File")
+    # ── File ──────────────────────────────────────────────────────────────
+    # Removed editor_utils' default <leader>l* bindings (now on f-prefix via fquick).
     keymap.nunmap("<leader>lf")
     keymap.nunmap("<leader>lfc")
     keymap.nunmap("<leader>lfr")
-    keymap.nmap("<leader>li", "<Plug>EditorFileInfo", desc="File info")
-    keymap.nmap("<leader>lc", "<Plug>EditorCopyPath", desc="Copy full path")
-    keymap.nmap("<leader>lr", "<Plug>EditorCopyRel", desc="Copy relative path")
-
-    # ── File ──────────────────────────────────────────────────────────────
     keymap.nmap("<leader>e", "<Plug>ExplorerToggle", desc="File explorer")
     keymap.nmap("<C-^>", "<Plug>EditorAltFile", desc="Alternate file")
 
@@ -489,6 +484,10 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("fj", "<Plug>FquickSessionPickerDown", desc="Session files picker")
     keymap.nmap("fk", "<Plug>FquickSessionPickerUp", desc="Session files picker")
     keymap.nmap("f/", "<Plug>FquickWorkspacePicker", desc="Workspace files picker")
+    keymap.nmap("fP", "<Plug>FquickCopyFullPath", desc="Copy full path")
+    keymap.nmap("fp", "<Plug>FquickCopyRelPath", desc="Copy relative path")
+    keymap.nmap("fn", "<Plug>FquickCopyFilename", desc="Copy filename")
+    keymap.nmap("fi", "<Plug>FquickFileInfo", desc="File info")
     keymap.nmap("s", "<Plug>FlashJump", desc="Flash jump")
     keymap.vmap("s", "<Plug>FlashJump", desc="Flash jump")
     keymap.nmap(
