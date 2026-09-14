@@ -344,6 +344,7 @@ def setup(api: EditorAPI) -> None:
         "<leader>cj",
         "<leader>ck",
         "<leader>cs",
+        "<leader>cr",
     ):
         keymap.nunmap(_k)
     keymap.ngroup("<leader>d", "Diff")
@@ -353,8 +354,11 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>dj", "<Plug>CompareNextDiff", desc="Next compare diff")
     keymap.nmap("<leader>dk", "<Plug>ComparePrevDiff", desc="Prev compare diff")
     keymap.nmap("<leader>ds", "<Plug>CompareStop", desc="Stop compare")
+    keymap.ngroup("<leader>dm", "Merge")
     keymap.nmap("<leader>dm12", "<Plug>CompareMerge12", desc="Merge left to right")
     keymap.nmap("<leader>dm21", "<Plug>CompareMerge21", desc="Merge right to left")
+    keymap.nmap("<leader>dr", "<Plug>CompareRefresh", desc="Refresh diff")
+    keymap.nmap("<leader>dw", "<Plug>GitsignsDiffHead", desc="Diff working file vs HEAD")
     keymap.nmap("]c", "<Plug>CompareNextDiff", desc="Next compare diff")
     keymap.nmap("[c", "<Plug>ComparePrevDiff", desc="Prev compare diff")
 
