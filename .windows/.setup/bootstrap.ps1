@@ -57,6 +57,20 @@ Write-Host "Configuring dotfiles repository..."
 dotfiles config --local status.showUntrackedFiles no
 dotfiles config --local core.worktree $env:USERPROFILE
 
+# ~/.gitconfig routes github.com credentials through `gh auth git-credential`
+# (whichever GitHub account gh has active) by default, overridden back to the
+# OS credential manager for repos under projects/work|personal/** via
+# includeIf "gitdir:". That pattern does NOT match this bare repo (confirmed:
+# includeIf gitdir: doesn't reliably match a bare repo with a forced
+# core.worktree, even with an exact literal path) — so set the same override
+# directly as local config here instead, letting `dotfiles push`/`pull`
+# prompt for whichever GitHub account you want rather than silently using
+# gh's active one.
+dotfiles config --local credential.https://github.com.helper ""
+dotfiles config --local --add credential.https://github.com.helper manager
+dotfiles config --local credential.https://gist.github.com.helper ""
+dotfiles config --local --add credential.https://gist.github.com.helper manager
+
 # Set up branch tracking so 'dotfiles pull' works without specifying remote/branch
 Write-Host "Setting up branch tracking for $Branch..."
 dotfiles config branch.$Branch.remote origin

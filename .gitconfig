@@ -31,8 +31,34 @@
 [delta]
     features = side-by-side line-numbers decorations
     whitespace-error-style = 22
-    reverse
+	reverse = true
 [delta "decorations"]
     commit-decoration-style = bold yellow box ul
     file-style = bold yellow ul
     file-decoration-style = none
+[credential "https://github.com"]
+	helper = 
+	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+
+# Must come after the gh-based credential.https://github.com block above:
+# credential.helper values apply in file order, and gh's leading empty
+# "helper =" resets whatever came before it. Placing this include here
+# means it resets/overrides *after* gh's setup, so personal repos skip gh
+# entirely instead of inheriting whichever GitHub account gh has active.
+[includeIf "gitdir/i:**/projects/personal/**"]
+	path = ~/.gitconfig.personal
+
+# NOTE for repos that don't live under projects/work|personal/** — e.g. the
+# dotfiles bare repo itself (~/.dotfiles-bare, --work-tree=$HOME): includeIf
+# "gitdir:" does NOT reliably match bare repos with a forced core.worktree
+# (confirmed empirically — even an exact literal absolute-path pattern never
+# matched). Don't add a gitdir pattern for those; instead set the override
+# directly as local config on that repo, e.g.:
+#   dotfiles config --local credential.https://github.com.helper ""
+#   dotfiles config --local --add credential.https://github.com.helper manager
+# (and the same for gist.github.com). bootstrap.ps1 does this automatically
+# after cloning; bootstrap.sh should do the equivalent for its credential
+# helper on Linux/WSL.

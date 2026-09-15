@@ -1,0 +1,12 @@
+# Applied to any repo under projects/personal/** (see includeIf in ~/.gitconfig).
+# Resets the github.com/gist.github.com credential helper back to the
+# default Windows Git Credential Manager instead of `gh`, so pushes here
+# authenticate as whichever GitHub account you log into via the normal
+# browser prompt, independent of gh's currently "active" account (which is
+# your work account, chiplukes-sphere).
+[credential "https://github.com"]
+	helper =
+	helper = manager
+[credential "https://gist.github.com"]
+	helper =
+	helper = manager
