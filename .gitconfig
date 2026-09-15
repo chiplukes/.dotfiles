@@ -60,5 +60,10 @@
 #   dotfiles config --local credential.https://github.com.helper ""
 #   dotfiles config --local --add credential.https://github.com.helper manager
 # (and the same for gist.github.com). bootstrap.ps1 does this automatically
-# after cloning; bootstrap.sh should do the equivalent for its credential
-# helper on Linux/WSL.
+# after cloning.
+#
+# This whole gh-vs-manager scheme is Windows-only and intentionally not
+# mirrored in WSL: WSL's ~/.gitconfig sets credential.helper globally
+# (unconditionally, no gh) to the Windows GCM via the /mnt/c/... interop
+# path, so it already prompts for an account on every push — no silent
+# gh-active-account selection to guard against there.
