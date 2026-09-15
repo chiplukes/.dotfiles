@@ -1,0 +1,5 @@
+# .git-credential-helper is a shell script invoked via shebang on WSL/Linux —
+# a CRLF line ending there breaks it ("bad interpreter: bash^M: no such file
+# or directory"). Force LF on checkout regardless of core.autocrlf so this
+# can never depend on which OS last touched it.
+.git-credential-helper text eol=lf

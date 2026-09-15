@@ -36,18 +36,27 @@
     commit-decoration-style = bold yellow box ul
     file-style = bold yellow ul
     file-decoration-style = none
+
+# .git-credential-helper (tracked, executable, repo root) is one script that
+# works on every machine: WSL delegates to the Windows Git Credential Manager
+# over the /mnt/c interop path; everything else delegates to `gh auth
+# git-credential` (falling back to git's own credential-manager if gh isn't
+# on PATH). This is the DEFAULT for github.com/gist.github.com — see
+# .git-credential-helper's own header for why each OS branch exists.
 [credential "https://github.com"]
-	helper = 
-	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+	helper =
+	helper = !"$HOME/.git-credential-helper"
 [credential "https://gist.github.com"]
 	helper =
-	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+	helper = !"$HOME/.git-credential-helper"
 
-# Must come after the gh-based credential.https://github.com block above:
-# credential.helper values apply in file order, and gh's leading empty
-# "helper =" resets whatever came before it. Placing this include here
-# means it resets/overrides *after* gh's setup, so personal repos skip gh
-# entirely instead of inheriting whichever GitHub account gh has active.
+# Must come after the credential block above: credential.helper values apply
+# in file order, and an empty "helper =" resets whatever came before it.
+# Placing this include here means it resets/overrides *after* the default
+# above, so personal repos skip gh entirely instead of inheriting whichever
+# GitHub account gh has active (work, by default). On WSL this is a no-op —
+# .git-credential-helper already routes everything through the Windows GCM
+# there, gh is never in the loop to begin with.
 [includeIf "gitdir/i:**/projects/personal/**"]
 	path = ~/.gitconfig.personal
 
@@ -55,15 +64,9 @@
 # dotfiles bare repo itself (~/.dotfiles-bare, --work-tree=$HOME): includeIf
 # "gitdir:" does NOT reliably match bare repos with a forced core.worktree
 # (confirmed empirically — even an exact literal absolute-path pattern never
-# matched). Don't add a gitdir pattern for those; instead set the override
-# directly as local config on that repo, e.g.:
+# matched). Don't add a gitdir pattern for those; instead set the same
+# override directly as local config on that repo, e.g.:
 #   dotfiles config --local credential.https://github.com.helper ""
 #   dotfiles config --local --add credential.https://github.com.helper manager
-# (and the same for gist.github.com). bootstrap.ps1 does this automatically
-# after cloning.
-#
-# This whole gh-vs-manager scheme is Windows-only and intentionally not
-# mirrored in WSL: WSL's ~/.gitconfig sets credential.helper globally
-# (unconditionally, no gh) to the Windows GCM via the /mnt/c/... interop
-# path, so it already prompts for an account on every push — no silent
-# gh-active-account selection to guard against there.
+# bootstrap.ps1 does this automatically after cloning (Windows only — see
+# .git-credential-helper for why WSL doesn't need it).
