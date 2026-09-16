@@ -348,6 +348,19 @@ def setup(api: EditorAPI) -> None:
     ):
         keymap.nunmap(_k)
     keymap.ngroup("<leader>d", "Diff")
+    # Explorer-scoped variants MUST be registered before the global ones below —
+    # a scope="explorer" binding only coexists with a scope="" default for the
+    # same key if the scoped one is registered first (registering it after would
+    # silently delete the global default). Lets <leader>d1/d2/dc mark/launch a
+    # diff from the file highlighted in the explorer tree, same keys as in a
+    # normal buffer.
+    keymap.nmap("<leader>d1", "<Plug>ExplorerDiffMark1", desc="Mark diff file 1", scope="explorer")
+    keymap.nmap("<leader>d2", "<Plug>ExplorerDiffMark2", desc="Mark diff file 2", scope="explorer")
+    keymap.nmap("<leader>dc", "<Plug>ExplorerDiffLaunch", desc="Launch diff", scope="explorer")
+    # <leader>dw here is redundant — explorer.py already registers this exact
+    # scoped default itself at plugin-load time, before this runs — but kept
+    # explicit as a reference alongside d1/d2/dc above.
+    keymap.nmap("<leader>dw", "<Plug>ExplorerDiffHead", desc="Diff selected file vs HEAD", scope="explorer")
     keymap.nmap("<leader>d1", "<Plug>CompareSelect1", desc="Compare file 1")
     keymap.nmap("<leader>d2", "<Plug>CompareSelect2", desc="Compare file 2")
     keymap.nmap("<leader>dc", "<Plug>CompareSelected", desc="Compare selected files")
@@ -355,8 +368,8 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>dk", "<Plug>ComparePrevDiff", desc="Prev compare diff")
     keymap.nmap("<leader>ds", "<Plug>CompareStop", desc="Stop compare")
     keymap.ngroup("<leader>dm", "Merge")
-    keymap.nmap("<leader>dm12", "<Plug>CompareMerge12", desc="Merge left to right")
-    keymap.nmap("<leader>dm21", "<Plug>CompareMerge21", desc="Merge right to left")
+    keymap.nmap("<leader>dm1", "<Plug>CompareMerge12", desc="Merge left to right")
+    keymap.nmap("<leader>dm2", "<Plug>CompareMerge21", desc="Merge right to left")
     keymap.nmap("<leader>dr", "<Plug>CompareRefresh", desc="Refresh diff")
     keymap.nmap("<leader>dw", "<Plug>GitsignsDiffHead", desc="Diff working file vs HEAD")
     keymap.nmap("]c", "<Plug>CompareNextDiff", desc="Next compare diff")
@@ -510,6 +523,9 @@ def setup(api: EditorAPI) -> None:
     options.set("session_additions_enabled", True)
     options.set("session_additions_sign_char", "+")
     options.set("session_additions_sign_color", "80,200,80")
+    # Only normalize tabs->spaces on save, not on open — opening (or diffing)
+    # a file shouldn't silently dirty it before you've touched anything.
+    options.set("tabs_to_spaces_on_open", False)
     if plugin_manager is not None:
         plugin_manager.load("peovim.plugins.session_additions")
         plugin_manager.load("peovim.plugins.tabs_to_spaces")
