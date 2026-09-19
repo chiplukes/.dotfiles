@@ -6,6 +6,32 @@ local act = wezterm.action
 -- Module-level variable to hold the persistent window title set at startup.
 local persistent_window_title = nil
 
+-- Helper to resize the window by a pixel delta in each dimension.
+local function resize_window(window, dw, dh)
+  local dims = window:get_dimensions()
+  if dims then
+    window:set_inner_size(
+      math.max(480, dims.pixel_width + dw),
+      math.max(240, dims.pixel_height + dh)
+    )
+  end
+end
+
+-- Size the window to ~85% height and 75% width of the active screen.
+local function size_window_to_screen(gui_window)
+  if not gui_window then
+    return
+  end
+  local screens = wezterm.gui.screens()
+  local screen = screens and screens.active
+  if screen then
+    gui_window:set_inner_size(
+      math.floor(screen.width * 3 / 4),
+      math.floor(screen.height * 0.85)
+    )
+  end
+end
+
 local function get_launch_cwd(cmd)
   if cmd and cmd.cwd then
     return cmd.cwd
@@ -95,6 +121,8 @@ wezterm.on("gui-startup", function(cmd)
   local tab, pane, window = mux.spawn_window(cmd or { cwd = cwd })
   set_tab_title(tab, "terminal")
 
+  size_window_to_screen(window:gui_window())
+
   schedule_startup_menu(window, cwd)
 end)
 
@@ -111,29 +139,6 @@ wezterm.on("update-right-status", function(window, _)
     { Text = " A+S+N:new  A+S+H/L:tabs  A+S+J/K:panes  A+S+_:split  A+S+arrows:resize  F11:fullscreen " },
   })
 end)
-
--- Helper to resize the window by a pixel delta in each dimension.
-local function resize_window(window, dw, dh)
-  local dims = window:get_inner_size()
-  if dims then
-    window:set_inner_size(
-      math.max(480, dims.width + dw),
-      math.max(240, dims.height + dh)
-    )
-  end
-end
-
--- Size the window to ~85% height and 75% width of the active screen.
-local function size_window_to_screen(gui_window)
-  local screens = wezterm.gui.screens()
-  local screen = screens.active or screens[1]
-  if screen then
-    gui_window:set_inner_size(
-      math.floor(screen.width * 3 / 4),
-      math.floor(screen.height * 0.85)
-    )
-  end
-end
 
 -- This will hold the configuration.
 local config = wezterm.config_builder()
