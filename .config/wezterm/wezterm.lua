@@ -75,6 +75,10 @@ local function schedule_startup_menu(mux_window, cwd)
     local active_tab = mux_window:active_tab()
     local pane = active_tab and active_tab:active_pane()
 
+    if gui_window then
+      size_window_to_screen(gui_window)
+    end
+
     if gui_window and pane then
       show_startup_menu(gui_window, pane, mux_window, cwd)
     end
@@ -115,6 +119,18 @@ local function resize_window(window, dw, dh)
     window:set_inner_size(
       math.max(480, dims.width + dw),
       math.max(240, dims.height + dh)
+    )
+  end
+end
+
+-- Size the window to ~85% height and 75% width of the active screen.
+local function size_window_to_screen(gui_window)
+  local screens = wezterm.gui.screens()
+  local screen = screens.active or screens[1]
+  if screen then
+    gui_window:set_inner_size(
+      math.floor(screen.width * 3 / 4),
+      math.floor(screen.height * 0.85)
     )
   end
 end
