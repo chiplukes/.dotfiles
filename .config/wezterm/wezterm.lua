@@ -104,14 +104,29 @@ end)
 wezterm.on("update-right-status", function(window, _)
   window:set_right_status(wezterm.format {
     { Foreground = { AnsiColor = "Silver" } },
-    { Text = " A+S+N:new  A+S+H/L:tabs  A+S+J/K:panes  A+S+_:split  F11:fullscreen " },
+    { Text = " A+S+N:new  A+S+H/L:tabs  A+S+J/K:panes  A+S+_:split  A+S+arrows:resize  F11:fullscreen " },
   })
 end)
+
+-- Helper to resize the window by a pixel delta in each dimension.
+local function resize_window(window, dw, dh)
+  local dims = window:get_inner_size()
+  if dims then
+    window:set_inner_size(
+      math.max(480, dims.width + dw),
+      math.max(240, dims.height + dh)
+    )
+  end
+end
 
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 
 config.default_gui_startup_args = { "start", "--always-new-process", "--cwd", "." }
+
+-- Initial window size (in columns x rows of text).
+config.initial_cols = 120
+config.initial_rows = 50
 
 -- Set default shell based on OS
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
@@ -251,6 +266,12 @@ config.keys = {
 --   { key = "RightArrow", mods = "CTRL|SHIFT|ALT", action = wezterm.action.AdjustPaneSize { "Right", 5 } },
 --   { key = "UpArrow", mods = "CTRL|SHIFT|ALT", action = wezterm.action.AdjustPaneSize { "Up", 5 } },
 --   { key = "DownArrow", mods = "CTRL|SHIFT|ALT", action = wezterm.action.AdjustPaneSize { "Down", 5 } },
+
+  -- Resize the window itself (Alt+Shift+arrows)
+  { key = "UpArrow",    mods = "ALT|SHIFT", action = wezterm.action_callback(function(window) resize_window(window, 0, 40) end) },
+  { key = "DownArrow",  mods = "ALT|SHIFT", action = wezterm.action_callback(function(window) resize_window(window, 0, -40) end) },
+  { key = "LeftArrow",  mods = "ALT|SHIFT", action = wezterm.action_callback(function(window) resize_window(window, -40, 0) end) },
+  { key = "RightArrow", mods = "ALT|SHIFT", action = wezterm.action_callback(function(window) resize_window(window, 40, 0) end) },
 
 --   -- Close pane
 --   { key = "w", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentPane { confirm = true } },
