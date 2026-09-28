@@ -170,6 +170,8 @@ def setup(api: EditorAPI) -> None:
     options.set("tabstop", 4)
     options.set("expandtab", True)
     options.set("scrolloff", 8)
+    options.set("ignorecase", True)  # / search: case-insensitive by default
+    options.set("smartcase", True)  # ...unless the pattern has an uppercase letter, then case-sensitive
     options.set("which_key_enabled", True)
     # While a sidebar panel is focused, which-key shows only these leader groups.
     options.set("which_key_sidebar_groups", "p w")

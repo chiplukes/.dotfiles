@@ -1,0 +1,221 @@
+17:33:24.357  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14472.1s)
+17:34:24.362  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14532.1s)
+17:35:24.372  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14592.1s)
+17:36:24.378  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14652.1s)
+17:37:24.389  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14712.1s)
+17:38:24.397  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14772.1s)
+17:39:24.405  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14832.1s)
+17:40:24.421  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14892.1s)
+17:41:24.423  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=14952.1s)
+17:42:24.440  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15012.1s)
+17:43:24.456  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15072.2s)
+17:44:24.473  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15132.2s)
+17:45:24.486  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15192.2s)
+17:46:24.497  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15252.2s)
+17:47:24.499  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15312.2s)
+17:49:32.337  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15440.0s)
+17:49:32.341  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 2 open documents
+17:49:32.341  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:49:32.354  DEBUG    peovim.plugins.local_history    autosnapshot git: captured 0 files from /home/chipl/projects/personal/github/peovim
+17:50:32.342  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15500.0s)
+17:50:32.343  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 2 open documents
+17:50:32.343  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:50:32.345  DEBUG    peovim.plugins.local_history    autosnapshot git: captured 0 files from /home/chipl/projects/personal/github/peovim
+17:51:32.355  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15560.1s)
+17:51:32.356  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 2 open documents
+17:51:32.356  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:51:32.358  DEBUG    peovim.plugins.local_history    autosnapshot git: captured 0 files from /home/chipl/projects/personal/github/peovim
+17:52:32.365  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15620.1s)
+17:52:32.365  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 2 open documents
+17:52:32.366  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:52:32.370  DEBUG    peovim.plugins.local_history    autosnapshot git: captured 0 files from /home/chipl/projects/personal/github/peovim
+17:53:32.369  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15680.1s)
+17:53:32.369  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 3 open documents
+17:53:32.370  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:53:32.373  DEBUG    peovim.plugins.local_history    autosnapshot git: captured 0 files from /home/chipl/projects/personal/github/peovim
+17:54:32.381  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15740.1s)
+17:54:32.386  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 4 open documents
+17:54:32.386  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:54:32.386  DEBUG    peovim.plugins.local_history    autosnapshot git: no project root found
+17:55:32.387  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=15800.1s)
+17:55:32.387  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 4 open documents
+17:55:32.388  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+17:55:32.388  DEBUG    peovim.plugins.local_history    autosnapshot git: no project root found
+18:10:05.439  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=16673.1s)
+18:10:15.586  DEBUG    peovim.core.document            undo flushed for /home/chipl/projects/personal/github/peovim/peovim/__init__.py: stack=1 redo=0 dirty=38
+18:10:20.607  DEBUG    peovim.core.document            undo flushed for /home/chipl/projects/personal/github/peovim/peovim/__init__.py: stack=1 redo=0 dirty=44
+18:10:25.499  DEBUG    peovim.core.document            undo flushed for /home/chipl/projects/personal/github/peovim/peovim/__init__.py: stack=2 redo=0 dirty=0
+18:10:36.261  DEBUG    peovim.core.document            undo restore: no undo file for /home/chipl/.config/peovim/peovim_logview.txt
+18:11:05.436  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=16733.1s)
+15:00:16.523  INFO     peovim.main                     renderer: native (Cython)
+15:00:16.590  DEBUG    peovim.core.document            undo restore: no undo file for /tmp/peovim_complete_test/scratch.py
+15:00:16.615  INFO     peovim                          init.py -begin
+15:00:16.615  INFO     peovim                          init.py -end
+15:00:16.616  INFO     peovim.plugins                  loaded peovim.plugins.guess_indent
+15:00:16.616  INFO     peovim.plugins                  loaded peovim.plugins.todo
+15:00:16.619  INFO     peovim.plugins                  loaded peovim.plugins.gitsigns
+15:00:16.620  INFO     peovim.plugins                  loaded peovim.plugins.svnsigns
+15:00:16.625  INFO     peovim.plugins                  loaded peovim.plugins.picker
+15:00:16.627  INFO     peovim.plugins                  loaded peovim.plugins.fquick
+15:00:16.628  INFO     peovim.plugins                  loaded peovim.plugins.commentary
+15:00:16.630  INFO     peovim.plugins                  loaded peovim.plugins.surround
+15:00:16.630  INFO     peovim.plugins                  loaded peovim.plugins.align
+15:00:16.630  INFO     peovim.plugins                  loaded peovim.plugins.formatter
+15:00:16.631  INFO     peovim.plugins                  loaded peovim.plugins.which_key
+15:00:16.631  INFO     peovim.plugins                  loaded peovim.plugins.session
+15:00:16.634  INFO     peovim.plugins                  loaded peovim.plugins.explorer
+15:00:16.638  INFO     peovim.plugins                  loaded peovim.plugins.markers
+15:00:16.640  INFO     peovim.plugins                  loaded peovim.plugins.compare
+15:00:16.641  INFO     peovim.plugins                  loaded peovim.plugins.diagnostics_panel
+15:00:16.641  INFO     peovim.plugins                  loaded peovim.plugins.outline
+15:00:16.642  INFO     peovim.plugins                  loaded peovim.plugins.references_panel
+15:00:16.642  INFO     peovim.plugins                  loaded peovim.plugins.workspace_symbols
+15:00:16.643  INFO     peovim.plugins                  loaded peovim.plugins.repl
+15:00:16.644  INFO     peovim.plugins                  loaded peovim.plugins.dashboard
+15:00:16.646  INFO     peovim.plugins                  loaded peovim.plugins.editorconfig
+15:00:16.646  DEBUG    peovim.plugins.lsp              LSP: detected python server: ty
+15:00:16.646  DEBUG    peovim.lsp.manager              Registered LSP server 'ty' for filetype 'python'
+15:00:16.647  DEBUG    peovim.plugins.lsp              LSP: detected python secondary server: ruff
+15:00:16.647  DEBUG    peovim.lsp.manager              Registered LSP server 'ruff' for filetype 'python'
+15:00:16.740  INFO     peovim.plugins                  loaded peovim.plugins.lsp
+15:00:16.741  INFO     peovim.plugins                  loaded peovim.plugins.editor_utils
+15:00:16.742  INFO     peovim.plugins                  loaded peovim.plugins.flash
+15:00:16.744  INFO     peovim.plugins                  loaded peovim.plugins.local_history
+15:00:16.744  INFO     peovim.plugins                  loaded peovim.plugins.perf_panel
+15:00:16.745  DEBUG    peovim.plugins.snippets         snippets: config_dir=/home/chipl/.config/peovim, mappings=[]
+15:00:16.745  DEBUG    peovim.plugins.snippets         snippets: loaded 0 filetypes
+15:00:16.745  INFO     peovim.plugins.snippets         snippets: plugin ready
+15:00:16.745  INFO     peovim.plugins                  loaded peovim.plugins.snippets
+15:00:16.746  INFO     peovim.plugins                  loaded peovim.plugins.copilot
+15:00:16.772  WARNING  peovim.plugins.verilog_lsp.plugin  verilog_lsp: 'veriforge-lsp' not found — run: uv tool install veriforge
+15:00:16.776  INFO     peovim.plugins                  loaded peovim.plugins.verilog_lsp
+15:00:16.778  INFO     peovim.plugins                  loaded peovim.plugins.codemap
+15:00:16.778  INFO     peovim.plugins                  loaded peovim.plugins.filehistory
+15:00:16.778  DEBUG    peovim.core.options             set leader=' '  scope=global
+15:00:16.778  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='leader'  value=' '  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set tabstop=4  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='tabstop'  value=4  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set expandtab=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='expandtab'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set scrolloff=8  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='scrolloff'  value=8  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set which_key_enabled=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='which_key_enabled'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set indentguides='yes'  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='indentguides'  value='yes'  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set clipboard='unnamedplus'  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='clipboard'  value='unnamedplus'  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set format_on_save=False  scope=global  (untyped)
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='format_on_save'  value=False  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set undofile=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='undofile'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set autosnapshot=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='autosnapshot'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set autosnapshot_interval=60  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='autosnapshot_interval'  value=60  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set autosnapshot_scope='all'  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='autosnapshot_scope'  value='all'  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set cursorblink=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='cursorblink'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set insertcursor='bar'  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='insertcursor'  value='bar'  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set number=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='number'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set relativenumber=False  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='relativenumber'  value=False  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set scrollbar=True  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='scrollbar'  value=True  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set dashboard_logo='  ██████╗ ███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗\n  ██╔══██╗██╔════╝██╔═══██╗██║   ██║██║████╗ ████║\n  ██████╔╝█████╗  ██║   ██║██║   ██║██║██╔████╔██║\n  ██╔═══╝ ██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║\n  ██║     ███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║\n  ╚═╝     ╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝'  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='dashboard_logo'  value='  ██████╗ ███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗\n  ██╔══██╗██╔════╝██╔═══██╗██║   ██║██║████╗ ████║\n  ██████╔╝█████╗  ██║   ██║██║   ██║██║██╔████╔██║\n  ██╔═══╝ ██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║\n  ██║     ███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║\n  ╚═╝     ╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝'  scope='global'
+15:00:16.779  DEBUG    peovim.core.options             set snippets_mappings={'verilog': ['snippets/verilog.json'], 'python': ['snippets/python.json']}  scope=global
+15:00:16.779  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='snippets_mappings'  value={'verilog': ['snippets/verilog.json'], 'python': ['snippets/python.json']}  scope='global'
+15:00:16.781  DEBUG    peovim.core.options             set session_additions_enabled=True  scope=global  (untyped)
+15:00:16.781  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='session_additions_enabled'  value=True  scope='global'
+15:00:16.781  DEBUG    peovim.core.options             set session_additions_sign_char='+'  scope=global  (untyped)
+15:00:16.781  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='session_additions_sign_char'  value='+'  scope='global'
+15:00:16.781  DEBUG    peovim.core.options             set session_additions_sign_color='80,200,80'  scope=global  (untyped)
+15:00:16.781  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='session_additions_sign_color'  value='80,200,80'  scope='global'
+15:00:16.781  DEBUG    peovim.core.options             set session_additions_enabled=True  scope=global
+15:00:16.781  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='session_additions_enabled'  value=True  scope='global'
+15:00:16.781  DEBUG    peovim.core.options             set session_additions_sign_char='+'  scope=global
+15:00:16.781  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='session_additions_sign_char'  value='+'  scope='global'
+15:00:16.781  DEBUG    peovim.core.options             set session_additions_sign_color='80,200,80'  scope=global
+15:00:16.781  DEBUG    peovim.event_bus                emit 'option_changed'  handlers=1  name='session_additions_sign_color'  value='80,200,80'  scope='global'
+15:00:16.781  INFO     peovim.plugins                  loaded peovim.plugins.session_additions
+15:00:16.782  INFO     peovim.plugins                  loaded peovim.plugins.tabs_to_spaces
+15:00:16.846  DEBUG    peovim.event_bus                emit 'editor_ready'  handlers=7  
+15:00:16.846  DEBUG    peovim.plugins.lsp              LSP editor_ready: scanning open buffers
+15:00:16.847  DEBUG    peovim.lsp.manager              attach: path=/tmp/peovim_complete_test/scratch.py filetype='python'
+15:00:16.847  DEBUG    peovim.lsp.manager              attach: key=('python', '/tmp/peovim_complete_test', ('ty', 'server'))
+15:00:16.849  DEBUG    peovim.lsp.manager              attach: key=('python', '/tmp/peovim_complete_test', ('ruff', 'server'))
+15:00:16.849  DEBUG    peovim.plugins.snippets         snippets: config_dir=/home/chipl/.config/peovim, mappings=['verilog', 'python']
+15:00:16.849  DEBUG    peovim.plugins.snippets         snippets: loading verilog → /home/chipl/.config/peovim/snippets/verilog.json
+15:00:16.849  WARNING  peovim.plugins.snippets         snippets: cannot load /home/chipl/.config/peovim/snippets/verilog.json: Invalid control character at: line 9 column 24 (char 182)
+15:00:16.850  WARNING  peovim.plugins.snippets         snippets:   stripped content starts: '{\n    "module": {\n        "prefix": "mod",\n        "body": [\n            "module $CURSORPOS(",\n            "    FIXME",\n            ");",\n            "FIXME",\n            "endmodule \n        ],\n        "description": "module ... endmodule"\n    },\n    "always": {\n        "prefix": "al",\n        "body'
+15:00:16.850  WARNING  peovim.plugins.snippets         snippets: verilog → no snippets loaded
+15:00:16.850  DEBUG    peovim.plugins.snippets         snippets: loading python → /home/chipl/.config/peovim/snippets/python.json
+15:00:16.850  INFO     peovim.plugins.snippets         snippets: python → 1 snippets loaded
+15:00:16.850  DEBUG    peovim.plugins.snippets         snippets: loaded 1 filetypes
+15:00:16.850  DEBUG    peovim.event_bus                emit 'buffer_opened'  handlers=19  buf_id=137133167722576  path='/tmp/peovim_complete_test/scratch.py'  filetype='python'
+15:00:16.852  DEBUG    peovim.plugins.lsp              LSP buffer_opened: buf_id=137133167722576
+15:00:16.852  DEBUG    peovim.lsp.manager              attach: path=/tmp/peovim_complete_test/scratch.py filetype='python'
+15:00:16.852  DEBUG    peovim.lsp.manager              attach: key=('python', '/tmp/peovim_complete_test', ('ty', 'server'))
+15:00:16.852  DEBUG    peovim.lsp.manager              attach: key=('python', '/tmp/peovim_complete_test', ('ruff', 'server'))
+15:00:16.852  DEBUG    peovim.plugins.lsp              LSP buffer_opened: found doc path=/tmp/peovim_complete_test/scratch.py
+15:00:16.859  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-09-10 15:00:16.858863150  INFO Version: 0.0.59
+15:00:16.861  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-09-10 15:00:16.861108330  INFO Client does not support workspace configuration, initializing workspaces using the initialization options
+15:00:16.872  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-09-10 15:00:16.872271371  INFO Defaulting to python-platform `linux`
+15:00:16.872  WARNING  peovim.lsp.client               LSP stderr [ruff]: 2026-09-10 15:00:16.872062448  INFO No workspace options found for file:///tmp/peovim_complete_test, using default options
+15:00:16.874  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-09-10 15:00:16.873996669  INFO Python version: Python 3.14, platform: linux
+15:00:16.879  WARNING  peovim.lsp.client               LSP stderr [ty]: 2026-09-10 15:00:16.879672051  WARN Your LSP client doesn't support file watching: You may see stale results when files change outside the editor
+15:00:16.885  WARNING  peovim.lsp.client               LSP stderr [ruff]: 2026-09-10 15:00:16.885121209  INFO Registering workspace: /tmp/peovim_complete_test
+15:00:16.885  WARNING  peovim.lsp.client               LSP stderr [ruff]: 2026-09-10 15:00:16.885211172  WARN LSP client does not support dynamic capability registration - automatic configuration reloading will not be available.
+15:00:16.887  DEBUG    peovim.ui.runtime_controller    autosnapshot primed: first tick at 11863.932175, next in 60s
+15:00:16.905  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'invalid-syntax', 'message': 'Expected an identifier', 'range': {'end': {'character': 0, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'Ruff', 'tags': []}]  count=1
+15:00:16.922  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'unresolved-attribute', 'codeDescription': {'href': 'https://ty.dev/rules#unresolved-attribute'}, 'data': None, 'message': 'Module `os` has no member ``', 'range': {'end': {'character': 7, 'line': 2}, 'start': {'character': 4, 'line': 2}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected an identifier', 'range': {'end': {'character': 0, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'ty'}]  count=2
+15:01:16.893  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=11923.9s)
+15:01:16.894  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 1 open documents
+15:01:16.894  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+15:01:16.894  DEBUG    peovim.plugins.local_history    autosnapshot git: no project root found
+15:02:08.014  DEBUG    peovim.ui.input_controller      KEY='G'  cmdline=off  mode=normal  flash=off
+15:02:08.014  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='G' normal_key_after=None cmdline=False
+15:02:08.014  DEBUG    peovim.ui.input_controller      ENGINE: mode=normal actions=['MoveCursor']
+15:02:08.014  DEBUG    peovim.event_bus                emit 'cursor_moved'  handlers=8  buf_id=137133167722576  line=3  col=0
+15:02:08.016  DEBUG    peovim.ui.input_controller      KEY='A'  cmdline=off  mode=normal  flash=off
+15:02:08.016  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='A' normal_key_after=None cmdline=False
+15:02:08.016  DEBUG    peovim.ui.input_controller      ENGINE: mode=insert actions=['EnterInsertMode']
+15:02:08.016  DEBUG    peovim.event_bus                emit 'insert_entered'  handlers=1  buf_id=137133167722576
+15:02:08.321  DEBUG    peovim.ui.input_controller      KEY='<C-n>'  cmdline=off  mode=insert  flash=off
+15:02:08.321  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='<C-n>' normal_key_after=None cmdline=False
+15:02:08.321  DEBUG    peovim.ui.input_controller      ENGINE: mode=insert actions=['RunPlugin']
+15:02:16.899  DEBUG    peovim.ui.runtime_controller    autosnapshot firing (overdue=False, idle=11983.9s)
+15:02:16.900  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing 1 open documents
+15:02:16.900  DEBUG    peovim.plugins.local_history    autosnapshot tick: capturing git-dirty files
+15:02:16.900  DEBUG    peovim.plugins.local_history    autosnapshot git: no project root found
+15:02:20.704  DEBUG    peovim.ui.input_controller      KEY='<Esc>'  cmdline=off  mode=insert  flash=off
+15:02:21.006  DEBUG    peovim.ui.input_controller      KEY='<A-:>'  cmdline=off  mode=insert  flash=off
+15:02:21.006  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='<A-:>' normal_key_after=None cmdline=False
+15:02:21.006  DEBUG    peovim.ui.input_controller      ENGINE: mode=insert actions=[]
+15:02:21.006  DEBUG    peovim.ui.input_controller      KEY='q'  cmdline=off  mode=insert  flash=off
+15:02:21.006  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='q' normal_key_after=None cmdline=False
+15:02:21.006  DEBUG    peovim.ui.input_controller      ENGINE: mode=insert actions=['InsertText']
+15:02:21.006  DEBUG    peovim.event_bus                emit 'buffer_text_changed'  handlers=5  buf_id=137133167722576  path='/tmp/peovim_complete_test/scratch.py'  start_line=3  start_col=0  end_line=3  end_col=0  new_text='q'
+15:02:21.007  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'unresolved-attribute', 'codeDescription': {'href': 'https://ty.dev/rules#unresolved-attribute'}, 'data': None, 'message': 'Module `os` has no member ``', 'range': {'end': {'character': 7, 'line': 2}, 'start': {'character': 4, 'line': 2}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected an identifier', 'range': {'end': {'character': 1, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'ty'}]  count=2
+15:02:21.007  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'invalid-syntax', 'message': 'Expected an identifier', 'range': {'end': {'character': 1, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'Ruff', 'tags': []}]  count=1
+15:02:21.007  DEBUG    peovim.event_bus                emit 'buffer_changed'  handlers=8  buf_id=137133167722576
+15:02:21.007  DEBUG    peovim.ui.input_controller      KEY='!'  cmdline=off  mode=insert  flash=off
+15:02:21.007  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='!' normal_key_after=None cmdline=False
+15:02:21.007  DEBUG    peovim.ui.input_controller      ENGINE: mode=insert actions=['InsertText']
+15:02:21.008  DEBUG    peovim.event_bus                emit 'buffer_text_changed'  handlers=5  buf_id=137133167722576  path='/tmp/peovim_complete_test/scratch.py'  start_line=3  start_col=1  end_line=3  end_col=1  new_text='!'
+15:02:21.008  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'unresolved-attribute', 'codeDescription': {'href': 'https://ty.dev/rules#unresolved-attribute'}, 'data': None, 'message': 'Module `os` has no member ``', 'range': {'end': {'character': 7, 'line': 2}, 'start': {'character': 4, 'line': 2}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected an identifier', 'range': {'end': {'character': 2, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'ty'}]  count=2
+15:02:21.008  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'invalid-syntax', 'message': 'Expected an identifier', 'range': {'end': {'character': 2, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'Ruff', 'tags': []}]  count=1
+15:02:21.008  DEBUG    peovim.event_bus                emit 'buffer_changed'  handlers=8  buf_id=137133167722576
+15:02:21.008  DEBUG    peovim.ui.input_controller      KEY='<CR>'  cmdline=off  mode=insert  flash=off
+15:02:21.008  DEBUG    peovim.ui.input_controller      ROUTE: normal_key='<CR>' normal_key_after=None cmdline=False
+15:02:21.008  DEBUG    peovim.ui.input_controller      ENGINE: mode=insert actions=['InsertNewline']
+15:02:21.008  DEBUG    peovim.event_bus                emit 'buffer_text_changed'  handlers=5  buf_id=137133167722576  path='/tmp/peovim_complete_test/scratch.py'  start_line=3  start_col=2  end_line=3  end_col=2  new_text='\n'
+15:02:21.008  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'unresolved-attribute', 'codeDescription': {'href': 'https://ty.dev/rules#unresolved-attribute'}, 'data': None, 'message': 'Module `os` has no member ``', 'range': {'end': {'character': 7, 'line': 2}, 'start': {'character': 4, 'line': 2}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected an identifier', 'range': {'end': {'character': 0, 'line': 4}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'ty'}]  count=2
+15:02:21.009  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'invalid-syntax', 'message': 'Expected an identifier', 'range': {'end': {'character': 0, 'line': 4}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'Ruff', 'tags': []}]  count=1
+15:02:21.009  DEBUG    peovim.event_bus                emit 'buffer_changed'  handlers=8  buf_id=137133167722576
+15:02:21.167  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'invalid-syntax', 'message': 'Expected an identifier', 'range': {'end': {'character': 0, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'Ruff', 'tags': []}, {'code': 'invalid-syntax', 'message': 'Expected a statement', 'range': {'end': {'character': 2, 'line': 3}, 'start': {'character': 1, 'line': 3}}, 'severity': 1, 'source': 'Ruff', 'tags': []}, {'code': 'invalid-syntax', 'message': 'Expected a statement', 'range': {'end': {'character': 0, 'line': 4}, 'start': {'character': 2, 'line': 3}}, 'severity': 1, 'source': 'Ruff', 'tags': []}]  count=3
+15:02:21.167  DEBUG    peovim.event_bus                emit 'diagnostics_updated'  handlers=1  path='/tmp/peovim_complete_test/scratch.py'  diagnostics=[{'code': 'unresolved-attribute', 'codeDescription': {'href': 'https://ty.dev/rules#unresolved-attribute'}, 'data': None, 'message': 'Module `os` has no member ``', 'range': {'end': {'character': 7, 'line': 2}, 'start': {'character': 4, 'line': 2}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected an identifier', 'range': {'end': {'character': 0, 'line': 3}, 'start': {'character': 7, 'line': 2}}, 'severity': 1, 'source': 'ty'}, {'code': 'unresolved-reference', 'codeDescription': {'href': 'https://ty.dev/rules#unresolved-reference'}, 'data': None, 'message': 'Name `q` used when not defined', 'range': {'end': {'character': 1, 'line': 3}, 'start': {'character': 0, 'line': 3}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected a statement', 'range': {'end': {'character': 2, 'line': 3}, 'start': {'character': 1, 'line': 3}}, 'severity': 1, 'source': 'ty'}, {'code': 'invalid-syntax', 'data': None, 'message': 'Expected a statement', 'range': {'end': {'character': 0, 'line': 4}, 'start': {'character': 2, 'line': 3}}, 'severity': 1, 'source': 'ty'}]  count=5
