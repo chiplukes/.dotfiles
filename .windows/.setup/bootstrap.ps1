@@ -65,11 +65,14 @@ dotfiles config --local core.worktree $env:USERPROFILE
 # core.worktree, even with an exact literal path) — so set the same override
 # directly as local config here instead, letting `dotfiles push`/`pull`
 # prompt for whichever GitHub account you want rather than silently using
-# gh's active one.
+# gh's active one. Uses the helper script's --gcm mode rather than plain
+# `manager`, which only resolves on Git for Windows >= 2.39 (see
+# .git-credential-helper). Left unquoted because Windows PowerShell 5.1 mangles
+# embedded double quotes passed to native commands.
 dotfiles config --local credential.https://github.com.helper ""
-dotfiles config --local --add credential.https://github.com.helper manager
+dotfiles config --local --add credential.https://github.com.helper '!$HOME/.git-credential-helper --gcm'
 dotfiles config --local credential.https://gist.github.com.helper ""
-dotfiles config --local --add credential.https://gist.github.com.helper manager
+dotfiles config --local --add credential.https://gist.github.com.helper '!$HOME/.git-credential-helper --gcm'
 
 # Set up branch tracking so 'dotfiles pull' works without specifying remote/branch
 Write-Host "Setting up branch tracking for $Branch..."
