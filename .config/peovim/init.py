@@ -359,10 +359,11 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>d1", "<Plug>ExplorerDiffMark1", desc="Mark diff file 1", scope="explorer")
     keymap.nmap("<leader>d2", "<Plug>ExplorerDiffMark2", desc="Mark diff file 2", scope="explorer")
     keymap.nmap("<leader>dc", "<Plug>ExplorerDiffLaunch", desc="Launch diff", scope="explorer")
-    # <leader>dw here is redundant — explorer.py already registers this exact
-    # scoped default itself at plugin-load time, before this runs — but kept
-    # explicit as a reference alongside d1/d2/dc above.
+    # Keep panel variants before the global defaults so all contexts coexist.
     keymap.nmap("<leader>dw", "<Plug>ExplorerDiffHead", desc="Diff selected file vs HEAD", scope="explorer")
+    keymap.nmap("<leader>dp", "<Plug>ExplorerDiffPrevious", desc="Diff HEAD vs parent", scope="explorer")
+    keymap.nmap("<leader>dw", "<Plug>GitsignsPanelDiffWorking", desc="Diff revision vs working file", scope="git-status")
+    keymap.nmap("<leader>dp", "<Plug>GitsignsPanelDiffPrevious", desc="Diff commit vs parent", scope="git-status")
     keymap.nmap("<leader>d1", "<Plug>CompareSelect1", desc="Compare file 1")
     keymap.nmap("<leader>d2", "<Plug>CompareSelect2", desc="Compare file 2")
     keymap.nmap("<leader>dc", "<Plug>CompareSelected", desc="Compare selected files")
@@ -374,6 +375,7 @@ def setup(api: EditorAPI) -> None:
     keymap.nmap("<leader>dm2", "<Plug>CompareMerge21", desc="Merge right to left")
     keymap.nmap("<leader>dr", "<Plug>CompareRefresh", desc="Refresh diff")
     keymap.nmap("<leader>dw", "<Plug>GitsignsDiffHead", desc="Diff working file vs HEAD")
+    keymap.nmap("<leader>dp", "<Plug>GitsignsDiffPrevious", desc="Diff HEAD vs parent")
     keymap.nmap("]c", "<Plug>CompareNextDiff", desc="Next compare diff")
     keymap.nmap("[c", "<Plug>ComparePrevDiff", desc="Prev compare diff")
 
