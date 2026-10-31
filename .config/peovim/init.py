@@ -187,6 +187,9 @@ def setup(api: EditorAPI) -> None:
     options.set("number", True)
     options.set("relativenumber", False)
     options.set("scrollbar", True)
+    # Soft-wrap Markdown and plain text only.
+    options.set("wrap", False)
+    options.set("wrapfiletypes", "markdown,text")
     options.set(
         "dashboard_logo",
         """\
